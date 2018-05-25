@@ -1,7 +1,5 @@
 # Soteria
 
-[![Build Status](https://travis-ci.org/javaee/security-soteria.svg?branch=master)](https://travis-ci.org/javaee/security-soteria)
-
 Java EE Security (JSR 375) RI
 
 Building
