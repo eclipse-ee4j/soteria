@@ -287,7 +287,7 @@ public class LdapIdentityStoreDefinitionAnnotationLiteral extends AnnotationLite
     
     @Override
     public String url() {
-        return url;
+        return hasDeferredExpressions? evalELExpression(url) : url;
     }
     
     @Override
