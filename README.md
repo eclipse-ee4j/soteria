@@ -24,11 +24,12 @@ Alternatively the sample applications can be build for a server that does provid
 
 ``mvn clean package -Pprovided``
 
-There are 3 CI targets provided to test Soteria against:
+There are 4 CI targets provided to test Soteria against:
 
 * payara
 * wildfly
 * tomee
+* openliberty
 
 Testing against any of these is done by activating the maven profile with the same name. E.g.
 
