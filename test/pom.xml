@@ -21,9 +21,9 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.glassfish.soteria</groupId>
-        <artifactId>parent</artifactId>
-        <version>1.1-b01-SNAPSHOT</version>
+       <groupId>org.glassfish.soteria</groupId>
+       <artifactId>parent</artifactId>
+       <version>1.1-b01-SNAPSHOT</version>
     </parent>
 
     <groupId>org.glassfish.soteria.test</groupId>
@@ -139,18 +139,18 @@
     <profiles>
 
         <!--
-          This profile assumes a target that already has the Soteria libraries.
-          In Java EE 8 that would be the default. E.g. in the case of GlassFish/Payara
-          a javax.security.enterprise-1.0-b07-SNAPSHOT.jar in [gf_home]/glassfish/modules
-        -->
+            This profile assumes a target that already has the Soteria libraries.
+            In Java EE 8 that would be the default. E.g. in the case of GlassFish/Payara
+            a javax.security.enterprise-1.0-b07-SNAPSHOT.jar in [gf_home]/glassfish/modules
+          -->
         <profile>
             <id>provided</id>
             <dependencies>
                 <dependency>
-                    <groupId>javax.security.enterprise</groupId>
-                    <artifactId>javax.security.enterprise-api</artifactId>
-                    <version>${api_dependency_version}</version>
-                    <scope>provided</scope>
+                   <groupId>javax.security.enterprise</groupId>
+                   <artifactId>javax.security.enterprise-api</artifactId>
+                   <version>${api_dependency_version}</version>
+                   <scope>provided</scope>
                 </dependency>
             </dependencies>
         </profile>
@@ -178,7 +178,7 @@
         <profile>
             <id>glassfish</id>
             
-            <repositories>
+           <repositories>
                 <repository>
                     <id>glassfish Promoted</id>
                     <url>https://maven.java.net/content/repositories/promoted/</url>
@@ -348,7 +348,7 @@
             </dependencies>
         </profile>
         
-        <profile>
+         <profile>
             <id>glassfish-remote</id>
             
             <dependencies>
@@ -361,26 +361,26 @@
             </dependencies>
             <build>
                 <plugins>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>2.20</version>
-                        <executions>
-                            <execution>
-                                <goals>
-                                    <goal>integration-test</goal>
-                                    <goal>verify</goal>
-                                </goals>
-                            </execution>
-                        </executions>
-                        <configuration>
-                            <systemPropertyVariables>
-                                <finalName>${project.build.finalName}</finalName>
-                            </systemPropertyVariables>
-                            <environmentVariables>
-                                <GLASSFISH_HOME>${env.S1AS_HOME}/..</GLASSFISH_HOME>
-                            </environmentVariables>
-                        </configuration>
+                   <plugin>
+                      <groupId>org.apache.maven.plugins</groupId>
+                      <artifactId>maven-failsafe-plugin</artifactId>
+                      <version>2.20</version>
+                      <executions>
+                        <execution>
+                          <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                          </goals>
+                        </execution>
+                      </executions>
+                      <configuration>
+                        <systemPropertyVariables>
+                          <finalName>${project.build.finalName}</finalName>
+                        </systemPropertyVariables>
+                        <environmentVariables>
+                          <GLASSFISH_HOME>${env.S1AS_HOME}/..</GLASSFISH_HOME>
+                        </environmentVariables>
+                      </configuration>
                     </plugin>
                 </plugins>
             </build>
