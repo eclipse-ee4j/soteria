@@ -29,7 +29,7 @@
 
     <groupId>org.glassfish.soteria</groupId>
     <artifactId>parent</artifactId>
-    <version>1.1-b01-SNAPSHOT</version>
+    <version>1.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
     <inceptionYear>2015</inceptionYear>
@@ -49,7 +49,7 @@
 
     <developers>
         <developer>
-            <id>atijmse7y</id>
+            <id>arjantijms</id>
             <name>Arjan Tijms</name>
             <email>arjan.tijms@gmail.com</email>
             <organization>Payara</organization>
@@ -81,7 +81,7 @@
             the dependency changes.
         -->
         <spec_build>01</spec_build>
-        <spec_impl_version>1.1-b01-SNAPSHOT</spec_impl_version>
+        <spec_impl_version>1.1-SNAPSHOT</spec_impl_version>
 
         <api_dependency_version>1.0</api_dependency_version>
 
