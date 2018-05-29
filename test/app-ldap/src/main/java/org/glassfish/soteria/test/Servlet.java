@@ -32,7 +32,7 @@ import javax.servlet.http.HttpServletResponse;
  *
  */
 @LdapIdentityStoreDefinition(
-    url = "ldap://localhost:33389/",
+    url = "#{'ldap://localhost:33389/'}", // usage of expression just for test
     callerBaseDn = "ou=caller,dc=jsr375,dc=net",
     groupSearchBase = "ou=group,dc=jsr375,dc=net"
 )
