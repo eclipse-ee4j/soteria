@@ -20,6 +20,7 @@ import static java.util.Collections.unmodifiableSet;
 
 import java.io.Serializable;
 import java.security.Principal;
+import java.util.HashSet;
 import java.util.Set;
 
 /**
@@ -40,7 +41,7 @@ public class AuthenticationData implements Serializable {
     
     public AuthenticationData(Principal principal, Set<String> groups) {
         this.principal = principal;
-        this.groups =  unmodifiableSet(groups);
+        this.groups = new HashSet<>(unmodifiableSet(groups));
     }
     
     public Principal getPrincipal() {
