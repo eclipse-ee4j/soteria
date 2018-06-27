@@ -41,7 +41,7 @@ public class AuthenticationData implements Serializable {
     
     public AuthenticationData(Principal principal, Set<String> groups) {
         this.principal = principal;
-        this.groups = new HashSet<>(unmodifiableSet(groups));
+        this.groups = unmodifiableSet(new HashSet<>(groups));
     }
     
     public Principal getPrincipal() {
