@@ -136,10 +136,12 @@ public class JACC {
     }
 
     public static ProtectionDomain fromSubject(Subject subject) {
+        Principal[] principals = subject != null ?  subject.getPrincipals().toArray(new Principal[subject.getPrincipals().size()]) : new Principal[] {};
+        
         return new ProtectionDomain(
                 new CodeSource(null, (Certificate[]) null),
                 null, null,
-                subject.getPrincipals().toArray(new Principal[subject.getPrincipals().size()])
+                principals
         );
     }
 

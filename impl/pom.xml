@@ -22,7 +22,7 @@
     <parent>
        <groupId>org.glassfish.soteria</groupId>
        <artifactId>parent</artifactId>
-       <version>1.1-b01-SNAPSHOT</version>
+       <version>1.1-SNAPSHOT</version>
     </parent>
 
     <artifactId>javax.security.enterprise</artifactId>
@@ -32,9 +32,10 @@
     <description>Reference Implementation for Java EE Security API</description>
 
     <properties>
-        <packages.export>
-            org.glassfish.soteria.*
-        </packages.export>
+        <packages.export>org.glassfish.soteria.*</packages.export>
+        <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
+        <spec-version-maven-plugin.version>1.2</spec-version-maven-plugin.version>
+        <junit.version>4.12</junit.version>
     </properties>
 
     <dependencies>
@@ -46,7 +47,7 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>4.12</version>
+            <version>${junit.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
@@ -56,7 +57,7 @@
             <plugin>
                 <groupId>org.glassfish.build</groupId>
                 <artifactId>spec-version-maven-plugin</artifactId>
-                <version>1.2</version>
+                <version>${spec-version-maven-plugin.version}</version>
                 <configuration>
                     <spec>
                         <nonFinal>${non_final}</nonFinal>
@@ -118,7 +119,7 @@
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
-                    <version>1.0.0</version>
+                    <version>${lifecycle-mapping.version}</version>
                     <configuration>
                         <lifecycleMappingMetadata>
                             <pluginExecutions>
