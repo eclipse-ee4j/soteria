@@ -44,6 +44,7 @@ import javax.security.auth.Subject;
 import javax.security.enterprise.CallerPrincipal;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
+import javax.servlet.ServletRequestWrapper;
 import javax.servlet.http.HttpServletRequest;
 import org.glassfish.soteria.authorization.EJB;
 
@@ -436,7 +437,18 @@ public class SubjectParser {
     private Principal doGetCallerPrincipalFromPrincipals(Iterable<Principal> principals) {
         // Check for Servlet
         try {
-            return CDI.current().select(HttpServletRequest.class).get().getUserPrincipal();
+            HttpServletRequest request = CDI.current().select(HttpServletRequest.class).get();
+            
+            // Unwrap the request to get the real Principal set by JASPIC
+            while(request instanceof ServletRequestWrapper) {
+                ServletRequestWrapper requestWrapper = (ServletRequestWrapper) request;
+
+                if (requestWrapper.isWrapperFor(HttpServletRequest.class)) {
+                    request = (HttpServletRequest) requestWrapper.getRequest();
+                }
+            }
+            
+            return request.getUserPrincipal();
         } catch (Exception e) {
             // Not inside an HttpServletRequest
         }
