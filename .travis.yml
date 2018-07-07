@@ -6,5 +6,6 @@ env:
   - SERVER=payara
   - SERVER=wildfly
   - SERVER=tomee
+  - SERVER=openliberty
 script: mvn clean package -P $SERVER -P bundled
 
