@@ -531,6 +531,13 @@
         <profile>
             <id>openliberty</id>
 
+            <repositories>
+                <repository>
+                    <id>payara-patched-eclipse</id>
+                    <url>https://raw.github.com/payara/Payara_PatchedProjects/eclipse/</url>
+                </repository>
+            </repositories>
+
             <dependencies>
                 <dependency>
                     <groupId>io.openliberty.arquillian</groupId>
@@ -562,6 +569,33 @@
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}</outputDirectory>
                                         </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.omnifaces</groupId>
+                                            <artifactId>jacc-provider-liberty-bundle</artifactId>
+                                            <version>0.2</version>
+                                            <type>jar</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}/jacc-provider-liberty-bundle</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.omnifaces</groupId>
+                                            <artifactId>jacc-provider-liberty-bundle</artifactId>
+                                            <version>0.2</version>
+                                            <type>jar</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}</outputDirectory>
+                                        </artifactItem>
                                     </artifactItems>
                                 </configuration>
                             </execution>
@@ -580,15 +614,9 @@
                                 <configuration>
                                     <tasks>
                                         <!--  there has to be a better way... -->
-                                        <echo>Getting JACC Provider</echo>
-                                        <get src="https://github.com/arjantijms/jacc-provider/archive/master.zip" dest="${project.build.directory}/jacc-provider-master.zip" />
-                                        <unzip src="${project.build.directory}/jacc-provider-master.zip" dest="${project.build.directory}" />
-                                        <exec dir="${project.build.directory}/jacc-provider-master" executable="sh">
-                                            <arg line="-c 'mvn clean install'" />
-                                        </exec>
                                         <echo>Configuring server</echo>
-                                        <copy file="${project.build.directory}/jacc-provider-master/liberty-bundle/src/main/resources/META-INF/testjacc.mf" tofile="${project.build.directory}/wlp/usr/extension/lib/features/testjacc.mf" />
-                                        <copy file="${project.build.directory}/jacc-provider-master/liberty-bundle/target/testjacc.jar" tofile="${project.build.directory}/wlp/usr/extension/lib/testjacc.jar" />
+                                        <copy file="${project.build.directory}/jacc-provider-liberty-bundle/META-INF/testjacc.mf" tofile="${project.build.directory}/wlp/usr/extension/lib/features/testjacc.mf" />
+                                        <copy file="${project.build.directory}/jacc-provider-liberty-bundle-0.2.jar" tofile="${project.build.directory}/wlp/usr/extension/lib/testjacc.jar" />
                                         <copy file="../common/src/main/resources/server.xml" tofile="${project.build.directory}/wlp/templates/servers/defaultServer/server.xml" failOnError="false" />
                                     </tasks>
                                 </configuration>
