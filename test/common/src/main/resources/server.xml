@@ -22,10 +22,18 @@
     <featureManager>
         <feature>javaee-7.0</feature>
         <feature>localConnector-1.0</feature>
+        <feature>usr:testjacc</feature>
     </featureManager>
     
     <httpEndpoint httpPort="9080" httpsPort="9443" id="defaultHttpEndpoint"/>
+    
+    <ssl id="defaultSSLConfig" keyStoreRef="defaultKeyStore" />
+    <keyStore id="defaultKeyStore" password="CHANGEIT" />
+    
+    <basicRegistry id="basic" realm="customRealm" />
+    
+    <webContainer deferServletLoad="false"/>
+    <ejbContainer startEJBsAtAppStart="true"/>
                   
     <applicationManager autoExpand="true"/>
-
 </server>
