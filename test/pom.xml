@@ -476,6 +476,10 @@
                         <enabled>true</enabled>
                     </snapshots>
                 </repository>
+                <repository>
+                    <id>payara-patched-eclipse</id>
+                    <url>https://raw.github.com/payara/Payara_PatchedProjects/eclipse/</url>
+                </repository>
             </repositories>
 
             <dependencies>
