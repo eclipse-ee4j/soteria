@@ -44,6 +44,14 @@ public class EmbeddedIdentityStore implements IdentityStore {
     private final Map<String, Credentials> callerToCredentials;
     private final Set<ValidationType> validationType;
 
+    // CDI requires a no-arg constructor to be portable
+    // It's only used to create the proxy
+    protected EmbeddedIdentityStore() {
+        embeddedIdentityStoreDefinition = null;
+        callerToCredentials = null;
+        validationType = null;
+    }
+    
     public EmbeddedIdentityStore(EmbeddedIdentityStoreDefinition embeddedIdentityStoreDefinition) {
 
         this.embeddedIdentityStoreDefinition = embeddedIdentityStoreDefinition;
