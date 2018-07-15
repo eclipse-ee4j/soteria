@@ -45,6 +45,12 @@ public class BasicAuthenticationMechanism implements HttpAuthenticationMechanism
     
     private final BasicAuthenticationMechanismDefinition basicAuthenticationMechanismDefinition;
 
+    // CDI requires a no-arg constructor to be portable
+    // It's only used to create the proxy
+    protected BasicAuthenticationMechanism() {
+        basicAuthenticationMechanismDefinition = null;
+    }
+    
     public BasicAuthenticationMechanism(BasicAuthenticationMechanismDefinition basicAuthenticationMechanismDefinition) {
         this.basicAuthenticationMechanismDefinition = basicAuthenticationMechanismDefinition;
     }

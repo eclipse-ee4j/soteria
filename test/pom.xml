@@ -476,6 +476,10 @@
                         <enabled>true</enabled>
                     </snapshots>
                 </repository>
+                <repository>
+                    <id>payara-patched-eclipse</id>
+                    <url>https://raw.github.com/payara/Payara_PatchedProjects/eclipse/</url>
+                </repository>
             </repositories>
 
             <dependencies>
@@ -520,7 +524,16 @@
                                 <tomee.classifier>plus</tomee.classifier>
                                 <tomee.properties>
                                     openejb.environment.default=true
+                                    javax.security.jacc.policy.provider=org.omnifaces.jaccprovider.TestPolicy
+                                    javax.security.jacc.PolicyConfigurationFactory.provider=org.omnifaces.jaccprovider.TestPolicyConfigurationFactory
                                 </tomee.properties>
+                                <!--<tomee.serverXml>../common/src/main/resources/tomee_server.xml</tomee.serverXml>-->
+                                <tomee.conf>../common/src/main/resources/tomee</tomee.conf>
+                                <tomee.additionalLibs>
+                                    mvn:org.omnifaces:jacc-provider-tomee-bridge:0.2
+                                    mvn:org.omnifaces:jacc-provider:0.2
+                                </tomee.additionalLibs>
+                                <tomee.cleanOnStartUp>false</tomee.cleanOnStartUp>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>

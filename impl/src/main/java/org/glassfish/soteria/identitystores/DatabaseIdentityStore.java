@@ -54,7 +54,15 @@ public class DatabaseIdentityStore implements IdentityStore {
 
     private final Set<ValidationType> validationTypes;
     private final PasswordHash hashAlgorithm; // Note: effectively application scoped, no support for @PreDestroy now
-
+    
+    // CDI requires a no-arg constructor to be portable
+    // It's only used to create the proxy
+    protected DatabaseIdentityStore() {
+        this.dataBaseIdentityStoreDefinition = null;
+        this.validationTypes = null;
+        this.hashAlgorithm = null;
+    }
+    
     public DatabaseIdentityStore(DatabaseIdentityStoreDefinition dataBaseIdentityStoreDefinition) {
         this.dataBaseIdentityStoreDefinition = dataBaseIdentityStoreDefinition;
         
