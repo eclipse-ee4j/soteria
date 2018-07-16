@@ -39,13 +39,13 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import javax.ejb.EJBContext;
-import javax.enterprise.inject.spi.CDI;
 import javax.security.auth.Subject;
 import javax.security.enterprise.CallerPrincipal;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.servlet.http.HttpServletRequest;
 import org.glassfish.soteria.authorization.EJB;
+import org.glassfish.soteria.authorization.JACC;
 
 public class SubjectParser {
 
@@ -436,7 +436,7 @@ public class SubjectParser {
     private Principal doGetCallerPrincipalFromPrincipals(Iterable<Principal> principals) {
         // Check for Servlet
         try {
-            return CDI.current().select(HttpServletRequest.class).get().getUserPrincipal();
+            return ((HttpServletRequest)JACC.getFromContext("javax.servlet.http.HttpServletRequest")).getUserPrincipal();
         } catch (Exception e) {
             // Not inside an HttpServletRequest
         }
