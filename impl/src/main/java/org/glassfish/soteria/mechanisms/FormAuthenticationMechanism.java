@@ -78,10 +78,5 @@ public class FormAuthenticationMechanism implements HttpAuthenticationMechanism,
     public void setLoginToContinue(LoginToContinue loginToContinue) {
         this.loginToContinue = loginToContinue;
     }
-    
-    public FormAuthenticationMechanism loginToContinue(LoginToContinue loginToContinue) {
-        setLoginToContinue(loginToContinue);
-        return this;
-    }
 
 }

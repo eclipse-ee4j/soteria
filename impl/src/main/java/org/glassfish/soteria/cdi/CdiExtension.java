@@ -155,12 +155,14 @@ public class CdiExtension implements Extension {
                     .types(Object.class, HttpAuthenticationMechanism.class)
                     .addToId(FormAuthenticationMechanismDefinition.class)
                     .create(e -> {
-                        return CDI.current()
-                                .select(FormAuthenticationMechanism.class)
-                                .get()
-                                .loginToContinue(
-                                    LoginToContinueAnnotationLiteral.eval(
-                                        formAuthenticationMechanismDefinition.loginToContinue()));
+                        FormAuthenticationMechanism authMethod = CDI.current()
+                        .select(FormAuthenticationMechanism.class)
+                        .get();
+
+                        authMethod.setLoginToContinue(
+                            LoginToContinueAnnotationLiteral.eval(formAuthenticationMechanismDefinition.loginToContinue()));
+
+                        return authMethod;
                     });
         });
 
@@ -174,13 +176,14 @@ public class CdiExtension implements Extension {
                     .types(Object.class, HttpAuthenticationMechanism.class)
                     .addToId(CustomFormAuthenticationMechanismDefinition.class)
                     .create(e -> {
-                        return CDI.current()
+                        CustomFormAuthenticationMechanism authMethod = CDI.current()
                                   .select(CustomFormAuthenticationMechanism.class)
-                                  .get()
-                                  .loginToContinue(
-                                      LoginToContinueAnnotationLiteral.eval(
-                                        customFormAuthenticationMechanismDefinition.loginToContinue()));
-
+                                  .get();
+                        
+                        authMethod.setLoginToContinue(
+                            LoginToContinueAnnotationLiteral.eval(customFormAuthenticationMechanismDefinition.loginToContinue()));
+                                  
+                        return authMethod;
                     });
         });
 
