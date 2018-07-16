@@ -1,5 +1,6 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2018 Oracle and/or its affiliates and others.
+ * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -50,6 +51,8 @@ import javax.security.enterprise.identitystore.IdentityStoreHandler;
 import javax.security.enterprise.identitystore.LdapIdentityStoreDefinition;
 
 import org.glassfish.soteria.SecurityContextImpl;
+import org.glassfish.soteria.SoteriaServiceProviders;
+import org.glassfish.soteria.cdi.spi.BeanDecorator;
 import org.glassfish.soteria.identitystores.DatabaseIdentityStore;
 import org.glassfish.soteria.identitystores.EmbeddedIdentityStore;
 import org.glassfish.soteria.identitystores.LdapIdentityStore;
@@ -145,6 +148,8 @@ public class CdiExtension implements Extension {
                             basicAuthenticationMechanismDefinition)));
         });
 
+
+
         Optional<FormAuthenticationMechanismDefinition> optionalFormMechanism = getAnnotation(beanManager, event.getAnnotated(), FormAuthenticationMechanismDefinition.class);
         optionalFormMechanism.ifPresent(formAuthenticationMechanismDefinition -> {
             logActivatedAuthenticationMechanism(FormAuthenticationMechanismDefinition.class, beanClass);
@@ -194,27 +199,34 @@ public class CdiExtension implements Extension {
 
     public void afterBean(final @Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
 
+       BeanDecorator decorator = SoteriaServiceProviders.getServiceProvider(BeanDecorator.class);
+
         if (!identityStoreBeans.isEmpty()) {
             for (Bean<IdentityStore> identityStoreBean : identityStoreBeans) {
-                afterBeanDiscovery.addBean(identityStoreBean);
+                afterBeanDiscovery.addBean(
+                    decorator.decorateBean(identityStoreBean, IdentityStore.class, beanManager));
             }
         }
 
         if (authenticationMechanismBean != null) {
-            afterBeanDiscovery.addBean(authenticationMechanismBean);
+            afterBeanDiscovery.addBean(
+                decorator.decorateBean(authenticationMechanismBean, HttpAuthenticationMechanism.class, beanManager));
         }
 
         afterBeanDiscovery.addBean(
+            decorator.decorateBean(
                 new CdiProducer<IdentityStoreHandler>()
-                        .scope(ApplicationScoped.class)
-                        .beanClass(IdentityStoreHandler.class)
-                        .types(Object.class, IdentityStoreHandler.class)
-                        .addToId(IdentityStoreHandler.class)
-                        .create(e -> {
-                            DefaultIdentityStoreHandler defaultIdentityStoreHandler = new DefaultIdentityStoreHandler();
-                            defaultIdentityStoreHandler.init();
-                            return defaultIdentityStoreHandler;
-                        }));
+                    .scope(ApplicationScoped.class)
+                    .beanClass(IdentityStoreHandler.class)
+                    .types(Object.class, IdentityStoreHandler.class)
+                    .addToId(IdentityStoreHandler.class)
+                    .create(e -> {
+                        DefaultIdentityStoreHandler defaultIdentityStoreHandler = new DefaultIdentityStoreHandler();
+                        defaultIdentityStoreHandler.init();
+                        return defaultIdentityStoreHandler;
+                    }),
+                IdentityStoreHandler.class,
+                beanManager));
     }
 
     public boolean isHttpAuthenticationMechanismFound() {

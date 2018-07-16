@@ -77,17 +77,17 @@
                     <execution>
                         <goals>
                             <goal>set-spec-properties</goal>
-                            <!--<goal>check-module</goal>-->
                         </goals>
                     </execution>
                 </executions>
             </plugin>
+            
             <!--
              This plugin is reponsible for packaging artifacts
              as OSGi bundles.  Please refer to
              http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html
              for more information about how to use this plugin.
-           -->
+           	-->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>

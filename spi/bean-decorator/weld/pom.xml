@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!--
+
+    Copyright (c) 2015, 2018 Payara and/or its affiliates and others. 
+    All rights reserved.
+
+    This program and the accompanying materials are made available under the
+    terms of the Eclipse Public License v. 2.0, which is available at
+    http://www.eclipse.org/legal/epl-2.0.
+
+    This Source Code may also be made available under the following Secondary
+    Licenses when the conditions for such availability set forth in the
+    Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+    version 2 with the GNU Classpath Exception, which is available at
+    https://www.gnu.org/software/classpath/license.html.
+
+    SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
+
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"> <modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>org.glassfish.soteria</groupId>
+		<artifactId>spi-bean-decorator</artifactId>
+		<version>1.1-SNAPSHOT</version>
+	</parent>
+
+	<artifactId>soteria-bean-decorator-weld</artifactId>
+	<packaging>bundle</packaging>
+	<name>Soteria SPI : Bean Decorator : Weld</name>
+
+	<dependencies>
+		<dependency>
+			<groupId>org.jboss.weld</groupId>
+			<artifactId>weld-osgi-bundle</artifactId>
+			<version>3.0.4.Final</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
+			<groupId>org.glassfish.soteria</groupId>
+			<artifactId>javax.security.enterprise</artifactId>
+			<version>1.1-SNAPSHOT</version>
+		</dependency>
+	</dependencies>
+	
+	<build>
+		<plugins>
+			<!-- This plugin is reponsible for packaging artifacts as OSGi bundles. 
+				Please refer to http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html 
+				for more information about how to use this plugin. -->
+			<plugin>
+				<groupId>org.apache.felix</groupId>
+				<artifactId>maven-bundle-plugin</artifactId>
+				<extensions>true</extensions>
+			</plugin>
+		</plugins>
+	</build>
+    
+</project>

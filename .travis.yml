@@ -3,9 +3,9 @@ jdk:
   - oraclejdk8
 
 env:
-  - SERVER=payara
-  - SERVER=wildfly
+  - SERVER=payara-ci-managed-update,payara-ci-managed,provided
+  - SERVER=wildfly,weld-decorator-bundled,bundled
   - SERVER=tomee
   - SERVER=openliberty
-script: mvn clean package -P $SERVER -P bundled
+script: mvn clean package -P $SERVER
 
