@@ -33,10 +33,10 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class SoteriaServiceProviders {
 
-    private static final Map<Class<? extends Object>, Object> serviceProviders = new ConcurrentHashMap<>();
+    private static final Map<Class<? extends Object>, Object> SERVICE_PROVIDERS = new ConcurrentHashMap<>();
 
     public static <T> T getServiceProvider(Class<T> serviceProviderClass) {
-        return serviceProviderClass.cast(serviceProviders.computeIfAbsent(
+        return serviceProviderClass.cast(SERVICE_PROVIDERS.computeIfAbsent(
             serviceProviderClass,
             e -> loadService(e)));
     }
@@ -55,6 +55,10 @@ public class SoteriaServiceProviders {
 
         if (nonDefaultServices.size() > 1) {
             throw new IllegalStateException("More than 1 implementation of " + serviceProviderClass + " found.");
+        }
+
+        if (defaultService.size() > 1) {
+            throw new IllegalStateException("More than 1 implementation of default " + serviceProviderClass + " found.");
         }
 
         if (nonDefaultServices.size() == 1) {
