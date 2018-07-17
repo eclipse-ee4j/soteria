@@ -62,6 +62,7 @@
 
     <modules>
         <module>impl</module>
+        <module>spi</module>
         <module>test</module>
     </modules>
 
@@ -120,15 +121,7 @@
         <url>https://github.com/eclipse-ee4j/soteria</url>
         <tag>HEAD</tag>
     </scm>
-
-    <dependencies>
-        <dependency>
-            <groupId>javax</groupId>
-            <artifactId>javaee-api</artifactId>
-            <version>7.0</version>
-            <scope>provided</scope>
-        </dependency>
-    </dependencies>
+   
     <repositories>
         <repository>
             <id>glassfish Promoted</id>
@@ -148,6 +141,15 @@
             </snapshots>
         </repository>
     </repositories>
+    
+    <dependencies>
+        <dependency>
+            <groupId>javax</groupId>
+            <artifactId>javaee-api</artifactId>
+            <version>7.0</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
 
     <build>
