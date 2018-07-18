@@ -694,23 +694,25 @@
                                 <tomee.additionalLibs>
                                     target/jacc-provider-tomee-bridge-0.3.jar
                                     target/jacc-provider-0.3.jar
+                                    target/catalina.jar
                                 </tomee.additionalLibs>
                                 <tomee.cleanOnStartUp>false</tomee.cleanOnStartUp>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>
-					<plugin>
+                    <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>copy</id>
-                                <phase>process-test-classes</phase>
+                                <id>Patch TomEE</id>
+                                <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>copy</goal>
                                 </goals>
                                 <configuration>
                                     <artifactItems>
+                                        <!-- JACC Provider -->
                                         <artifactItem>
                                             <groupId>org.omnifaces</groupId>
                                             <artifactId>jacc-provider</artifactId>
@@ -719,12 +721,23 @@
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}</outputDirectory>
                                         </artifactItem>
-										<artifactItem>
+                                        <!-- Patch some JACC issues -->
+                                        <artifactItem>
                                             <groupId>org.omnifaces</groupId>
                                             <artifactId>jacc-provider-tomee-bridge</artifactId>
                                             <version>${jacc-provider.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}</outputDirectory>
+                                        </artifactItem>
+                                        <!-- Catalina patch for JASPIC issue -->
+                                        <artifactItem>
+                                            <groupId>org.omnifaces.tomcat</groupId>
+                                            <artifactId>tomcat-catalina</artifactId>
+                                            <version>8.5.20</version>
+                                            <type>jar</type>
+                                            <overWrite>false</overWrite>
+                                            <destFileName>catalina.jar</destFileName>
                                             <outputDirectory>${project.build.directory}</outputDirectory>
                                         </artifactItem>
                                     </artifactItems>
