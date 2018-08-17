@@ -732,9 +732,9 @@
                                         </artifactItem>
                                         <!-- Catalina patch for JASPIC issue -->
                                         <artifactItem>
-                                            <groupId>org.omnifaces.tomcat</groupId>
+                                            <groupId>org.apache.tomcat</groupId>
                                             <artifactId>tomcat-catalina</artifactId>
-                                            <version>8.5.20</version>
+                                            <version>8.5-SNAPSHOT</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
                                             <destFileName>catalina.jar</destFileName>
