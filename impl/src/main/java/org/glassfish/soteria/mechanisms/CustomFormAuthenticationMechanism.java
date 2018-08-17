@@ -64,17 +64,13 @@ public class CustomFormAuthenticationMechanism implements HttpAuthenticationMech
             httpMessageContext.getAuthParameters().getCredential() != null;
 	}
 	
+    @Override
     public LoginToContinue getLoginToContinue() {
         return loginToContinue;
     }
 
     public void setLoginToContinue(LoginToContinue loginToContinue) {
         this.loginToContinue = loginToContinue;
-    }
-    
-    public CustomFormAuthenticationMechanism loginToContinue(LoginToContinue loginToContinue) {
-        setLoginToContinue(loginToContinue);
-        return this;
     }
 
 }

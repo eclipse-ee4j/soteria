@@ -5,7 +5,7 @@ jdk:
 env:
   - SERVER=payara-ci-managed-update,payara-ci-managed,provided
   - SERVER=wildfly,weld-decorator-bundled,bundled
-  - SERVER=tomee
-  - SERVER=openliberty
+  - SERVER=tomee,bundled
+  - SERVER=openliberty,bundled
 script: mvn clean package -P $SERVER
 

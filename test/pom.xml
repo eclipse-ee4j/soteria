@@ -59,6 +59,8 @@
         <arquillian-payara-server-4-managed.version>1.0.Beta3</arquillian-payara-server-4-managed.version>
         <wildfly-arquillian-container-managed.version>2.1.0.Final</wildfly-arquillian-container-managed.version>
         <docker-maven-plugin.version>0.26.0</docker-maven-plugin.version>
+		
+		<jacc-provider.version>0.3</jacc-provider.version>
     </properties>
     
     
@@ -690,12 +692,58 @@
                                 <!--<tomee.serverXml>../common/src/main/resources/tomee_server.xml</tomee.serverXml>-->
                                 <tomee.conf>../common/src/main/resources/tomee</tomee.conf>
                                 <tomee.additionalLibs>
-                                    mvn:org.omnifaces:jacc-provider-tomee-bridge:0.2
-                                    mvn:org.omnifaces:jacc-provider:0.2
+                                    target/jacc-provider-tomee-bridge-0.3.jar
+                                    target/jacc-provider-0.3.jar
+                                    target/catalina.jar
                                 </tomee.additionalLibs>
                                 <tomee.cleanOnStartUp>false</tomee.cleanOnStartUp>
                             </systemPropertyVariables>
                         </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>Patch TomEE</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                                        <!-- JACC Provider -->
+                                        <artifactItem>
+                                            <groupId>org.omnifaces</groupId>
+                                            <artifactId>jacc-provider</artifactId>
+                                            <version>${jacc-provider.version}</version>
+                                            <type>jar</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}</outputDirectory>
+                                        </artifactItem>
+                                        <!-- Patch some JACC issues -->
+                                        <artifactItem>
+                                            <groupId>org.omnifaces</groupId>
+                                            <artifactId>jacc-provider-tomee-bridge</artifactId>
+                                            <version>${jacc-provider.version}</version>
+                                            <type>jar</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${project.build.directory}</outputDirectory>
+                                        </artifactItem>
+                                        <!-- Catalina patch for JASPIC issue -->
+                                        <artifactItem>
+                                            <groupId>org.apache.tomcat</groupId>
+                                            <artifactId>tomcat-catalina</artifactId>
+                                            <version>8.5-SNAPSHOT</version>
+                                            <type>jar</type>
+                                            <overWrite>false</overWrite>
+                                            <destFileName>catalina.jar</destFileName>
+                                            <outputDirectory>${project.build.directory}</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
                     </plugin>
                 </plugins>
             </build>
@@ -745,7 +793,7 @@
                                         <artifactItem>
                                             <groupId>org.omnifaces</groupId>
                                             <artifactId>jacc-provider-liberty-bundle</artifactId>
-                                            <version>0.2</version>
+                                            <version>${jacc-provider.version}</version>
                                             <type>jar</type>
                                             <overWrite>false</overWrite>
                                             <outputDirectory>${project.build.directory}/jacc-provider-liberty-bundle</outputDirectory>
@@ -789,7 +837,7 @@
                                         <!--  there has to be a better way... -->
                                         <echo>Configuring server</echo>
                                         <copy file="${project.build.directory}/jacc-provider-liberty-bundle/META-INF/testjacc.mf" tofile="${project.build.directory}/wlp/usr/extension/lib/features/testjacc.mf" />
-                                        <copy file="${project.build.directory}/jacc-provider-liberty-bundle-0.2.jar" tofile="${project.build.directory}/wlp/usr/extension/lib/testjacc.jar" />
+                                        <copy file="${project.build.directory}/jacc-provider-liberty-bundle-${jacc-provider.version}.jar" tofile="${project.build.directory}/wlp/usr/extension/lib/testjacc.jar" />
                                         <copy file="../common/src/main/resources/server.xml" tofile="${project.build.directory}/wlp/templates/servers/defaultServer/server.xml" failOnError="false" />
                                     </tasks>
                                 </configuration>
