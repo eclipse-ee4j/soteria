@@ -22,7 +22,7 @@
     <parent>
         <groupId>org.eclipse.ee4j</groupId>
         <artifactId>project</artifactId>
-        <version>1.0</version>
+        <version>1.0.2</version>
     </parent>
 
     <description>Security Soteria - the Reference Implementation of JSR 375</description>
@@ -100,20 +100,10 @@
         <bundle-plugin.version>3.5.0</bundle-plugin.version>
         <copyright-plugin.version>1.44</copyright-plugin.version>
         <source-plugin.version>3.0.1</source-plugin.version>
-        <javadoc-plugin.version>3.0.0</javadoc-plugin.version>
-        <release-plugin.version>2.5.3</release-plugin.version>
-        <scm-provider-gitexe.version>1.9.5</scm-provider-gitexe.version>
+        <javadoc-plugin.version>3.0.1</javadoc-plugin.version>
+        <enforcer-plugin-version>3.0.0-M2</enforcer-plugin-version>
+        <gpg-plugin-version>1.6</gpg-plugin-version>
     </properties>
-
-    <profiles>
-        <profile>
-            <id>release</id>
-            <properties>
-                <spec_build>01</spec_build>
-                <spec_impl_version>1.0</spec_impl_version>
-            </properties>
-        </profile>
-    </profiles>
 
     <scm>
         <connection>scm:git:https://github.com/eclipse-ee4j/soteria.git</connection>
@@ -122,26 +112,6 @@
         <tag>HEAD</tag>
     </scm>
    
-    <repositories>
-        <repository>
-            <id>glassfish Promoted</id>
-            <url>https://maven.java.net/content/repositories/promoted/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jvnet-nexus-snapshots</id>
-            <url>${jvnetDistMgmtSnapshotsUrl}</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-    
     <dependencies>
         <dependency>
             <groupId>javax</groupId>
@@ -200,14 +170,6 @@
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
                 <version>${source-plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-sources</id>
-                        <goals>
-                            <goal>jar-no-fork</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
 
             <!-- Configure the jar with the javadoc (or rather, convince Maven that
@@ -221,42 +183,17 @@
                     <notimestamp>true</notimestamp>
                     <splitindex>true</splitindex>
                     <doctitle>${project.name} ${project.version}</doctitle>
-                    <links>
-                        <link>https://docs.oracle.com/javaee/7/api/</link>
-                    </links>
-                    <bottom>
-<![CDATA[Copyright &#169; 2015-2017,
-    <a href="http://www.oracle.com">Oracle</a>
-    and/or its affiliates. All Rights Reserved.
-]]>
-                    </bottom>
                 </configuration>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>${release-plugin.version}</version>
-                <configuration>
-                    <mavenExecutorId>forked-path</mavenExecutorId>
-                    <useReleaseProfile>false</useReleaseProfile>
-                    <tagNameFormat>@{project.version}</tagNameFormat>
-                    <arguments>${release.arguments}</arguments>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.scm</groupId>
-                        <artifactId>maven-scm-provider-gitexe</artifactId>
-                        <version>${scm-provider-gitexe.version}</version>
-                    </dependency>
-                </dependencies>
+                <artifactId>maven-enforcer-plugin</artifactId>
+                <version>${enforcer-plugin-version}</version>
+            </plugin>               
+            <plugin>
+               <groupId>org.apache.maven.plugins</groupId>
+               <artifactId>maven-gpg-plugin</artifactId>
+               <version>${gpg-plugin-version}</version>
             </plugin>
         </plugins>
 
