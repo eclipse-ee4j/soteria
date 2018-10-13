@@ -23,7 +23,7 @@
     <parent>
        <groupId>org.glassfish.soteria</groupId>
        <artifactId>parent</artifactId>
-       <version>1.1-b01-SNAPSHOT</version>
+       <version>1.0.1-SNAPSHOT</version>
     </parent>
 
     <groupId>org.glassfish.soteria.test</groupId>
@@ -169,8 +169,8 @@
             <dependencies>
                 <dependency>
                     <groupId>org.glassfish.soteria</groupId>
-                    <artifactId>javax.security.enterprise</artifactId>
-                    <version>1.1-b01-SNAPSHOT</version>
+                    <artifactId>jakarta.security.enterprise</artifactId>
+                    <version>1.0.1-SNAPSHOT</version>
                 </dependency>
             </dependencies>
         </profile> 
