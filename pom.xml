@@ -22,15 +22,15 @@
     <parent>
         <groupId>org.eclipse.ee4j</groupId>
         <artifactId>project</artifactId>
-        <version>1.0</version>
+        <version>1.0.2</version>
     </parent>
-
-    <description>Security Soteria - the Reference Implementation of JSR 375</description>
 
     <groupId>org.glassfish.soteria</groupId>
     <artifactId>parent</artifactId>
-    <version>1.1-b01-SNAPSHOT</version>
+    <version>1.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
+    
+    <description>Security Soteria - the Reference Implementation of JSR 375</description>
 
     <inceptionYear>2015</inceptionYear>
 
@@ -66,29 +66,6 @@
     </modules>
 
     <properties>
-        <api_package>javax.security.enterprise</api_package>
-        <impl_namespace>org.glassfish.soteria</impl_namespace>
-
-        <non_final>true</non_final>
-
-        <spec_version>1.0</spec_version>
-        <new_spec_version>1.1</new_spec_version>
-
-        <!--
-            <spec_build> and <spec_impl_version> are overridden
-            below for the "release" profile, and must be updated
-            in both places when the release or build number of
-            the dependency changes.
-        -->
-        <spec_build>01</spec_build>
-        <spec_impl_version>1.1-b01-SNAPSHOT</spec_impl_version>
-
-        <api_dependency_version>${spec_impl_version}</api_dependency_version>
-
-        <impl_version>1.0</impl_version>
-        <new_impl_version>1.1</new_impl_version>
-        <impl_build>01</impl_build>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -97,16 +74,6 @@
 
         <copyright-plugin.version>1.44</copyright-plugin.version>
     </properties>
-
-    <profiles>
-        <profile>
-            <id>release</id>
-            <properties>
-                <spec_build>01</spec_build>
-                <spec_impl_version>1.0</spec_impl_version>
-            </properties>
-        </profile>
-    </profiles>
 
     <scm>
         <connection>scm:git:https://github.com/eclipse-ee4j/soteria.git</connection>
@@ -123,63 +90,15 @@
             <scope>provided</scope>
         </dependency>
     </dependencies>
-    <repositories>
-        <repository>
-            <id>glassfish Promoted</id>
-            <url>https://maven.java.net/content/repositories/promoted/</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-        <repository>
-            <id>jvnet-nexus-snapshots</id>
-            <url>${jvnetDistMgmtSnapshotsUrl}</url>
-            <snapshots>
-                <enabled>true</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
 
     <build>
         <pluginManagement>
             <plugins>
                 <plugin>
-                    <groupId>org.apache.maven.plugins</groupId>
-                    <artifactId>maven-surefire-plugin</artifactId>
-                    <version>2.18.1</version>
-                </plugin>
-                <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
                     <version>3.2.0</version>
                     <extensions>true</extensions>
-                </plugin>
-                <plugin>
-                    <groupId>org.glassfish.copyright</groupId>
-                    <artifactId>glassfish-copyright-maven-plugin</artifactId>
-                    <version>${copyright-plugin.version}</version>
-                    <configuration>
-                        <scm>git</scm>
-                        <scmOnly>true</scmOnly>
-                        <exclude>
-                            <pattern>/LICENSE.txt</pattern>
-                            <pattern>/README.md</pattern>
-                        </exclude>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>check-copyright</id>
-                            <phase>process-test-sources</phase>
-                            <goals>
-                                <goal>copyright</goal>
-                                <goal>check</goal>
-                            </goals>
-                        </execution>
-                    </executions>
                 </plugin>
             </plugins>
         </pluginManagement>
@@ -231,24 +150,6 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-release-plugin</artifactId>
-                <version>2.5.3</version>
-                <configuration>
-                    <mavenExecutorId>forked-path</mavenExecutorId>
-                    <useReleaseProfile>false</useReleaseProfile>
-                    <tagNameFormat>@{project.version}</tagNameFormat>
-                    <arguments>${release.arguments}</arguments>
-                </configuration>
-                <dependencies>
-                    <dependency>
-                        <groupId>org.apache.maven.scm</groupId>
-                        <artifactId>maven-scm-provider-gitexe</artifactId>
-                        <version>1.8.1</version>
-                    </dependency>
-                </dependencies>
             </plugin>
         </plugins>
 
