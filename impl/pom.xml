@@ -33,17 +33,16 @@
     <properties>
         <non.final>false</non.final>
         <spec.version>1.0</spec.version>
-        <!-- Non entirely correct? Spec plug-in insists on this starting with jakarta -->
-        <extension.name>jakarta.security.enterprise</extension.name>
+        <extension.name>javax.security.enterprise</extension.name>
         <packages.export>org.glassfish.soteria.*</packages.export>
         <impl_namespace>org.glassfish.soteria</impl_namespace>
     </properties>
 
     <dependencies>
         <dependency>
-            <groupId>javax.security.enterprise</groupId>
-            <artifactId>javax.security.enterprise-api</artifactId>
-            <version>1.0</version>
+            <groupId>jakarta.security.enterprise</groupId>
+            <artifactId>jakarta.security.enterprise-api</artifactId>
+            <version>1.0.1</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
@@ -54,6 +53,17 @@
     </dependencies>
 
     <build>
+        <resources>
+            <resource>
+                <directory>${project.basedir}/..</directory>
+                <includes>
+                    <include>LICENSE.md</include>
+                    <include>NOTICE.md</include>
+                </includes>
+                <targetPath>META-INF</targetPath>
+            </resource>
+        </resources>
+    
         <plugins>
             <plugin>
                 <groupId>org.glassfish.build</groupId>
@@ -66,7 +76,7 @@
                         <jarType>impl</jarType>
                         <specVersion>${spec.version}</specVersion>
                         <specImplVersion>${project.version}</specImplVersion>
-                        <apiPackage>${extension.name}</apiPackage>
+                        <apiPackage>jakarta.security.enterprise</apiPackage>
                         
                         <implNamespace>${impl_namespace}</implNamespace>
                         <implVersion>${project.version}</implVersion>
@@ -76,13 +86,12 @@
                     <execution>
                         <goals>
                             <goal>set-spec-properties</goal>
-                            <goal>check-module</goal>
                         </goals>
                     </execution>
                 </executions>
             </plugin>
             <!--
-                This plugin is reponsible for packaging artifacts as OSGi bundles.
+                This plugin is responsible for packaging artifacts as OSGi bundles.
             -->
             <plugin>
                 <groupId>org.apache.felix</groupId>
@@ -92,7 +101,7 @@
                     <instructions>
                         <Bundle-Version>${spec.bundle.version}</Bundle-Version>
                         <Bundle-SymbolicName>${spec.bundle.symbolic-name}</Bundle-SymbolicName>
-                        <Extension-Name>${spec.extension.name}</Extension-Name>
+                        <Extension-Name>javax.security.enterprise</Extension-Name>
                         <Implementation-Version>${spec.implementation.version}</Implementation-Version>
                         <Specification-Version>${spec.specification.version}</Specification-Version>
                         <Export-Package>${packages.export}</Export-Package>
