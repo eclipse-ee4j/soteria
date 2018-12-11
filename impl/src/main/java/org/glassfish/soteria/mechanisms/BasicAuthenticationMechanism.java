@@ -21,7 +21,6 @@ import static javax.security.enterprise.identitystore.CredentialValidationResult
 import static javax.xml.bind.DatatypeConverter.parseBase64Binary;
 import static org.glassfish.soteria.Utils.isEmpty;
 
-import javax.enterprise.inject.spi.CDI;
 import javax.security.enterprise.AuthenticationException;
 import javax.security.enterprise.AuthenticationStatus;
 import javax.security.enterprise.authentication.mechanism.http.BasicAuthenticationMechanismDefinition;
@@ -33,6 +32,8 @@ import javax.security.enterprise.identitystore.CredentialValidationResult;
 import javax.security.enterprise.identitystore.IdentityStoreHandler;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.glassfish.soteria.cdi.CdiUtils;
 
 
 /**
@@ -61,7 +62,7 @@ public class BasicAuthenticationMechanism implements HttpAuthenticationMechanism
 		String[] credentials = getCredentials(request);
 		if (!isEmpty(credentials)) {
 
-            IdentityStoreHandler identityStoreHandler = CDI.current().select(IdentityStoreHandler.class).get();
+            IdentityStoreHandler identityStoreHandler = CdiUtils.getBeanReference(IdentityStoreHandler.class);
 
             CredentialValidationResult result = identityStoreHandler.validate(
                     new UsernamePasswordCredential(credentials[0], new Password(credentials[1])));

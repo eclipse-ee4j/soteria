@@ -38,7 +38,6 @@ import javax.el.ELProcessor;
 import javax.enterprise.inject.Intercepted;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
-import javax.enterprise.inject.spi.CDI;
 import javax.inject.Inject;
 import javax.interceptor.AroundInvoke;
 import javax.interceptor.Interceptor;
@@ -93,7 +92,7 @@ public class RememberMeInterceptor implements Serializable {
     
     private AuthenticationStatus validateRequest(InvocationContext invocationContext, HttpServletRequest request, HttpServletResponse response, HttpMessageContext httpMessageContext) throws Exception {
         
-        RememberMeIdentityStore rememberMeIdentityStore = CDI.current().select(RememberMeIdentityStore.class).get();
+        RememberMeIdentityStore rememberMeIdentityStore = CdiUtils.getBeanReference(RememberMeIdentityStore.class);
         RememberMe rememberMeAnnotation = getRememberMeFromIntercepted(getElProcessor(invocationContext, httpMessageContext), invocationContext);
         
         Cookie rememberMeCookie = getCookie(request, rememberMeAnnotation.cookieName());
@@ -155,7 +154,7 @@ public class RememberMeInterceptor implements Serializable {
     
     private void cleanSubject(InvocationContext invocationContext, HttpServletRequest request, HttpServletResponse response, HttpMessageContext httpMessageContext) throws Exception {
     
-        RememberMeIdentityStore rememberMeIdentityStore = CDI.current().select(RememberMeIdentityStore.class).get(); // TODO ADD CHECKS
+        RememberMeIdentityStore rememberMeIdentityStore = CdiUtils.getBeanReference(RememberMeIdentityStore.class); // TODO ADD CHECKS
         RememberMe rememberMeAnnotation = getRememberMeFromIntercepted(getElProcessor(invocationContext, httpMessageContext), invocationContext);
         
         Cookie rememberMeCookie = getCookie(request, rememberMeAnnotation.cookieName());
