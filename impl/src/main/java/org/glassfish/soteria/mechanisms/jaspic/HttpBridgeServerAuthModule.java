@@ -23,7 +23,6 @@ import static org.glassfish.soteria.mechanisms.jaspic.Jaspic.setLastAuthenticati
 
 import java.util.Map;
 
-import javax.enterprise.inject.spi.CDI;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.message.AuthException;
@@ -39,6 +38,7 @@ import javax.security.enterprise.authentication.mechanism.http.HttpMessageContex
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.glassfish.soteria.cdi.CdiUtils;
 import org.glassfish.soteria.cdi.spi.CDIPerRequestInitializer;
 import org.glassfish.soteria.mechanisms.HttpMessageContextImpl;
 
@@ -85,8 +85,7 @@ public class HttpBridgeServerAuthModule implements ServerAuthModule {
             setLastAuthenticationStatus(msgContext.getRequest(), status);
                 
             try {
-                status = CDI.current()
-                            .select(HttpAuthenticationMechanism.class).get()
+                status = CdiUtils.getBeanReference(HttpAuthenticationMechanism.class)
                             .validateRequest(
                                 msgContext.getRequest(), 
                                 msgContext.getResponse(), 
@@ -109,8 +108,7 @@ public class HttpBridgeServerAuthModule implements ServerAuthModule {
             HttpMessageContext msgContext = new HttpMessageContextImpl(handler, messageInfo, null);
 
             try {
-                AuthenticationStatus status = CDI.current()
-                                                 .select(HttpAuthenticationMechanism.class).get()
+                AuthenticationStatus status = CdiUtils.getBeanReference(HttpAuthenticationMechanism.class)
                                                  .secureResponse(
                                                      msgContext.getRequest(), 
                                                      msgContext.getResponse(), 
@@ -138,8 +136,7 @@ public class HttpBridgeServerAuthModule implements ServerAuthModule {
         public void cleanSubject(MessageInfo messageInfo, Subject subject) throws AuthException {
             HttpMessageContext msgContext = new HttpMessageContextImpl(handler, messageInfo, subject);
             
-            CDI.current()
-               .select(HttpAuthenticationMechanism.class).get()
+            CdiUtils.getBeanReference(HttpAuthenticationMechanism.class)
                .cleanSubject(msgContext.getRequest(), msgContext.getResponse(), msgContext);
         }
 

@@ -35,7 +35,6 @@ import javax.enterprise.inject.spi.Annotated;
 import javax.enterprise.inject.spi.Bean;
 import javax.enterprise.inject.spi.BeanManager;
 import javax.enterprise.inject.spi.BeforeBeanDiscovery;
-import javax.enterprise.inject.spi.CDI;
 import javax.enterprise.inject.spi.Extension;
 import javax.enterprise.inject.spi.ProcessBean;
 import javax.security.enterprise.authentication.mechanism.http.AutoApplySession;
@@ -160,9 +159,7 @@ public class CdiExtension implements Extension {
                     .types(Object.class, HttpAuthenticationMechanism.class)
                     .addToId(FormAuthenticationMechanismDefinition.class)
                     .create(e -> {
-                        FormAuthenticationMechanism authMethod = CDI.current()
-                        .select(FormAuthenticationMechanism.class)
-                        .get();
+                        FormAuthenticationMechanism authMethod = CdiUtils.getBeanReference(FormAuthenticationMechanism.class);
 
                         authMethod.setLoginToContinue(
                             LoginToContinueAnnotationLiteral.eval(formAuthenticationMechanismDefinition.loginToContinue()));
@@ -181,10 +178,8 @@ public class CdiExtension implements Extension {
                     .types(Object.class, HttpAuthenticationMechanism.class)
                     .addToId(CustomFormAuthenticationMechanismDefinition.class)
                     .create(e -> {
-                        CustomFormAuthenticationMechanism authMethod = CDI.current()
-                                  .select(CustomFormAuthenticationMechanism.class)
-                                  .get();
-                        
+                        CustomFormAuthenticationMechanism authMethod = CdiUtils.getBeanReference(CustomFormAuthenticationMechanism.class);
+
                         authMethod.setLoginToContinue(
                             LoginToContinueAnnotationLiteral.eval(customFormAuthenticationMechanismDefinition.loginToContinue()));
                                   
