@@ -36,6 +36,7 @@
         <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
         <spec-version-maven-plugin.version>1.2</spec-version-maven-plugin.version>
         <junit.version>4.12</junit.version>
+        <servlet.version>3.1.0</servlet.version>
     </properties>
 
     <dependencies>
@@ -49,6 +50,12 @@
             <artifactId>junit</artifactId>
             <version>${junit.version}</version>
             <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.servlet</groupId>
+            <artifactId>javax.servlet-api</artifactId>
+            <version>${servlet.version}</version>
+            <scope>test</scope> <!-- Needed to implement and instantiate HttpServletRequest -->
         </dependency>
     </dependencies>
 
