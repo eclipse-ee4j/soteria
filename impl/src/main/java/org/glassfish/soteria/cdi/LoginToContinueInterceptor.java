@@ -25,7 +25,6 @@ import static org.glassfish.soteria.Utils.isImplementationOf;
 import static org.glassfish.soteria.Utils.notNull;
 import static org.glassfish.soteria.Utils.validateRequestMethod;
 import static org.glassfish.soteria.cdi.CdiUtils.getAnnotation;
-import static org.glassfish.soteria.servlet.RequestCopier.copy;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;
@@ -349,7 +348,7 @@ public class LoginToContinueInterceptor implements Serializable {
     }
 
     private void saveRequest(HttpServletRequest request) {
-        request.getSession().setAttribute(ORIGINAL_REQUEST_DATA_SESSION_NAME, copy(request));
+        request.getSession().setAttribute(ORIGINAL_REQUEST_DATA_SESSION_NAME, RequestData.of(request));
     }
 
     private RequestData getSavedRequest(HttpServletRequest request) {

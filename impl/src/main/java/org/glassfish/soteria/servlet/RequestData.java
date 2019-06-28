@@ -16,8 +16,14 @@
 
 package org.glassfish.soteria.servlet;
 
+import java.io.Serializable;
+import static java.util.Arrays.copyOf;
+import static java.util.Collections.emptyMap;
+import static java.util.Collections.list;
 import static org.glassfish.soteria.Utils.isEmpty;
 
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -25,13 +31,14 @@ import java.util.Map;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 
+
 /**
  * This class stores the core data that makes up an {@link HttpServletRequest}.
  *
  * @author Arjan Tijms
  *
  */
-public class RequestData {
+public class RequestData implements Serializable {
 
     private Cookie[] cookies;
     private Map<String, List<String>> headers;
@@ -42,70 +49,94 @@ public class RequestData {
     private String requestURL;
     private String queryString;
 
-    private boolean restoreRequest = true;
+    public static RequestData of(HttpServletRequest request) {
+        
+        RequestData requestData = new RequestData();
+        
+        requestData.cookies = copyCookies(request.getCookies());
+        requestData.headers = copyHeaders(request);
+        requestData.parameters = copyParameters(request.getParameterMap());
+        requestData.locales = list(request.getLocales());
+        
+        requestData.method = request.getMethod();
+        requestData.requestURL = request.getRequestURL().toString();
+        requestData.queryString = request.getQueryString();
+    
+        return requestData;
+    }
+    
+    
+    private static Cookie[] copyCookies(Cookie[] cookies) {
+        
+        if (isEmpty(cookies)) {
+            return cookies;
+        }
+        
+        List<Cookie> copiedCookies = new ArrayList<>();
+        for (Cookie cookie : cookies) {
+            copiedCookies.add((Cookie)cookie.clone());
+        }
+        
+        return copiedCookies.toArray(new Cookie[copiedCookies.size()]);
+    }
+    
+    private static Map<String, List<String>> copyHeaders(HttpServletRequest request) {
+    
+        Map<String, List<String>> copiedHeaders = new HashMap<>();
+        for (String headerName : list(request.getHeaderNames())) {
+            copiedHeaders.put(headerName, list(request.getHeaders(headerName)));
+        }
+        
+        return copiedHeaders;
+    }
+    
+    private static Map<String, String[]> copyParameters(Map<String, String[]> parameters) {
+        
+        if (isEmptyMap(parameters)) {
+            return emptyMap();
+        }
+        
+        Map<String, String[]> copiedParameters = new HashMap<>();
+        for (Map.Entry<String, String[]> parameter : parameters.entrySet()) {
+            copiedParameters.put(parameter.getKey(), copyOf(parameter.getValue(), parameter.getValue().length));
+        }
+        
+        return copiedParameters;
+    }
+    
+    private static boolean isEmptyMap(Map<?, ?> map) {
+        return map == null || map.isEmpty();
+    }
 
     public Cookie[] getCookies() {
         return cookies;
-    }
-
-    public void setCookies(Cookie[] cookies) {
-        this.cookies = cookies;
     }
 
     public Map<String, List<String>> getHeaders() {
         return headers;
     }
 
-    public void setHeaders(Map<String, List<String>> headers) {
-        this.headers = headers;
-    }
 
     public List<Locale> getLocales() {
         return locales;
-    }
-
-    public void setLocales(List<Locale> locales) {
-        this.locales = locales;
     }
 
     public Map<String, String[]> getParameters() {
         return parameters;
     }
 
-    public void setParameters(Map<String, String[]> parameters) {
-        this.parameters = parameters;
-    }
-
     public String getMethod() {
         return method;
     }
 
-    public void setMethod(String method) {
-        this.method = method;
-    }
 
     public String getQueryString() {
         return queryString;
     }
 
-    public void setQueryString(String queryString) {
-        this.queryString = queryString;
-    }
 
     public String getRequestURL() {
         return requestURL;
-    }
-
-    public void setRequestURL(String requestURL) {
-        this.requestURL = requestURL;
-    }
-
-    public boolean isRestoreRequest() {
-        return restoreRequest;
-    }
-
-    public void setRestoreRequest(boolean restoreRequest) {
-        this.restoreRequest = restoreRequest;
     }
 
     public String getFullRequestURL() {
@@ -125,5 +156,4 @@ public class RequestData {
     private String buildFullRequestURL(String requestURL, String queryString) {
         return requestURL + (isEmpty(queryString) ? "" : "?" + queryString);
     }
-
 }
