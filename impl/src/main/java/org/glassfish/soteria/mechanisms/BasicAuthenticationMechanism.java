@@ -85,7 +85,7 @@ public class BasicAuthenticationMechanism implements HttpAuthenticationMechanism
 
 		String authorizationHeader = request.getHeader("Authorization");
 		if (!isEmpty(authorizationHeader) && authorizationHeader.startsWith("Basic ") ) {
-			return new String(parseBase64Binary(authorizationHeader.substring(6))).split(":");
+			return new String(parseBase64Binary(authorizationHeader.substring(6))).split(":", 2);
 		}
 
 		return null;

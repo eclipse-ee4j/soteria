@@ -17,13 +17,11 @@
 package test;
 
 import static java.util.Arrays.asList;
-import static javax.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
-
 import java.util.HashSet;
-
 import javax.enterprise.context.ApplicationScoped;
 import javax.security.enterprise.credential.UsernamePasswordCredential;
 import javax.security.enterprise.identitystore.CredentialValidationResult;
+import static javax.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
 import javax.security.enterprise.identitystore.IdentityStore;
 
 @ApplicationScoped
@@ -31,7 +29,7 @@ public class TestIdentityStore implements IdentityStore {
 
     public CredentialValidationResult validate(UsernamePasswordCredential usernamePasswordCredential) {
 
-        if (usernamePasswordCredential.compareTo("reza", "secret1")) {
+        if (usernamePasswordCredential.compareTo("reza", "secret:1")) {
             return new CredentialValidationResult("reza", new HashSet<>(asList("foo", "bar")));
         }
 
