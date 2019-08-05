@@ -1,1 +1,16 @@
-theme: jekyll-theme-minimal
+remote_theme: jakartaee/jekyll-theme-jakarta-ee
+
+title: [Eclipse Soteria]
+description: [Eclipse EE4J implementation of Jakarta Security]
+
+links:
+  source: https://github.com/eclipse-ee4j/soteria
+  javadocs: docs/api/
+  issues_url: site.github.issues_url
+  download: https://github.com/eclipse-ee4j/soteria/releases
+  mailinglist: https://accounts.eclipse.org/mailing-list/soteria-dev
+  # faq: FAQ
+
+include:
+  - LICENSE.md
+  - CONTRIBUTING.md
