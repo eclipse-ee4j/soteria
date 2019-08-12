@@ -10,7 +10,7 @@ following is a summary of the TCK results for releases of Jakarta Security.
 - [x] Organization Name ("Organization") and, if applicable, URL\
   Eclipse Foundation
 - [x] Product Name, Version and download URL (if applicable)\
-  [Soteria 1.0.1](https://repo1.maven.org/maven2/org/glassfish/soteria/jakarta.security.enterprise/1.0.1/)
+  [Eclipse Soteria 1.0.1](https://eclipse-ee4j.github.io/soteria)
 - [x] Specification Name, Version and download URL\
    [Jakarta Security 1.0](https://jakarta.ee/specifications/security/1.0/)
 - [x] TCK Version, digital SHA-256 fingerprint and download URL\
@@ -121,9 +121,9 @@ Test results:
 [javatest.batch] PASSED........com/sun/ts/tests/securityapi/securitycontext/getprincipalsbytype/Client.java#testSecurityContextGetPrincipalsByType
 [javatest.batch] PASSED........com/sun/ts/tests/signaturetest/securityapi/SecurityAPISigTest.java#signatureTest_from_standalone
 [javatest.batch] 
-[javatest.batch] Aug 2, 2019 10:01:55 PM Finished executing all tests, wait for cleanup...
-[javatest.batch] Aug 2, 2019 10:01:55 PM Harness done with cleanup from test run.
-[javatest.batch] Total time = 173s
+[javatest.batch] Aug 10, 2019 10:54:26 PM Finished executing all tests, wait for cleanup...
+[javatest.batch] Aug 10, 2019 10:54:26 PM Harness done with cleanup from test run.
+[javatest.batch] Total time = 172s
 [javatest.batch] Setup time = 0s
 [javatest.batch] Cleanup time = 0s
 [javatest.batch] Test results: passed: 85
