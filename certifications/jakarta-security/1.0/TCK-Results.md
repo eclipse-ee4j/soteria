@@ -7,21 +7,21 @@ following is a summary of the TCK results for releases of Jakarta Security.
 
 # 1.0 Certification Request
 
-- [x] Organization Name ("Organization") and, if applicable, URL\
+- [x] Organization Name ("Organization") and, if applicable, URL
   Eclipse Foundation
-- [x] Product Name, Version and download URL (if applicable)\
+- [x] Product Name, Version and download URL (if applicable)
   [Eclipse Soteria 1.0.1](https://eclipse-ee4j.github.io/soteria)
-- [x] Specification Name, Version and download URL\
+- [x] Specification Name, Version and download URL
    [Jakarta Security 1.0](https://jakarta.ee/specifications/security/1.0/)
-- [x] TCK Version, digital SHA-256 fingerprint and download URL\
-  [Jakarta Security TCK 1.0.0](http://download.eclipse.org/ee4j/jakartaee-tck/jakartaee8-eftl/promoted/eclipse-security-tck-1.0.0.zip), SHA-256: 309111f000afb682f631a99d86a52bc8a8ab6f27dbed496387d5752e1a6647b4
-- [x] Public URL of TCK Results Summary\
+- [x] TCK Version, digital SHA-256 fingerprint and download URL
+  [Jakarta Security TCK 1.0.0](http://download.eclipse.org/ee4j/jakartaee-tck/jakartaee8-eftl/promoted/eclipse-security-tck-1.0.0.zip), SHA-256: `de4114b9532333bd2c24d7bcb54f3f47cb4dcead6d0b3de05baea237acac948e`
+- [x] Public URL of TCK Results Summary
   [TCK results summary](https://eclipse-ee4j.github.io/soteria/certifications/jakarta-security/1.0/TCK-Results)
-- [x] Any Additional Specification Certification Requirements\
+- [x] Any Additional Specification Certification Requirements
   None
-- [x] Java runtime used to run the implementation\
+- [x] Java runtime used to run the implementation
   Oracle JDK 1.8.0_202
-- [x] Summary of the information for the certification environment, operating system, cloud, ...\
+- [x] Summary of the information for the certification environment, operating system, cloud, ...
   Linux
 - [x] By checking this box I acknowledge that the Organization I represent accepts the terms of the [EFTL](https://www.eclipse.org/legal/tck.php).
 - [x] By checking this box I attest that all TCK requirements have been met, including any compatibility rules.
