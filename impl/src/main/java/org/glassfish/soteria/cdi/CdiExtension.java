@@ -52,6 +52,7 @@ import javax.security.enterprise.identitystore.LdapIdentityStoreDefinition;
 import org.glassfish.soteria.SecurityContextImpl;
 import org.glassfish.soteria.SoteriaServiceProviders;
 import org.glassfish.soteria.cdi.spi.BeanDecorator;
+import org.glassfish.soteria.cdi.spi.WebXmlLoginConfig;
 import org.glassfish.soteria.identitystores.DatabaseIdentityStore;
 import org.glassfish.soteria.identitystores.EmbeddedIdentityStore;
 import org.glassfish.soteria.identitystores.LdapIdentityStore;
@@ -198,6 +199,7 @@ public class CdiExtension implements Extension {
     public void afterBean(final @Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
 
        BeanDecorator decorator = SoteriaServiceProviders.getServiceProvider(BeanDecorator.class);
+       WebXmlLoginConfig loginConfig = SoteriaServiceProviders.getServiceProvider(WebXmlLoginConfig.class);
 
         if (!identityStoreBeans.isEmpty()) {
             for (Bean<IdentityStore> identityStoreBean : identityStoreBeans) {
@@ -205,12 +207,28 @@ public class CdiExtension implements Extension {
                     decorator.decorateBean(identityStoreBean, IdentityStore.class, beanManager));
             }
         }
+        
+        if (authenticationMechanismBean == null && loginConfig.getAuthMethod() != null) {
+            
+            if ("basic".equalsIgnoreCase(loginConfig.getAuthMethod())) {
+                authenticationMechanismBean = new CdiProducer<HttpAuthenticationMechanism>()
+                    .scope(ApplicationScoped.class)
+                    .beanClass(BasicAuthenticationMechanism.class)
+                    .types(Object.class, HttpAuthenticationMechanism.class, BasicAuthenticationMechanism.class)
+                    .addToId(BasicAuthenticationMechanismDefinition.class)
+                    .create(e -> 
+                        new BasicAuthenticationMechanism(
+                            new BasicAuthenticationMechanismDefinitionAnnotationLiteral(loginConfig.getRealmName())));
+                
+                httpAuthenticationMechanismFound = true;
+            }
+        }
 
         if (authenticationMechanismBean != null) {
             afterBeanDiscovery.addBean(
                 decorator.decorateBean(authenticationMechanismBean, HttpAuthenticationMechanism.class, beanManager));
         }
-
+        
         afterBeanDiscovery.addBean(
             decorator.decorateBean(
                 new CdiProducer<IdentityStoreHandler>()
