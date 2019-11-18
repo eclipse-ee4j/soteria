@@ -16,6 +16,28 @@
  */
 package org.glassfish.soteria.cdi.spi;
 
+import org.glassfish.soteria.cdi.spi.impl.DefaultWebXmlLoginConfig;
+
+/**
+ * Implementations of this interface can be used by a servlet container to pass the login config
+ * from web.xml to Soteria.
+ * 
+ * <p>
+ * This SPI is needed since there is no portable way for CDI extensions to read web.xml. Soteria
+ * would need this information when its CDI extension runs.
+ * 
+ * <p>
+ * Soteria needs access to the login config from web.xml to satisfy the option allowed and detailed
+ * by Jakarta Security to use the Jakarta EE BASIC and FORM authentication mechanisms to fullfill
+ * the Servlet spec requirements for those mechanisms.
+ * 
+ * <p>
+ * If the configuration is readily available before the CDI implementation is initialized, containers
+ * can opt to use the default implementation {@link DefaultWebXmlLoginConfig}.
+ * 
+ * @author Arjan Tijms
+ *
+ */
 public interface WebXmlLoginConfig {
     
     String getAuthMethod();

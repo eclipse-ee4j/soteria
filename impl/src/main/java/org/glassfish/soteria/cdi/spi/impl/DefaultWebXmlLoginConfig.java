@@ -16,9 +16,17 @@
  */
 package org.glassfish.soteria.cdi.spi.impl;
 
+import org.glassfish.soteria.DefaultService;
 import org.glassfish.soteria.cdi.spi.WebXmlLoginConfig;
 
-public class DefaultWebXmlLoginConfig implements WebXmlLoginConfig {
+/**
+ * Default implementation of WebXmlLoginConfig using simple attributes to 
+ * set the 4 attributes from the login config element in web.xml.
+ * 
+ * @author Arjan Tijms
+ *
+ */
+public class DefaultWebXmlLoginConfig implements WebXmlLoginConfig, DefaultService {
     
     /**
      * The list &lt;auth-methodgt; element inside
