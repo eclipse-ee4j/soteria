@@ -221,6 +221,25 @@ public class CdiExtension implements Extension {
                             new BasicAuthenticationMechanismDefinitionAnnotationLiteral(loginConfig.getRealmName())));
                 
                 httpAuthenticationMechanismFound = true;
+            } else if ("form".equalsIgnoreCase(loginConfig.getAuthMethod())) {
+                authenticationMechanismBean = new CdiProducer<HttpAuthenticationMechanism>()
+                        .scope(ApplicationScoped.class)
+                        .beanClass(HttpAuthenticationMechanism.class)
+                        .types(Object.class, HttpAuthenticationMechanism.class)
+                        .addToId(FormAuthenticationMechanismDefinition.class)
+                        .create(e -> {
+                            FormAuthenticationMechanism authMethod = CdiUtils.getBeanReference(FormAuthenticationMechanism.class);
+
+                            authMethod.setLoginToContinue(
+                                new LoginToContinueAnnotationLiteral(
+                                    loginConfig.getFormLoginPage(), 
+                                    true, null, 
+                                    loginConfig.getFormErrorPage())
+                                );
+
+                            return authMethod;
+                        });
+                httpAuthenticationMechanismFound = true;
             }
         }
 
