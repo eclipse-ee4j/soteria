@@ -1,6 +1,6 @@
 <!--
 
-    Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
 
     This program and the accompanying materials are made available under the
     terms of the Eclipse Public License v. 2.0, which is available at
@@ -28,16 +28,8 @@
     <artifactId>javax.security.enterprise</artifactId>
     <packaging>bundle</packaging>
 
-    <name>Soteria Reference Implementation</name>
-    <description>Reference Implementation for Java EE Security API</description>
-
-    <properties>
-        <packages.export>org.glassfish.soteria.*</packages.export>
-        <lifecycle-mapping.version>1.0.0</lifecycle-mapping.version>
-        <spec-version-maven-plugin.version>1.2</spec-version-maven-plugin.version>
-        <junit.version>4.12</junit.version>
-        <servlet.version>3.1.0</servlet.version>
-    </properties>
+    <name>Soteria ${project.version}</name>
+    <description>EE4J Compatible Implementation for Java EE Security API</description>
 
     <dependencies>
         <dependency>
@@ -48,85 +40,63 @@
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <version>4.12</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-            <version>${servlet.version}</version>
+            <version>3.1.0</version>
             <scope>test</scope> <!-- Needed to implement and instantiate HttpServletRequest -->
         </dependency>
     </dependencies>
 
     <build>
         <plugins>
-            <plugin>
-                <groupId>org.glassfish.build</groupId>
-                <artifactId>spec-version-maven-plugin</artifactId>
-                <version>${spec-version-maven-plugin.version}</version>
-                <configuration>
-                    <spec>
-                        <nonFinal>${non_final}</nonFinal>
-                        <jarType>impl</jarType>
-                        <apiPackage>${api_package}</apiPackage>
-                        <implNamespace>${impl_namespace}</implNamespace>
-                        <specVersion>${spec_version}</specVersion>
-                        <newSpecVersion>${new_spec_version}</newSpecVersion>
-                        <specImplVersion>${spec_impl_version}</specImplVersion>
-                        <specBuild>${spec_build}</specBuild>
-                        <implVersion>${impl_version}</implVersion>
-                        <newImplVersion>${new_impl_version}</newImplVersion>
-                        <implBuild>${impl_build}</implBuild>
-                    </spec>
-                </configuration>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>set-spec-properties</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-            
-            <!--
-             This plugin is reponsible for packaging artifacts
-             as OSGi bundles.  Please refer to
-             http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html
-             for more information about how to use this plugin.
-           	-->
+            <!-- Creates the OSGi MANIFEST.MF file -->
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
+                <version>3.5.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-SymbolicName>${spec.bundle.symbolic-name}</Bundle-SymbolicName>
-                        <Bundle-Version>${spec.bundle.version}</Bundle-Version>
-                        <Extension-Name>${spec.extension.name}</Extension-Name>
-                        <Implementation-Version>${spec.implementation.version}</Implementation-Version>
-                        <!--
-                            The spec-version-maven-plugin doesn't seem to be generating the correct
-                            Specification-Version as specified by the Glassfish Maven Versioning Rules
-                            document. Hard-wire it here.
-
-                            https://javaee.github.io/glassfish/wiki-archive/Maven%20Versioning%20Rules.html
-
-                            <Specification-Version>${spec.specification.version}</Specification-Version>
-                        -->
-                        <Specification-Version>${spec_version}.99.${spec_build}</Specification-Version>
-                        <Export-Package>${packages.export}</Export-Package>
+                        <Bundle-SymbolicName>org.glassfish.jakarta.security.enterprise</Bundle-SymbolicName>
+                        <Bundle-Version>${project.version}</Bundle-Version>
+                        <Bundle-Name>Soteria Jakarta Security Implementation ${project.version}</Bundle-Name>
+                        <Bundle-Description>Eclipse Jakarta Security Implementation (jakarta.security/3.0) ${project.version}</Bundle-Description>                        
+                        
+                        <Specification-Title>Jakarta Security</Specification-Title>
+                        <Specification-Version>3.0</Specification-Version>
+                        
+                        <Implementation-Title>Soteria</Implementation-Title> 
+                        <Implementation-Version>${project.version}</Implementation-Version>
+                        <Implementation-Vendor>Eclipse</Implementation-Vendor> 
+                        <Implementation-Vendor-Id>org.glassfish</Implementation-Vendor-Id>
+                        
+                        <Extension-Name>jakarta.security.enterprise</Extension-Name>
+                        
+                        <Export-Package>
+                            org.glassfish.soteria.*
+                        </Export-Package>
+                        <Import-Package>
+                            !org.apache.tomee.catalina,!org.apache.tomee.catalina,!weblogic.security.jacc.simpleprovider,
+                            !weblogic.security.jacc,!org.glassfish.deployment.common,!org.glassfish.internal.api,
+                            !org.jboss.as.security.service,!org.apache.geronimo.security.jacc.mappingprovider,
+                            *
+                        </Import-Package>
                     </instructions>
                 </configuration>
             </plugin>
         </plugins>
+        
         <pluginManagement>
             <plugins>
                 <!--This plugin's configuration is used to store Eclipse m2e settings only. It has no influence on the Maven build itself.-->
                 <plugin>
                     <groupId>org.eclipse.m2e</groupId>
                     <artifactId>lifecycle-mapping</artifactId>
-                    <version>${lifecycle-mapping.version}</version>
+                    <version>1.0.0</version>
                     <configuration>
                         <lifecycleMappingMetadata>
                             <pluginExecutions>
