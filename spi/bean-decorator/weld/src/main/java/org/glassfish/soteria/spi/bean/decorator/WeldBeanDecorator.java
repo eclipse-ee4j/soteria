@@ -16,8 +16,8 @@
  */
 package org.glassfish.soteria.spi.bean.decorator;
 
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
 
 import org.glassfish.soteria.cdi.spi.BeanDecorator;
 import org.jboss.weld.bean.builtin.BeanManagerProxy;

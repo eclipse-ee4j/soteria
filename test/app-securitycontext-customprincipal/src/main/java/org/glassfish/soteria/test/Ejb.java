@@ -19,8 +19,8 @@ package org.glassfish.soteria.test;
 import java.security.Principal;
 
 import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.security.enterprise.SecurityContext;
+import jakarta.inject.Inject;
+import jakarta.security.enterprise.SecurityContext;
 import java.util.Set;
 
 @Stateless

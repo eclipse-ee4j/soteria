@@ -24,7 +24,7 @@ import java.security.Principal;
 import java.util.Set;
 
 import static java.util.Collections.emptyList;
-import static javax.security.jacc.PolicyContext.getContextID;
+import static jakarta.security.jacc.PolicyContext.getContextID;
 
 public class ReflectionAndJaccCallerDetailsResolver implements CallerDetailsResolver {
 

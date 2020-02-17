@@ -16,9 +16,9 @@
 
 package org.glassfish.soteria.cdi.spi.impl;
 
-import javax.el.ELProcessor;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.el.ELProcessor;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.glassfish.soteria.cdi.spi.CDIPerRequestInitializer;
 

@@ -37,11 +37,11 @@ import java.util.Set;
 
 import javax.ejb.EJBContext;
 import javax.security.auth.Subject;
-import javax.security.jacc.EJBRoleRefPermission;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
-import javax.security.jacc.WebResourcePermission;
-import javax.security.jacc.WebRoleRefPermission;
+import jakarta.security.jacc.EJBRoleRefPermission;
+import jakarta.security.jacc.PolicyContext;
+import jakarta.security.jacc.PolicyContextException;
+import jakarta.security.jacc.WebResourcePermission;
+import jakarta.security.jacc.WebRoleRefPermission;
 
 public class JACC {
 

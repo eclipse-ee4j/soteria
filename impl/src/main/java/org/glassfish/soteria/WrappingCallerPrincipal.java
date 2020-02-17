@@ -18,7 +18,7 @@ package org.glassfish.soteria;
 
 import java.security.Principal;
 
-import javax.security.enterprise.CallerPrincipal;
+import jakarta.security.enterprise.CallerPrincipal;
 
 public class WrappingCallerPrincipal extends CallerPrincipal {
     

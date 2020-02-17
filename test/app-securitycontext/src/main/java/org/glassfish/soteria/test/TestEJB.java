@@ -27,8 +27,8 @@ import javax.annotation.security.DeclareRoles;
 import javax.annotation.security.PermitAll;
 import javax.ejb.EJBContext;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.security.enterprise.SecurityContext;
+import jakarta.inject.Inject;
+import jakarta.security.enterprise.SecurityContext;
 
 
 @Stateless

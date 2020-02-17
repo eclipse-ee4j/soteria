@@ -17,9 +17,9 @@
 package org.glassfish.soteria.cdi;
 
 
-import javax.enterprise.util.AnnotationLiteral;
-import javax.security.enterprise.authentication.mechanism.http.FormAuthenticationMechanismDefinition;
-import javax.security.enterprise.authentication.mechanism.http.LoginToContinue;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.security.enterprise.authentication.mechanism.http.FormAuthenticationMechanismDefinition;
+import jakarta.security.enterprise.authentication.mechanism.http.LoginToContinue;
 
 /**
  * An annotation literal for <code>@FormAuthenticationMechanismDefinition</code>.

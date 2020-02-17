@@ -18,8 +18,8 @@ package org.glassfish.soteria.test;
 
 import java.util.Map;
 
-import javax.enterprise.context.Dependent;
-import javax.security.enterprise.identitystore.PasswordHash;
+import jakarta.enterprise.context.Dependent;
+import jakarta.security.enterprise.identitystore.PasswordHash;
 
 @Dependent
 public class TestPlaintextPasswordHash implements PasswordHash {

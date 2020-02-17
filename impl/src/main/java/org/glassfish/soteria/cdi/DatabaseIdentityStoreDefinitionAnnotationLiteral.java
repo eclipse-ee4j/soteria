@@ -21,10 +21,10 @@ import static org.glassfish.soteria.cdi.AnnotationELPProcessor.emptyIfImmediate;
 import static org.glassfish.soteria.cdi.AnnotationELPProcessor.evalELExpression;
 import static org.glassfish.soteria.cdi.AnnotationELPProcessor.evalImmediate;
 
-import javax.enterprise.util.AnnotationLiteral;
-import javax.security.enterprise.identitystore.DatabaseIdentityStoreDefinition;
-import javax.security.enterprise.identitystore.PasswordHash;
-import javax.security.enterprise.identitystore.IdentityStore.ValidationType;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.security.enterprise.identitystore.DatabaseIdentityStoreDefinition;
+import jakarta.security.enterprise.identitystore.PasswordHash;
+import jakarta.security.enterprise.identitystore.IdentityStore.ValidationType;
 
 /**
  * An annotation literal for <code>@DatabaseIdentityStoreDefinition</code>.

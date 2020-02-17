@@ -16,18 +16,18 @@
 
 package org.glassfish.soteria.test;
 
-import static javax.security.enterprise.authentication.mechanism.http.AuthenticationParameters.withParams;
+import static jakarta.security.enterprise.authentication.mechanism.http.AuthenticationParameters.withParams;
 
 import java.io.IOException;
 
 import javax.annotation.security.DeclareRoles;
-import javax.inject.Inject;
-import javax.security.enterprise.SecurityContext;
-import javax.servlet.ServletException;
-import javax.servlet.annotation.WebServlet;
-import javax.servlet.http.HttpServlet;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.inject.Inject;
+import jakarta.security.enterprise.SecurityContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import java.security.Principal;
 
 /**
@@ -38,6 +38,8 @@ import java.security.Principal;
 @DeclareRoles("admin")
 @WebServlet("/ejb-servlet")
 public class EjbServlet extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
 
     @Inject
     private SecurityContext securityContext;

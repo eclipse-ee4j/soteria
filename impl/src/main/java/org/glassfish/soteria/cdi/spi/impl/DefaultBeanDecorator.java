@@ -16,8 +16,8 @@
  */
 package org.glassfish.soteria.cdi.spi.impl;
 
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
 
 import org.glassfish.soteria.DefaultService;
 import org.glassfish.soteria.cdi.spi.BeanDecorator;

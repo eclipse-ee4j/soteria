@@ -19,8 +19,8 @@ package org.glassfish.soteria.cdi;
 import static org.glassfish.soteria.cdi.AnnotationELPProcessor.evalELExpression;
 import static org.glassfish.soteria.cdi.AnnotationELPProcessor.evalImmediate;
 
-import javax.enterprise.util.AnnotationLiteral;
-import javax.security.enterprise.authentication.mechanism.http.BasicAuthenticationMechanismDefinition;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.security.enterprise.authentication.mechanism.http.BasicAuthenticationMechanismDefinition;
 
 /**
  * An annotation literal for <code>@BasicAuthenticationMechanismDefinition</code>.

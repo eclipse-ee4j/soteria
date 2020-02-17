@@ -22,7 +22,7 @@ import static org.glassfish.soteria.cdi.CdiUtils.getELProcessor;
 
 import java.lang.reflect.Array;
 
-import javax.el.ELProcessor;
+import jakarta.el.ELProcessor;
 
 public class AnnotationELPProcessor {
     

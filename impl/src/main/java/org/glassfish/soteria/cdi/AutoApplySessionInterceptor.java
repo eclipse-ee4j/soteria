@@ -16,9 +16,9 @@
 
 package org.glassfish.soteria.cdi;
 
+import static jakarta.interceptor.Interceptor.Priority.PLATFORM_BEFORE;
+import static jakarta.security.enterprise.AuthenticationStatus.SUCCESS;
 import static java.lang.Boolean.TRUE;
-import static javax.interceptor.Interceptor.Priority.PLATFORM_BEFORE;
-import static javax.security.enterprise.AuthenticationStatus.SUCCESS;
 import static org.glassfish.soteria.Utils.isImplementationOf;
 import static org.glassfish.soteria.Utils.validateRequestMethod;
 
@@ -26,15 +26,15 @@ import java.io.Serializable;
 import java.security.Principal;
 
 import javax.annotation.Priority;
-import javax.el.ELProcessor;
-import javax.interceptor.AroundInvoke;
-import javax.interceptor.Interceptor;
-import javax.interceptor.InvocationContext;
 import javax.security.auth.callback.Callback;
-import javax.security.auth.message.callback.CallerPrincipalCallback;
-import javax.security.enterprise.authentication.mechanism.http.AutoApplySession;
-import javax.security.enterprise.authentication.mechanism.http.HttpMessageContext;
-import javax.servlet.http.HttpServletRequest;
+
+import jakarta.interceptor.AroundInvoke;
+import jakarta.interceptor.Interceptor;
+import jakarta.interceptor.InvocationContext;
+import jakarta.security.auth.message.callback.CallerPrincipalCallback;
+import jakarta.security.enterprise.authentication.mechanism.http.AutoApplySession;
+import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 @Interceptor
 @AutoApplySession
@@ -65,7 +65,7 @@ public class AutoApplySessionInterceptor implements Serializable {
             Object outcome = invocationContext.proceed();
             
             if (SUCCESS.equals(outcome)) {
-                httpMessageContext.getMessageInfo().getMap().put("javax.servlet.http.registerSession", TRUE.toString());
+                httpMessageContext.getMessageInfo().getMap().put("jakarta.servlet.http.registerSession", TRUE.toString());
             }
             
             return outcome;

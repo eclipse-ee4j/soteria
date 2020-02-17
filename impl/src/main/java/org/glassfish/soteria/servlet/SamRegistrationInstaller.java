@@ -25,12 +25,12 @@ import static org.glassfish.soteria.mechanisms.jaspic.Jaspic.registerServerAuthM
 import java.util.Set;
 import java.util.logging.Logger;
 
-import javax.enterprise.inject.spi.BeanManager;
-import javax.servlet.ServletContainerInitializer;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletContextEvent;
-import javax.servlet.ServletContextListener;
-import javax.servlet.ServletException;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import jakarta.servlet.ServletException;
 
 import org.glassfish.soteria.cdi.CdiExtension;
 import org.glassfish.soteria.cdi.CdiUtils;

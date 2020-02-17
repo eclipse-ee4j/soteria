@@ -18,9 +18,9 @@ package org.glassfish.soteria.cdi;
 
 import static org.glassfish.soteria.cdi.AnnotationELPProcessor.evalELExpression;
 
-import javax.enterprise.util.AnnotationLiteral;
-import javax.security.enterprise.identitystore.IdentityStore.ValidationType;
-import javax.security.enterprise.identitystore.LdapIdentityStoreDefinition;
+import jakarta.enterprise.util.AnnotationLiteral;
+import jakarta.security.enterprise.identitystore.IdentityStore.ValidationType;
+import jakarta.security.enterprise.identitystore.LdapIdentityStoreDefinition;
 
 /**
  * An annotation literal for <code>@LdapIdentityStoreDefinition</code>.

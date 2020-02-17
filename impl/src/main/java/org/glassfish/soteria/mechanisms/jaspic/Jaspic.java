@@ -26,22 +26,22 @@ import java.security.PrivilegedAction;
 import java.util.List;
 import java.util.Set;
 
-import javax.security.enterprise.AuthenticationStatus;
+import jakarta.security.enterprise.AuthenticationStatus;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.CallbackHandler;
 import javax.security.auth.callback.UnsupportedCallbackException;
-import javax.security.auth.message.AuthStatus;
-import javax.security.auth.message.MessageInfo;
-import javax.security.auth.message.callback.CallerPrincipalCallback;
-import javax.security.auth.message.callback.GroupPrincipalCallback;
-import javax.security.auth.message.config.AuthConfigFactory;
-import javax.security.auth.message.module.ServerAuthModule;
-import javax.security.enterprise.authentication.mechanism.http.AuthenticationParameters;
-import javax.servlet.ServletContext;
-import javax.servlet.ServletException;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.security.auth.message.AuthStatus;
+import jakarta.security.auth.message.MessageInfo;
+import jakarta.security.auth.message.callback.CallerPrincipalCallback;
+import jakarta.security.auth.message.callback.GroupPrincipalCallback;
+import jakarta.security.auth.message.config.AuthConfigFactory;
+import jakarta.security.auth.message.module.ServerAuthModule;
+import jakarta.security.enterprise.authentication.mechanism.http.AuthenticationParameters;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * A set of utility methods for using the JASPIC API
@@ -68,8 +68,8 @@ public final class Jaspic {
 	// Key in the MessageInfo Map that when present AND set to true indicated a protected resource is being accessed.
 	// When the resource is not protected, GlassFish omits the key altogether. WebSphere does insert the key and sets
 	// it to false.
-	private static final String IS_MANDATORY = "javax.security.auth.message.MessagePolicy.isMandatory";
-	private static final String REGISTER_SESSION = "javax.servlet.http.registerSession";
+	private static final String IS_MANDATORY = "jakarta.security.auth.message.MessagePolicy.isMandatory";
+	private static final String REGISTER_SESSION = "jakarta.servlet.http.registerSession";
 
 	private Jaspic() {}
 	
@@ -138,7 +138,7 @@ public final class Jaspic {
 	
 	@SuppressWarnings("unchecked")
 	public static void setRegisterSession(MessageInfo messageInfo, String username, Set<String> roles) {
-		messageInfo.getMap().put("javax.servlet.http.registerSession", TRUE.toString());
+		messageInfo.getMap().put("jakarta.servlet.http.registerSession", TRUE.toString());
 		
 		HttpServletRequest request = (HttpServletRequest) messageInfo.getRequestMessage();
 		request.setAttribute(LOGGEDIN_USERNAME, username);

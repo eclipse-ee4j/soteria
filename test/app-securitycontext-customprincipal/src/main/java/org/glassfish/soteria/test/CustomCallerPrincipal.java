@@ -16,7 +16,7 @@
 
 package org.glassfish.soteria.test;
 
-import javax.security.enterprise.CallerPrincipal;
+import jakarta.security.enterprise.CallerPrincipal;
 
 public class CustomCallerPrincipal extends CallerPrincipal {
 

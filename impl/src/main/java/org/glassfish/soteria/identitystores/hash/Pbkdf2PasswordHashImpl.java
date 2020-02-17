@@ -28,8 +28,8 @@ import java.util.Set;
 
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import javax.enterprise.context.Dependent;
-import javax.security.enterprise.identitystore.Pbkdf2PasswordHash;
+import jakarta.enterprise.context.Dependent;
+import jakarta.security.enterprise.identitystore.Pbkdf2PasswordHash;
 
 @Dependent
 public class Pbkdf2PasswordHashImpl implements Pbkdf2PasswordHash {

@@ -34,6 +34,9 @@
    <name>Soteria SPI : Bean Decorator</name>
 
    <modules>
+    
+        <!--  DISABLE UNTIL A WELD VERSION USING JAKARTA APIS IS RELEASED
         <module>weld</module>
+        -->
     </modules>
 </project>

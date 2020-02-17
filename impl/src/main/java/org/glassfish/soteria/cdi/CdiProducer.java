@@ -27,11 +27,11 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.function.Function;
 
-import javax.enterprise.context.Dependent;
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.InjectionPoint;
-import javax.enterprise.inject.spi.PassivationCapable;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.InjectionPoint;
+import jakarta.enterprise.inject.spi.PassivationCapable;
 
 // May be replaced by CDI 2.0 bean builder API when ready.
 // See http://weld.cdi-spec.org/news/2015/02/25/weld-300Alpha5/#_bean_builder_api

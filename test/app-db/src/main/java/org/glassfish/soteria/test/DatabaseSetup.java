@@ -28,9 +28,9 @@ import javax.annotation.Resource;
 import javax.annotation.sql.DataSourceDefinition;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-import javax.inject.Inject;
+import jakarta.inject.Inject;
 import javax.sql.DataSource;
-import javax.security.enterprise.identitystore.Pbkdf2PasswordHash;
+import jakarta.security.enterprise.identitystore.Pbkdf2PasswordHash;
 
 @DataSourceDefinition(
     // global to circumvent https://java.net/jira/browse/GLASSFISH-21447
