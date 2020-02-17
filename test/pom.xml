@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+    Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
 
     This program and the accompanying materials are made available under the
     terms of the Eclipse Public License v. 2.0, which is available at
@@ -35,8 +35,8 @@
     <properties>
         <!-- Test servers -->
         
-        <!-- Note: Payara 5.182 has EE Security (Soteria) included, and can be updated via this pom -->
-        <payara.version>5.182</payara.version>
+        <!-- Note: Payara 5.194 has EE Security (Soteria) included, and can be updated via this pom -->
+        <payara.version>5.194</payara.version>
         
         <glassfish.version>LATEST</glassfish.version>
         
@@ -61,6 +61,8 @@
         <docker-maven-plugin.version>0.26.0</docker-maven-plugin.version>
 		
 		<jacc-provider.version>0.3</jacc-provider.version>
+        
+        <foo>${session.executionRootDirectory}</foo>
     </properties>
     
     
@@ -293,7 +295,7 @@
                         <artifactId>maven-dependency-plugin</artifactId>
                         <executions>
                             <execution>
-                                <id>Update Payara</id>
+                                <id>Update Payara - replace jars</id>
                                 <phase>pre-integration-test</phase>
                                 <goals>
                                     <goal>copy</goal>
@@ -321,6 +323,27 @@
                                             <outputDirectory>${session.executionRootDirectory}/target/payara5/glassfish/modules</outputDirectory>
                                         </artifactItem>
                                     </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>1.8</version>
+                        <executions>
+                            <execution>
+                                <id>Update Payara - delete jars</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <property name="antProperty" value="${foo}"/>
+                                        <echo>deleting ${antProperty}/target/payara5/glassfish/modules/microprofile-jwt-auth.jar</echo>
+                                        <delete file="${session.executionRootDirectory}/target/payara5/glassfish/modules/microprofile-jwt-auth.jar" verbose="true"/>
+                                    </target>
                                 </configuration>
                             </execution>
                         </executions>
@@ -378,6 +401,9 @@
                                             <version>${payara.version}</version>
                                             <type>zip</type>
                                             <overWrite>false</overWrite>
+                                            <excludes>
+                                                **/microprofile-jwt-auth.jar
+                                            </excludes>
                                             <outputDirectory>${session.executionRootDirectory}/target</outputDirectory>
                                         </artifactItem>
                                     </artifactItems>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -44,6 +44,7 @@ import javax.security.enterprise.CallerPrincipal;
 import javax.security.jacc.PolicyContext;
 import javax.security.jacc.PolicyContextException;
 import javax.servlet.http.HttpServletRequest;
+
 import org.glassfish.soteria.authorization.EJB;
 import org.glassfish.soteria.authorization.JACC;
 
@@ -68,7 +69,8 @@ public class SubjectParser {
             // Geronimo 3.0.1 contains a protection mechanism to ensure only a Geronimo policy provider is installed.
             // This protection can be beat by creating an instance of GeronimoPolicyConfigurationFactory once. This instance
             // will statically register itself with an internal Geronimo class
-            geronimoPolicyConfigurationFactoryInstance = Class.forName("org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory").newInstance();
+
+            geronimoPolicyConfigurationFactoryInstance = Class.forName(className("org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfiguration")).newInstance();
             geronimoContextToRoleMapping = new ConcurrentHashMap<>();
         } catch (Exception e) {
             // ignore
@@ -82,7 +84,7 @@ public class SubjectParser {
 
             // PrincipalRoleConfiguration
             try {
-                Class<?> geronimoPolicyConfigurationClass = Class.forName("org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfiguration");
+                Class<?> geronimoPolicyConfigurationClass = Class.forName(className("org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfiguration"));
 
                 Object geronimoPolicyConfigurationProxy = Proxy.newProxyInstance(SubjectParser.class.getClassLoader(), new Class[]{geronimoPolicyConfigurationClass}, new InvocationHandler() {
 
@@ -103,7 +105,7 @@ public class SubjectParser {
 
                 // Set the proxy on the GeronimoPolicyConfigurationFactory so it will call us back later with the role mapping via the following method:
                 // public void setPolicyConfiguration(String contextID, GeronimoPolicyConfiguration configuration) {
-                Class.forName("org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory")
+                Class.forName(className("org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfigurationFactory"))
                         .getMethod("setPolicyConfiguration", String.class, geronimoPolicyConfigurationClass)
                         .invoke(geronimoPolicyConfigurationFactoryInstance, contextID, geronimoPolicyConfigurationProxy);
 
@@ -241,7 +243,7 @@ public class SubjectParser {
 
     private boolean tryJBoss() {
         try {
-            Class.forName("org.jboss.as.security.service.JaccService", false, Thread.currentThread().getContextClassLoader());
+            Class.forName(className("org.jboss.as.security.service.JaccService"), false, Thread.currentThread().getContextClassLoader());
 
             // For not only establish that we're running on JBoss, ignore the
             // role mapper for now
@@ -262,7 +264,7 @@ public class SubjectParser {
         // Liberty as only server disables its otherwise mandatory role mapping
         // when portable authentication is used. All other servers have this
         // decoupled - groups from portable authentication modules can be role
-        // mapped by the proprietary role mapper. For now we thus assume 1:1 
+        // mapped by the proprietary role mapper. For now we thus assume 1:1
         // role mapping for Liberty.
         oneToOneMapping = true;
         return isLiberty;
@@ -271,9 +273,9 @@ public class SubjectParser {
     private boolean tryGlassFish(String contextID, Collection<String> allDeclaredRoles) {
 
         try {
-            Class<?> SecurityRoleMapperFactoryClass = Class.forName("org.glassfish.deployment.common.SecurityRoleMapperFactory");
+            Class<?> SecurityRoleMapperFactoryClass = Class.forName(className("org.glassfish.deployment.common.SecurityRoleMapperFactory"));
 
-            Object factoryInstance = Class.forName("org.glassfish.internal.api.Globals")
+            Object factoryInstance = Class.forName(className(className("org.glassfish.internal.api.Globals")))
                     .getMethod("get", SecurityRoleMapperFactoryClass.getClass())
                     .invoke(null, SecurityRoleMapperFactoryClass);
 
@@ -281,7 +283,7 @@ public class SubjectParser {
                     .invoke(factoryInstance, contextID);
 
             @SuppressWarnings("unchecked")
-            Map<String, Subject> roleToSubjectMap = (Map<String, Subject>) Class.forName("org.glassfish.deployment.common.SecurityRoleMapper")
+            Map<String, Subject> roleToSubjectMap = (Map<String, Subject>) Class.forName(className("org.glassfish.deployment.common.SecurityRoleMapper"))
                     .getMethod("getRoleToSubjectMapping")
                     .invoke(securityRoleMapperInstance);
 
@@ -327,7 +329,7 @@ public class SubjectParser {
         try {
 
             // See http://docs.oracle.com/cd/E21764_01/apirefs.1111/e13941/weblogic/security/jacc/RoleMapperFactory.html
-            Class<?> roleMapperFactoryClass = Class.forName("weblogic.security.jacc.RoleMapperFactory");
+            Class<?> roleMapperFactoryClass = Class.forName(className("weblogic.security.jacc.RoleMapperFactory"));
 
             // RoleMapperFactory implementation class always seems to be the value of what is passed on the commandline
             // via the -Dweblogic.security.jacc.RoleMapperFactory.provider option.
@@ -343,7 +345,7 @@ public class SubjectParser {
             // distinguish between the two.
             // If a user now has a name that happens to be a role as well, we have an issue :X
             @SuppressWarnings("unchecked")
-            Map<String, String[]> roleToPrincipalNamesMap = (Map<String, String[]>) Class.forName("weblogic.security.jacc.simpleprovider.RoleMapperImpl")
+            Map<String, String[]> roleToPrincipalNamesMap = (Map<String, String[]>) Class.forName(className("weblogic.security.jacc.simpleprovider.RoleMapperImpl"))
                     .getMethod("getRolesToPrincipalNames")
                     .invoke(roleMapperInstance);
 
@@ -493,7 +495,7 @@ public class SubjectParser {
                     Principal tomeePrincipal = (Principal) Class.forName("org.apache.catalina.realm.GenericPrincipal")
                             .getMethod("getUserPrincipal")
                             .invoke(
-                                    Class.forName("org.apache.tomee.catalina.TomcatSecurityService$TomcatUser")
+                                    Class.forName(className("org.apache.tomee.catalina.TomcatSecurityService$TomcatUser"))
                                             .getMethod("getTomcatPrincipal")
                                             .invoke(principal));
 
@@ -543,10 +545,10 @@ public class SubjectParser {
             case "org.apache.tomee.catalina.TomcatSecurityService$TomcatUser": // TomEE
                 try {
                     groups.addAll(
-                            asList((String[]) Class.forName("org.apache.catalina.realm.GenericPrincipal")
+                            asList((String[]) Class.forName(className("org.apache.catalina.realm.GenericPrincipal"))
                                     .getMethod("getRoles")
                                     .invoke(
-                                            Class.forName("org.apache.tomee.catalina.TomcatSecurityService$TomcatUser")
+                                            Class.forName(className("org.apache.tomee.catalina.TomcatSecurityService$TomcatUser"))
                                                     .getMethod("getTomcatPrincipal")
                                                     .invoke(principal))));
 
@@ -557,6 +559,16 @@ public class SubjectParser {
         }
 
         return false;
+    }
+
+    private static String className(String name) {
+        // Make sure overly eager bytecode scanners don't see the reflective optional
+        // dependencies as easily
+        if (geronimoPolicyConfigurationFactoryInstance == "cannotbetrue") {
+            return "";
+        }
+
+        return name;
     }
 
 }
