@@ -77,7 +77,7 @@ public class ArquillianBase {
             @Override
             public void printContentIfNecessary(WebResponse webResponse) {
                 int statusCode = webResponse.getStatusCode();
-                if (getOptions().getPrintContentOnFailingStatusCode() && !(statusCode >= SC_OK && statusCode < SC_MULTIPLE_CHOICES)) {
+                if (getOptions().isPrintContentOnFailingStatusCode() && !(statusCode >= SC_OK && statusCode < SC_MULTIPLE_CHOICES)) {
                     logger.log(SEVERE, webResponse.getWebRequest().getUrl().toExternalForm());
                 }
                 super.printContentIfNecessary(webResponse);
