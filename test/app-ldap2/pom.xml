@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <!--
 
     Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
@@ -28,15 +29,11 @@
 
     <artifactId>app-ldap2</artifactId>
     <packaging>war</packaging>
-    
-    <build>
-        <finalName>app-ldap2</finalName>
-    </build>
-    
+
     <properties>
         <failOnMissingWebXml>false</failOnMissingWebXml>
     </properties>
-    
+
     <dependencies>
         <dependency>
             <groupId>org.glassfish.soteria.test</groupId>
@@ -51,4 +48,7 @@
         </dependency>
     </dependencies>
 
+    <build>
+        <finalName>app-ldap2</finalName>
+    </build>
 </project>

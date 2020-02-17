@@ -32,66 +32,6 @@
 
     <name>Soteria Integration Tests and Examples</name>
 
-    <properties>
-        <!-- Test servers -->
-        
-        <!-- Note: Payara 5.194 has EE Security (Soteria) included, and can be updated via this pom -->
-        <payara.version>5.194</payara.version>
-        
-        <glassfish.version>LATEST</glassfish.version>
-        
-        <!-- Note: WildFly 13 has EE Security (Soteria) included, but not activated -->
-        <wildfly.version>12.0.0.Final</wildfly.version>
-        
-        <tomee.version>7.0.4</tomee.version>
-        
-        <!-- Note: Liberty 18.0.0.2 has EE Security included -->
-        <openliberty.version>18.0.0.1</openliberty.version>
-        
-        <arquillian-glassfish-managed-3.1.version>1.0.2</arquillian-glassfish-managed-3.1.version>
-        <arquillian-glassfish-embedded-3.1.version>1.0.2</arquillian-glassfish-embedded-3.1.version>
-        <arquillian-glassfish-remote-3.1.version>1.0.2</arquillian-glassfish-remote-3.1.version>
-        <arquillian-payara-server-managed.version>2.1</arquillian-payara-server-managed.version>
-        <wildfly-arquillian-container-managed.version>2.1.0.Final</wildfly-arquillian-container-managed.version>
-		
-		<jacc-provider.version>0.3</jacc-provider.version>
-        
-        <foo>${session.executionRootDirectory}</foo>
-    </properties>
-    
-    
-    <repositories>
-    
-        <!-- Make sure Maven central is consulted first -->
-        <repository>
-            <id>central</id>
-            <name>Central Repository</name>
-
-            <url>https://repo.maven.apache.org/maven2</url>
-
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    
-        <repository>
-            <id>payara-milestones</id>
-            <name>Payara Milestones</name>
-            <url>https://raw.github.com/payara/Payara_PatchedProjects/master</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-
-
     <!-- 
                 M O D U L E S
                 
@@ -99,7 +39,6 @@
                 module which contains utility code.  
                 
     -->
-
     <modules>
         <module>common</module>
 
@@ -132,6 +71,32 @@
         <module>app-jaxrs</module>
     </modules>
 
+    <properties>
+        <!-- Test servers -->
+        
+        <!-- Note: Payara 5.194 has EE Security (Soteria) included, and can be updated via this pom -->
+        <payara.version>5.194</payara.version>
+        
+        <glassfish.version>LATEST</glassfish.version>
+        
+        <!-- Note: WildFly 13 has EE Security (Soteria) included, but not activated -->
+        <wildfly.version>12.0.0.Final</wildfly.version>
+        
+        <tomee.version>7.0.4</tomee.version>
+        
+        <!-- Note: Liberty 18.0.0.2 has EE Security included -->
+        <openliberty.version>18.0.0.1</openliberty.version>
+        
+        <arquillian-glassfish-managed-3.1.version>1.0.2</arquillian-glassfish-managed-3.1.version>
+        <arquillian-glassfish-embedded-3.1.version>1.0.2</arquillian-glassfish-embedded-3.1.version>
+        <arquillian-glassfish-remote-3.1.version>1.0.2</arquillian-glassfish-remote-3.1.version>
+        <arquillian-payara-server-managed.version>2.1</arquillian-payara-server-managed.version>
+        <wildfly-arquillian-container-managed.version>2.1.0.Final</wildfly-arquillian-container-managed.version>
+		
+		<jacc-provider.version>0.3</jacc-provider.version>
+        
+        <foo>${session.executionRootDirectory}</foo>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
@@ -139,8 +104,8 @@
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
                 <version>1.6.0.Final</version>
-                <scope>import</scope>
                 <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>fish.payara.arquillian</groupId>
@@ -150,8 +115,6 @@
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-
     <dependencies>
         <dependency>
             <groupId>junit</groupId>
@@ -180,6 +143,35 @@
         </dependency>
     </dependencies>
 
+    <repositories>
+    
+        <!-- Make sure Maven central is consulted first -->
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+
+            <url>https://repo.maven.apache.org/maven2</url>
+
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    
+        <repository>
+            <id>payara-milestones</id>
+            <name>Payara Milestones</name>
+            <url>https://raw.github.com/payara/Payara_PatchedProjects/master</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <build>
         <pluginManagement>
@@ -217,8 +209,6 @@
         </plugins>
     </build>
 
-
-
     <!-- 
     
             P R O F I L E S
@@ -230,8 +220,6 @@
             2. The server against which the tests should be done
     
      -->
-
-
     <profiles>
         <!--
             This profile assumes a target that already has the Soteria libraries.
@@ -471,8 +459,8 @@
             <dependencies>
                 <dependency>
                     <groupId>fish.payara.arquillian</groupId>
-                    <artifactId>arquillian-payara-server-4-remote</artifactId> 
-                    <version>${arquillian-payara-server-managed.version}</version> 
+                    <artifactId>arquillian-payara-server-4-remote</artifactId>
+                    <version>${arquillian-payara-server-managed.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
@@ -484,8 +472,8 @@
             <dependencies>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
-                    <artifactId>arquillian-glassfish-remote-3.1</artifactId> 
-                    <version>${arquillian-glassfish-remote-3.1.version}</version> 
+                    <artifactId>arquillian-glassfish-remote-3.1</artifactId>
+                    <version>${arquillian-glassfish-remote-3.1.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
@@ -681,9 +669,9 @@
                     <groupId>org.apache.tomee</groupId>
                     <artifactId>apache-tomee</artifactId>
                     <version>${tomee.version}</version>
-                    <scope>test</scope>
                     <type>zip</type>
                     <classifier>plus</classifier>
+                    <scope>test</scope>
                 </dependency>
 
                 <dependency>
@@ -965,5 +953,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>
