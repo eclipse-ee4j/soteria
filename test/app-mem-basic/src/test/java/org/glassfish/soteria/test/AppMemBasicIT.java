@@ -44,7 +44,7 @@ public class AppMemBasicIT extends ArquillianBase {
     public void testAuthenticated() {
     	
     	DefaultCredentialsProvider credentialsProvider = new DefaultCredentialsProvider();
-    	credentialsProvider.addCredentials("reza", "secret1");
+    	credentialsProvider.addCredentials("reza", "secret:1");
     	
     	getWebClient().setCredentialsProvider(credentialsProvider);
     	
@@ -71,7 +71,7 @@ public class AppMemBasicIT extends ArquillianBase {
     public void testNotAuthenticatedWrongName() {
     	
     	DefaultCredentialsProvider credentialsProvider = new DefaultCredentialsProvider();
-    	credentialsProvider.addCredentials("romo", "secret1");
+    	credentialsProvider.addCredentials("romo", "secret:1");
     	
     	getWebClient().setCredentialsProvider(credentialsProvider);
     	
