@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Payara Foundation and/or its affiliates and others.
+ * Copyright (c) 2018, 2020 Payara Foundation and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -18,7 +18,7 @@ package test;
 
 import java.io.IOException;
 
-import javax.annotation.Priority;
+import jakarta.annotation.Priority;
 import jakarta.decorator.Decorator;
 import jakarta.decorator.Delegate;
 import jakarta.inject.Inject;

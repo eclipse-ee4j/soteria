@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -68,81 +68,51 @@ public class HttpMessageContextImpl implements HttpMessageContext {
         }
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#isProtected()
-     */
     @Override
     public boolean isProtected() {
         return Jaspic.isProtectedResource(messageInfo);
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#isAuthenticationRequest()
-     */
     @Override
     public boolean isAuthenticationRequest() {
         return Jaspic.isAuthenticationRequest(getRequest());
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#isRegisterSession()
-     */
     @Override
     public boolean isRegisterSession() {
         return Jaspic.isRegisterSession(messageInfo);
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#setRegisterSession(java.lang.String, java.util.Set)
-     */
     @Override
     public void setRegisterSession(String username, Set<String> groups) {
         Jaspic.setRegisterSession(messageInfo, username, groups);
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#cleanClientSubject()
-     */
     @Override
     public void cleanClientSubject() {
         Jaspic.cleanSubject(clientSubject);
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#getAuthParameters()
-     */
     @Override
     public AuthenticationParameters getAuthParameters() {
         return authParameters;
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#getHandler()
-     */
     @Override
     public CallbackHandler getHandler() {
         return handler;
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#getMessageInfo()
-     */
     @Override
     public MessageInfo getMessageInfo() {
         return messageInfo;
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#getClientSubject()
-     */
     @Override
     public Subject getClientSubject() {
         return clientSubject;
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#getRequest()
-     */
     @Override
     public HttpServletRequest getRequest() {
         return (HttpServletRequest) messageInfo.getRequestMessage();
@@ -159,9 +129,6 @@ public class HttpMessageContextImpl implements HttpMessageContext {
         return this;
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#getResponse()
-     */
     @Override
     public HttpServletResponse getResponse() {
         return (HttpServletResponse) messageInfo.getResponseMessage();
@@ -192,9 +159,6 @@ public class HttpMessageContextImpl implements HttpMessageContext {
         return SEND_CONTINUE;
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#responseUnAuthorized()
-     */
     @Override
     public AuthenticationStatus responseUnauthorized() {
         try {
@@ -206,9 +170,6 @@ public class HttpMessageContextImpl implements HttpMessageContext {
         return SEND_FAILURE;
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#responseNotFound()
-     */
     @Override
     public AuthenticationStatus responseNotFound() {
         try {
@@ -220,9 +181,6 @@ public class HttpMessageContextImpl implements HttpMessageContext {
         return SEND_FAILURE;
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#notifyContainerAboutLogin(java.lang.String, java.util.Set)
-     */
     @Override
     public AuthenticationStatus notifyContainerAboutLogin(String callerName, Set<String> groups) {
         NameHolderPrincipal nameHolder = null;
@@ -268,9 +226,6 @@ public class HttpMessageContextImpl implements HttpMessageContext {
         return SUCCESS;
     }
 
-    /* (non-Javadoc)
-     * @see javax.security.authenticationmechanism.http.HttpMessageContext#doNothing()
-     */
     @Override
     public AuthenticationStatus doNothing() {
         this.callerPrincipal = null;
