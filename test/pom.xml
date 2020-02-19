@@ -23,7 +23,7 @@
     <parent>
        <groupId>org.glassfish.soteria</groupId>
        <artifactId>parent</artifactId>
-       <version>1.1-SNAPSHOT</version>
+       <version>2.0.0-SNAPSHOT</version>
     </parent>
 
     <groupId>org.glassfish.soteria.test</groupId>
@@ -32,72 +32,6 @@
 
     <name>Soteria Integration Tests and Examples</name>
 
-    <properties>
-        <!-- Test servers -->
-        
-        <!-- Note: Payara 5.194 has EE Security (Soteria) included, and can be updated via this pom -->
-        <payara.version>5.194</payara.version>
-        
-        <glassfish.version>LATEST</glassfish.version>
-        
-        <!-- Note: WildFly 13 has EE Security (Soteria) included, but not activated -->
-        <wildfly.version>12.0.0.Final</wildfly.version>
-        
-        <tomee.version>7.0.4</tomee.version>
-        
-        <!-- Note: Liberty 18.0.0.2 has EE Security included -->
-        <openliberty.version>18.0.0.1</openliberty.version>
-        
-        <arquillian-bom.version>1.4.0.Final</arquillian-bom.version>
-        <junit.version>4.12</junit.version>
-        <htmlunit.version>2.30</htmlunit.version>
-        <jsoup.version>1.11.3</jsoup.version>
-        <failsafe-plugin.version>2.21.0</failsafe-plugin.version>
-        <arquillian-glassfish-managed-3.1.version>1.0.2</arquillian-glassfish-managed-3.1.version>
-        <arquillian-glassfish-embedded-3.1.version>1.0.2</arquillian-glassfish-embedded-3.1.version>
-        <arquillian-glassfish-remote-3.1.version>1.0.2</arquillian-glassfish-remote-3.1.version>
-        <arquillian-payara-server-4-managed.version>1.0.Beta3</arquillian-payara-server-4-managed.version>
-        <wildfly-arquillian-container-managed.version>2.1.0.Final</wildfly-arquillian-container-managed.version>
-        <docker-maven-plugin.version>0.26.0</docker-maven-plugin.version>
-		
-		<jacc-provider.version>0.3</jacc-provider.version>
-        
-        <foo>${session.executionRootDirectory}</foo>
-    </properties>
-    
-    
-    <repositories>
-    
-        <!-- Make sure Maven central is consulted first -->
-        <repository>
-            <id>central</id>
-            <name>Central Repository</name>
-
-            <url>https://repo.maven.apache.org/maven2</url>
-
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    
-        <repository>
-            <id>payara-milestones</id>
-            <name>Payara Milestones</name>
-            <url>https://raw.github.com/payara/Payara_PatchedProjects/master</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
-    </repositories>
-
-
-
     <!-- 
                 M O D U L E S
                 
@@ -105,7 +39,6 @@
                 module which contains utility code.  
                 
     -->
-
     <modules>
         <module>common</module>
 
@@ -138,31 +71,71 @@
         <module>app-jaxrs</module>
     </modules>
 
+    <properties>
+        <!-- Test servers -->
+        
+        <!-- Note: Payara 5.194 has EE Security (Soteria) included, and can be updated via this pom -->
+        <payara.version>5.194</payara.version>
+        
+        <glassfish.version>LATEST</glassfish.version>
+        
+        <!-- Note: WildFly 13 has EE Security (Soteria) included, but not activated -->
+        <wildfly.version>12.0.0.Final</wildfly.version>
+        
+        <tomee.version>7.0.4</tomee.version>
+        
+        <!-- Note: Liberty 18.0.0.2 has EE Security included -->
+        <openliberty.version>18.0.0.1</openliberty.version>
+        
+        <arquillian-glassfish-managed-3.1.version>1.0.2</arquillian-glassfish-managed-3.1.version>
+        <arquillian-glassfish-embedded-3.1.version>1.0.2</arquillian-glassfish-embedded-3.1.version>
+        <arquillian-glassfish-remote-3.1.version>1.0.2</arquillian-glassfish-remote-3.1.version>
+        <arquillian-payara-server-managed.version>2.1</arquillian-payara-server-managed.version>
+        <wildfly-arquillian-container-managed.version>2.1.0.Final</wildfly-arquillian-container-managed.version>
+		
+		<jacc-provider.version>0.3</jacc-provider.version>
+        
+        <foo>${session.executionRootDirectory}</foo>
+    </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
-                <version>${arquillian-bom.version}</version>
-                <scope>import</scope>
+                <version>1.6.0.Final</version>
                 <type>pom</type>
+                <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>fish.payara.arquillian</groupId>
                 <artifactId>payara-client-ee8</artifactId>
-                <version>1.0.Beta3-m1</version>
+                <version>2.1</version>
                 <scope>test</scope>
             </dependency>
         </dependencies>
     </dependencyManagement>
-
-
     <dependencies>
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>2.1.6</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.faces</groupId>
+            <artifactId>jakarta.faces-api</artifactId>
+            <version>2.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>jakarta.validation</groupId>
+            <artifactId>jakarta.validation-api</artifactId>
+            <version>3.0.0-M1</version>
+        </dependency>
+    
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
-            <version>${junit.version}</version>
+            <version>4.13</version>
             <scope>test</scope>
         </dependency>
 
@@ -175,24 +148,66 @@
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>${htmlunit.version}</version>
+            <version>2.37.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>${jsoup.version}</version>
+            <version>1.12.2</version><!--$NO-MVN-MAN-VER$-->
         </dependency>
     </dependencies>
 
+    <repositories>
+    
+        <!-- Make sure Maven central is consulted first -->
+        <repository>
+            <id>central</id>
+            <name>Central Repository</name>
+
+            <url>https://repo.maven.apache.org/maven2</url>
+
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    
+        <repository>
+            <id>payara-milestones</id>
+            <name>Payara Milestones</name>
+            <url>https://raw.github.com/payara/Payara_PatchedProjects/master</url>
+            <releases>
+                <enabled>true</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </repositories>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-dependency-plugin</artifactId>
+                    <version>3.1.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-failsafe-plugin</artifactId>
+                    <version>3.0.0-M4</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
-                <version>${failsafe-plugin.version}</version>
                 <executions>
                     <execution>
                         <goals>
@@ -210,8 +225,6 @@
         </plugins>
     </build>
 
-
-
     <!-- 
     
             P R O F I L E S
@@ -223,8 +236,6 @@
             2. The server against which the tests should be done
     
      -->
-
-
     <profiles>
         <!--
             This profile assumes a target that already has the Soteria libraries.
@@ -238,8 +249,8 @@
             </activation>
             <dependencies>
                 <dependency>
-                   <groupId>javax.security.enterprise</groupId>
-                   <artifactId>javax.security.enterprise-api</artifactId>
+                   <groupId>jakarta.security.enterprise</groupId>
+                   <artifactId>jakarta.security.enterprise-api</artifactId>
                    <version>${api_dependency_version}</version>
                    <scope>provided</scope>
                 </dependency>
@@ -251,7 +262,7 @@
             This profile assumes a target that does not have the Soteria libraries.
             E.g. a Java EE 7 server or Servlet container such as Tomcat or Jetty.
 
-            With this profile e.g. javax.security.enterprise-1.0-b07-SNAPSHOT.jar
+            With this profile e.g. jakarta.security.enterprise-2.0.0.jar
             will end up in WEB-INF/lib
         -->
         <profile>
@@ -373,8 +384,8 @@
                 <!-- The actual Arquillian connector -->
                 <dependency>
                     <groupId>fish.payara.arquillian</groupId>
-                    <artifactId>arquillian-payara-server-4-managed</artifactId>
-                    <version>1.0.Beta3</version>
+                    <artifactId>arquillian-payara-server-managed</artifactId>
+                    <version>${arquillian-payara-server-managed.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
@@ -415,7 +426,6 @@
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
-                        <version>${failsafe-plugin.version}</version>
                         <executions>
                             <execution>
                                 <goals>
@@ -465,8 +475,8 @@
             <dependencies>
                 <dependency>
                     <groupId>fish.payara.arquillian</groupId>
-                    <artifactId>arquillian-payara-server-4-remote</artifactId> 
-                    <version>${arquillian-payara-server-4-managed.version}</version> 
+                    <artifactId>arquillian-payara-server-4-remote</artifactId>
+                    <version>${arquillian-payara-server-managed.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
@@ -478,8 +488,8 @@
             <dependencies>
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
-                    <artifactId>arquillian-glassfish-remote-3.1</artifactId> 
-                    <version>${arquillian-glassfish-remote-3.1.version}</version> 
+                    <artifactId>arquillian-glassfish-remote-3.1</artifactId>
+                    <version>${arquillian-glassfish-remote-3.1.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
@@ -675,9 +685,9 @@
                     <groupId>org.apache.tomee</groupId>
                     <artifactId>apache-tomee</artifactId>
                     <version>${tomee.version}</version>
-                    <scope>test</scope>
                     <type>zip</type>
                     <classifier>plus</classifier>
+                    <scope>test</scope>
                 </dependency>
 
                 <dependency>
@@ -893,7 +903,7 @@
                     <plugin>
                         <groupId>io.fabric8</groupId>
                         <artifactId>docker-maven-plugin</artifactId>
-                        <version>${docker-maven-plugin.version}</version>
+                        <version>0.33.0</version>
                         <configuration>
                             <images>
                                 <image>
@@ -919,6 +929,7 @@
                 </plugins>
             </build>
         </profile>
+        
         <profile>
             <id>payara-docker</id>
             <build>
@@ -958,5 +969,4 @@
             </build>
         </profile>
     </profiles>
-
 </project>

@@ -40,10 +40,10 @@ import java.util.concurrent.ConcurrentMap;
 
 import javax.ejb.EJBContext;
 import javax.security.auth.Subject;
-import javax.security.enterprise.CallerPrincipal;
-import javax.security.jacc.PolicyContext;
-import javax.security.jacc.PolicyContextException;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.security.enterprise.CallerPrincipal;
+import jakarta.security.jacc.PolicyContext;
+import jakarta.security.jacc.PolicyContextException;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.glassfish.soteria.authorization.EJB;
 import org.glassfish.soteria.authorization.JACC;
@@ -154,7 +154,7 @@ public class SubjectParser {
                 // So we're getting the principals from the Subject here. Do note that we miss the
                 // potential extra deployment roles here which may be in the principals collection we get
                 // passed in.
-                Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
+                Subject subject = (Subject) PolicyContext.getContext("jakarta.security.auth.Subject.container");
 
                 if (subject == null) {
                     return null;
@@ -179,7 +179,7 @@ public class SubjectParser {
         if (isLiberty || isJboss) {
 
             try {
-                Subject subject = (Subject) PolicyContext.getContext("javax.security.auth.Subject.container");
+                Subject subject = (Subject) PolicyContext.getContext("jakarta.security.auth.Subject.container");
                 if (subject == null) {
                     return emptyList();
                 }
@@ -438,7 +438,7 @@ public class SubjectParser {
     private Principal doGetCallerPrincipalFromPrincipals(Iterable<Principal> principals) {
         // Check for Servlet
         try {
-            return ((HttpServletRequest)JACC.getFromContext("javax.servlet.http.HttpServletRequest")).getUserPrincipal();
+            return ((HttpServletRequest)JACC.getFromContext("jakarta.servlet.http.HttpServletRequest")).getUserPrincipal();
         } catch (Exception e) {
             // Not inside an HttpServletRequest
         }

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -77,7 +77,7 @@ public class ArquillianBase {
             @Override
             public void printContentIfNecessary(WebResponse webResponse) {
                 int statusCode = webResponse.getStatusCode();
-                if (getOptions().getPrintContentOnFailingStatusCode() && !(statusCode >= SC_OK && statusCode < SC_MULTIPLE_CHOICES)) {
+                if (getOptions().isPrintContentOnFailingStatusCode() && !(statusCode >= SC_OK && statusCode < SC_MULTIPLE_CHOICES)) {
                     logger.log(SEVERE, webResponse.getWebRequest().getUrl().toExternalForm());
                 }
                 super.printContentIfNecessary(webResponse);

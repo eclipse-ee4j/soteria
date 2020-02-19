@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Payara Foundation and/or its affiliates and others.
+ * Copyright (c) 2018, 2020 Payara Foundation and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -16,8 +16,8 @@
  */
 package org.glassfish.soteria.cdi.spi;
 
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
 
 /**
  * Implementations of this interface should apply all CDI interceptors in the application

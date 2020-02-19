@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -22,13 +22,13 @@ import static org.glassfish.soteria.test.Utils.getELProcessor;
 import java.security.Principal;
 import java.util.Set;
 
-import javax.annotation.Resource;
-import javax.annotation.security.DeclareRoles;
-import javax.annotation.security.PermitAll;
+import jakarta.annotation.Resource;
+import jakarta.annotation.security.DeclareRoles;
+import jakarta.annotation.security.PermitAll;
 import javax.ejb.EJBContext;
 import javax.ejb.Stateless;
-import javax.inject.Inject;
-import javax.security.enterprise.SecurityContext;
+import jakarta.inject.Inject;
+import jakarta.security.enterprise.SecurityContext;
 
 
 @Stateless

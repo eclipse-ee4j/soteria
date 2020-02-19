@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -16,9 +16,9 @@
 
 package org.glassfish.soteria.cdi.spi.impl;
 
-import javax.el.ELProcessor;
-import javax.servlet.ServletRequestEvent;
-import javax.servlet.http.HttpServletRequest;
+import jakarta.el.ELProcessor;
+import jakarta.servlet.ServletRequestEvent;
+import jakarta.servlet.http.HttpServletRequest;
 
 import org.glassfish.soteria.cdi.spi.CDIPerRequestInitializer;
 

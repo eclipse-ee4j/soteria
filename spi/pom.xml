@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2015, 2018 Payara and/or its affiliates and others. 
+    Copyright (c) 2015, 2020 Payara and/or its affiliates and others. 
     All rights reserved.
 
     This program and the accompanying materials are made available under the
@@ -18,20 +18,21 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd"> <modelVersion>4.0.0</modelVersion>
-    
-     <parent>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+   <modelVersion>4.0.0</modelVersion>
+
+   <parent>
        <groupId>org.glassfish.soteria</groupId>
        <artifactId>parent</artifactId>
-       <version>1.1-SNAPSHOT</version>
+       <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>spi</artifactId>
-    <packaging>pom</packaging>
-    <name>Soteria SPI</name>
+   <artifactId>spi</artifactId>
+   <packaging>pom</packaging>
 
-    <modules>
+   <name>Soteria SPI</name>
+
+   <modules>
         <module>bean-decorator</module>
     </modules>
-
 </project>

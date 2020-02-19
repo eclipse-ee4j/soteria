@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -22,7 +22,6 @@ import static org.junit.Assert.assertTrue;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.shrinkwrap.api.Archive;
-import org.junit.Assume;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -69,7 +68,7 @@ public class AppSecurityContextCallerPrincipalIT extends ArquillianBase {
                 containerPrincipal.contains("org.jboss.security.SimplePrincipal") ||
                 containerPrincipal.contains("org.jboss.security.SimpleGroup") ||
                 containerPrincipal.contains("org.apache.tomee.catalina.TomcatSecurityService$TomcatUser") ||
-                containerPrincipal.contains("javax.security.enterprise.CallerPrincipal") ||
+                containerPrincipal.contains("jakarta.security.enterprise.CallerPrincipal") ||
                 containerPrincipal.contains(inputApplicationPrincipal);
         boolean isApplicationPrincipalCorrect = applicationPrincipal.contains(inputApplicationPrincipal);
         return isContainerPricipalCorrect && isApplicationPrincipalCorrect;

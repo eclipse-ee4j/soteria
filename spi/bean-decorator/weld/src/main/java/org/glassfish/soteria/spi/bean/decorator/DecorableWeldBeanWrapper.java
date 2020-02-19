@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018 Payara Foundation and/or its affiliates and others.
+ * Copyright (c) 2018, 2020 Payara Foundation and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -21,12 +21,12 @@ import static org.jboss.weld.util.Decorators.getOuterDelegate;
 import java.util.List;
 import java.util.Set;
 
-import javax.enterprise.context.spi.CreationalContext;
-import javax.enterprise.inject.spi.Annotated;
-import javax.enterprise.inject.spi.Bean;
-import javax.enterprise.inject.spi.Decorator;
-import javax.enterprise.inject.spi.InjectionPoint;
-import javax.enterprise.inject.spi.PassivationCapable;
+import jakarta.enterprise.context.spi.CreationalContext;
+import jakarta.enterprise.inject.spi.Annotated;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.Decorator;
+import jakarta.enterprise.inject.spi.InjectionPoint;
+import jakarta.enterprise.inject.spi.PassivationCapable;
 
 import org.jboss.weld.annotated.enhanced.EnhancedAnnotated;
 import org.jboss.weld.bean.AbstractBean;
