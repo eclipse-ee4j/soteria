@@ -29,7 +29,7 @@ import javax.security.auth.message.module.ServerAuthModule;
 /**
  * This class functions as a kind of factory for {@link ServerAuthContext} instances, which are delegates for the actual
  * {@link ServerAuthModule} (SAM) that we're after.
- * 
+ *
  * @author Arjan Tijms
  */
 public class DefaultServerAuthConfig implements ServerAuthConfig {

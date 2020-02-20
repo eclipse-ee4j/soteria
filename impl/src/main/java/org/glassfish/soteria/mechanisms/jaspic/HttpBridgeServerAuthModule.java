@@ -49,17 +49,17 @@ import org.glassfish.soteria.mechanisms.HttpMessageContextImpl;
  */
 public class HttpBridgeServerAuthModule implements ServerAuthModule {
 
-        private CallbackHandler handler;
+        private final CallbackHandler handler;
         private final Class<?>[] supportedMessageTypes = new Class[] { HttpServletRequest.class, HttpServletResponse.class };
         private final CDIPerRequestInitializer cdiPerRequestInitializer;
         
-        public HttpBridgeServerAuthModule(CDIPerRequestInitializer cdiPerRequestInitializer) {
+        public HttpBridgeServerAuthModule(CDIPerRequestInitializer cdiPerRequestInitializer, CallbackHandler handler) {
             this.cdiPerRequestInitializer = cdiPerRequestInitializer;
+            this.handler = handler;
         }
         
         @Override
         public void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy, CallbackHandler handler, @SuppressWarnings("rawtypes") Map options) throws AuthException {
-            this.handler = handler;
             // options not supported.
         }
 
