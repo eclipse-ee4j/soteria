@@ -18,7 +18,7 @@ package org.glassfish.soteria.authorization;
 
 import static org.glassfish.soteria.Utils.getELProcessor;
 
-import javax.ejb.EJBContext;
+import jakarta.ejb.EJBContext;
 import javax.naming.InitialContext;
 import javax.naming.NamingException; 
 

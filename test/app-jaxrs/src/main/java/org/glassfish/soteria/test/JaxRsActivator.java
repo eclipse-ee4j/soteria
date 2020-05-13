@@ -17,8 +17,8 @@
 package org.glassfish.soteria.test;
 
 import jakarta.annotation.security.DeclareRoles;
-import javax.ws.rs.ApplicationPath;
-import javax.ws.rs.core.Application;
+import jakarta.ws.rs.ApplicationPath;
+import jakarta.ws.rs.core.Application;
 
 @ApplicationPath("/rest")
 @DeclareRoles({ "foo", "bar", "kaz" })

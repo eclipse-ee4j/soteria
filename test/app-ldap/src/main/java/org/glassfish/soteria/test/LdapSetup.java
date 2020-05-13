@@ -18,8 +18,8 @@ package org.glassfish.soteria.test;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.annotation.PreDestroy;
-import javax.ejb.Singleton;
-import javax.ejb.Startup;
+import jakarta.ejb.Singleton;
+import jakarta.ejb.Startup;
 
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
