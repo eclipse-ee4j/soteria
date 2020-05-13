@@ -35,7 +35,7 @@ import java.security.cert.Certificate;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.ejb.EJBContext;
+import jakarta.ejb.EJBContext;
 import javax.security.auth.Subject;
 import jakarta.security.jacc.EJBRoleRefPermission;
 import jakarta.security.jacc.PolicyContext;

@@ -25,8 +25,8 @@ import java.util.Set;
 import jakarta.annotation.Resource;
 import jakarta.annotation.security.DeclareRoles;
 import jakarta.annotation.security.PermitAll;
-import javax.ejb.EJBContext;
-import javax.ejb.Stateless;
+import jakarta.ejb.EJBContext;
+import jakarta.ejb.Stateless;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.SecurityContext;
 

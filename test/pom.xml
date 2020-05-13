@@ -93,9 +93,10 @@
         <arquillian-payara-server-managed.version>2.1</arquillian-payara-server-managed.version>
         <wildfly-arquillian-container-managed.version>2.1.0.Final</wildfly-arquillian-container-managed.version>
 		
-		<jacc-provider.version>0.3</jacc-provider.version>
+        <jacc-provider.version>0.3</jacc-provider.version>
         
         <foo>${session.executionRootDirectory}</foo>
+        <failsafe-plugin.version>3.0.0-M4</failsafe-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -124,7 +125,7 @@
         <dependency>
             <groupId>jakarta.faces</groupId>
             <artifactId>jakarta.faces-api</artifactId>
-            <version>2.3.2</version>
+            <version>3.0.0-RC1</version>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
@@ -240,7 +241,7 @@
         <!--
             This profile assumes a target that already has the Soteria libraries.
             In Java EE 8 that would be the default. E.g. in the case of GlassFish/Payara
-            a javax.security.enterprise.jar in [gf_home]/glassfish/modules
+            a jakarta.security.enterprise.jar in [gf_home]/glassfish/modules
           -->
         <profile>
             <id>provided</id>
@@ -270,7 +271,7 @@
             <dependencies>
                 <dependency>
                     <groupId>org.glassfish.soteria</groupId>
-                    <artifactId>javax.security.enterprise</artifactId>
+                    <artifactId>jakarta.security.enterprise</artifactId>
                     <version>${project.version}</version>
                 </dependency>
             </dependencies>
@@ -320,7 +321,7 @@
                                         <!-- New version of Soteria core  -->
                                         <artifactItem>
                                             <groupId>org.glassfish.soteria</groupId>
-                                            <artifactId>javax.security.enterprise</artifactId>
+                                            <artifactId>jakarta.security.enterprise</artifactId>
                                             <version>${project.version}</version>
                                             <overWrite>true</overWrite>
                                             <outputDirectory>${session.executionRootDirectory}/target/payara5/glassfish/modules</outputDirectory>
@@ -540,7 +541,7 @@
                 <dependency>
                     <groupId>org.jboss.arquillian.container</groupId>
                     <artifactId>arquillian-glassfish-managed-3.1</artifactId>
-                    <version>${arquillian-glassfish-managed-3.1}</version>
+                    <version>${arquillian-glassfish-managed-3.1.version}</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>

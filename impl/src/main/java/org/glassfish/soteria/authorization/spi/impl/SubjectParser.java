@@ -38,7 +38,7 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import javax.ejb.EJBContext;
+import jakarta.ejb.EJBContext;
 import javax.security.auth.Subject;
 import jakarta.security.enterprise.CallerPrincipal;
 import jakarta.security.jacc.PolicyContext;

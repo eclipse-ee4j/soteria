@@ -26,7 +26,7 @@
        <version>2.0.0-SNAPSHOT</version>
     </parent>
 
-    <artifactId>javax.security.enterprise</artifactId>
+    <artifactId>jakarta.security.enterprise</artifactId>
     <packaging>bundle</packaging>
 
     <name>Soteria ${project.version}</name>
