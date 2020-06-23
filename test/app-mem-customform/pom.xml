@@ -29,11 +29,11 @@
 	<artifactId>app-mem-customform</artifactId>
 	<packaging>war</packaging>
 
-        <properties>
+	<properties>
             <failOnMissingWebXml>false</failOnMissingWebXml>
         </properties>
 
-        <dependencies>
+	<dependencies>
             <dependency>
                 <groupId>org.glassfish.soteria.test</groupId>
                 <artifactId>common</artifactId>
@@ -46,7 +46,7 @@
             </dependency>
         </dependencies>
 
-        <build>
+	<build>
             <finalName>app-mem-customform</finalName>
         </build>
 </project>

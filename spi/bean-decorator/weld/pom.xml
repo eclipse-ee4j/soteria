@@ -29,7 +29,6 @@
 	</parent>
 
 	<artifactId>soteria-bean-decorator-weld</artifactId>
-	<packaging>bundle</packaging>
 
 	<name>Soteria SPI : Bean Decorator : Weld</name>
 
@@ -37,13 +36,13 @@
 		<dependency>
 			<groupId>org.jboss.weld</groupId>
 			<artifactId>weld-osgi-bundle</artifactId>
-			<version>4.0.0.Alpha1</version>
+			<version>4.0.0.Alpha2</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.soteria</groupId>
 			<artifactId>jakarta.security.enterprise</artifactId>
-			<version>2.0.0-SNAPSHOT</version>
+			<version>${project.version}</version>
 		</dependency>
 	</dependencies>
 
@@ -57,7 +56,31 @@
 				<artifactId>maven-bundle-plugin</artifactId>
 				<version>4.2.1</version>
 				<extensions>true</extensions>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
 			</plugin>
+            
+            <!-- Adds the manifest file created by the org.apache.felix:maven-bundle-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        <manifestEntries>
+                            <Automatic-Module-Name>org.glassfish.soteria.bean.decorator.weld</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
 		</plugins>
 	</build>
 </project>

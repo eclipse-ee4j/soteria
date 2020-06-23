@@ -27,7 +27,6 @@
     </parent>
 
     <artifactId>jakarta.security.enterprise</artifactId>
-    <packaging>bundle</packaging>
 
     <name>Soteria ${project.version}</name>
     <description>EE4J Compatible Implementation for Java EE Security API</description>
@@ -49,7 +48,7 @@
                         <Bundle-SymbolicName>org.glassfish.jakarta.security.enterprise</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Bundle-Name>Soteria Jakarta Security Implementation ${project.version}</Bundle-Name>
-                        <Bundle-Description>Eclipse Jakarta Security Implementation (jakarta.security/3.0) ${project.version}</Bundle-Description>                        
+                        <Bundle-Description>Eclipse Jakarta Security Implementation (jakarta.security/3.0) ${project.version}</Bundle-Description>                      
                         
                         <Specification-Title>Jakarta Security</Specification-Title>
                         <Specification-Version>3.0</Specification-Version>
@@ -72,6 +71,51 @@
                         </Import-Package>
                     </instructions>
                 </configuration>
+                <executions>
+                    <execution>
+                        <id>bundle-manifest</id>
+                        <phase>process-classes</phase>
+                        <goals>
+                            <goal>manifest</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Adds the manifest file created by the org.apache.felix:maven-bundle-plugin -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-jar-plugin</artifactId>
+                <version>3.2.0</version>
+                <configuration>
+                    <archive>
+                        <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
+                        <manifestEntries>
+                            <Automatic-Module-Name>org.glassfish.soteria</Automatic-Module-Name>
+                        </manifestEntries>
+                    </archive>
+                </configuration>
+            </plugin>
+            
+            <!-- Configure the jar with the javadoc. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-api-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <additionalJOption>-Xdoclint:none</additionalJOption>
+                            <notimestamp>true</notimestamp>
+                            <splitindex>true</splitindex>
+                            <doctitle>${project.name} ${project.version}</doctitle>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>
