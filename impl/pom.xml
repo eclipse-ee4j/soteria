@@ -31,10 +31,6 @@
     <name>Soteria ${project.version}</name>
     <description>EE4J Compatible Implementation for Java EE Security API</description>
 
-    <dependencies>
-        
-    </dependencies>
-
     <build>
         <plugins>
             <!-- Creates the OSGi MANIFEST.MF file -->
@@ -95,27 +91,6 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
-            </plugin>
-            
-            <!-- Configure the jar with the javadoc. -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.2.0</version>
-                <executions>
-                    <execution>
-                        <id>attach-api-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                        <configuration>
-                            <additionalJOption>-Xdoclint:none</additionalJOption>
-                            <notimestamp>true</notimestamp>
-                            <splitindex>true</splitindex>
-                            <doctitle>${project.name} ${project.version}</doctitle>
-                        </configuration>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

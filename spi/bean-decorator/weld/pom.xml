@@ -36,13 +36,14 @@
 		<dependency>
 			<groupId>org.jboss.weld</groupId>
 			<artifactId>weld-osgi-bundle</artifactId>
-			<version>4.0.0.Alpha2</version>
+			<version>4.0.0.Alpha3</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.soteria</groupId>
 			<artifactId>jakarta.security.enterprise</artifactId>
 			<version>${project.version}</version>
+            <scope>provided</scope>
 		</dependency>
 	</dependencies>
 
@@ -80,6 +81,30 @@
                         </manifestEntries>
                     </archive>
                 </configuration>
+            </plugin>
+            
+            <!-- Configure the jar with the javadoc. -->
+            <!-- Note: MUST be set to 3.0.1 as higher versions trigger 
+                 (com.sun.tools.javac.code.Symbol$CompletionFailure: class file for jakarta.enterprise.inject.spi.Bean not found) 
+            -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.0.1</version>
+                <executions>
+                    <execution>
+                        <id>attach-api-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <additionalJOption>-Xdoclint:none</additionalJOption>
+                            <notimestamp>true</notimestamp>
+                            <splitindex>true</splitindex>
+                            <doctitle>${project.name} ${project.version}</doctitle>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
 		</plugins>
 	</build>
