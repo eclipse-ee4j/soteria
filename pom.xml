@@ -77,8 +77,8 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>1.8</maven.compiler.source>
+        <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -197,9 +197,30 @@
                         </configuration>
                     </execution>
                 </executions>
-            </plugin> 
+            </plugin>
             
-           <!-- Configure the jar with the sources. -->
+            <!-- Configure the jar with the javadoc. -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <version>3.2.0</version>
+                <executions>
+                    <execution>
+                        <id>attach-api-javadocs</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                        <configuration>
+                            <additionalJOption>-Xdoclint:none</additionalJOption>
+                            <notimestamp>true</notimestamp>
+                            <splitindex>true</splitindex>
+                            <doctitle>${project.name} ${project.version}</doctitle>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            
+            <!-- Configure the jar with the sources. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-source-plugin</artifactId>
