@@ -46,7 +46,7 @@ import jakarta.security.jacc.WebRoleRefPermission;
 public class JACC {
 
     public static Subject getSubject() {
-        return getFromContext("jakarta.security.auth.Subject.container");
+        return getFromContext("javax.security.auth.Subject.container");
     }
 
     public static boolean isCallerInRole(String role) {
