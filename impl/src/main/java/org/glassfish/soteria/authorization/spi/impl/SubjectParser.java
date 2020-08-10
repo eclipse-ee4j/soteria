@@ -154,7 +154,7 @@ public class SubjectParser {
                 // So we're getting the principals from the Subject here. Do note that we miss the
                 // potential extra deployment roles here which may be in the principals collection we get
                 // passed in.
-                Subject subject = (Subject) PolicyContext.getContext("jakarta.security.auth.Subject.container");
+                Subject subject = (Subject) PolicyContext.getContext(JACC.SUBJECT_CONTAINER_KEY);
 
                 if (subject == null) {
                     return null;
@@ -179,7 +179,7 @@ public class SubjectParser {
         if (isLiberty || isJboss) {
 
             try {
-                Subject subject = (Subject) PolicyContext.getContext("jakarta.security.auth.Subject.container");
+                Subject subject = (Subject) PolicyContext.getContext(JACC.SUBJECT_CONTAINER_KEY);
                 if (subject == null) {
                     return emptyList();
                 }
