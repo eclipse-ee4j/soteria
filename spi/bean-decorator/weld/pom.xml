@@ -43,7 +43,7 @@
 			<groupId>org.glassfish.soteria</groupId>
 			<artifactId>jakarta.security.enterprise</artifactId>
 			<version>${project.version}</version>
-            <scope>provided</scope>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 
@@ -77,7 +77,7 @@
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
                         <manifestEntries>
-                            <Automatic-Module-Name>org.glassfish.soteria.bean.decorator.weld</Automatic-Module-Name>
+                            <Automatic-Module-Name>org.glassfish.soteria.spi.bean.decorator</Automatic-Module-Name>
                         </manifestEntries>
                     </archive>
                 </configuration>
@@ -90,7 +90,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.2.0</version>
                 <executions>
                     <execution>
                         <id>attach-api-javadocs</id>
