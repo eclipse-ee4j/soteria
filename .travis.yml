@@ -7,5 +7,5 @@ env:
   - SERVER=wildfly,weld-decorator-bundled,bundled
   - SERVER=tomee,bundled
   - SERVER=openliberty,bundled
-script: mvn clean package -P $SERVER
+script: mvn clean package -P $SERVER,staging
 
