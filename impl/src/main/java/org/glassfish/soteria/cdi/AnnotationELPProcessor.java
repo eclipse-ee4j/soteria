@@ -57,7 +57,7 @@ public class AnnotationELPProcessor {
 
     static String buildNonBooleanOutcomeMessage(Object outcome, String expression) {
         return "Expression " + expression + " should evaluate to boolean but evaluated to " +
-             outcome == null? " null" : (outcome.getClass() + " " + outcome);
+             (outcome == null? " null" : (outcome.getClass() + " " + outcome));
     }
     
     public static int evalImmediate(String expression, int defaultValue) {
