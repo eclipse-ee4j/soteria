@@ -51,10 +51,13 @@ public class AnnotationELPProcessor {
         if (outcome instanceof Boolean) {
             return (Boolean) outcome;
         }
-        
-        throw new IllegalStateException(
-            "Expression " + expression + " should evaluate to boolean but evaluated to " +
-             outcome == null? " null" : (outcome.getClass() + " " + outcome));
+
+        throw new IllegalStateException(buildNonBooleanOutcomeMessage(outcome, expression));
+    }
+
+    static String buildNonBooleanOutcomeMessage(Object outcome, String expression) {
+        return "Expression " + expression + " should evaluate to boolean but evaluated to " +
+             outcome == null? " null" : (outcome.getClass() + " " + outcome);
     }
     
     public static int evalImmediate(String expression, int defaultValue) {
