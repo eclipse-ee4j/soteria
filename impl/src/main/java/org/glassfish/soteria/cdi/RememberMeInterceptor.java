@@ -128,7 +128,7 @@ public class RememberMeInterceptor implements Serializable {
             // and send a cookie with a token that can be used
             // to retrieve this stored identity later
             
-            Boolean isRememberMe = true;
+            boolean isRememberMe = true;
             if (rememberMeAnnotation instanceof RememberMeAnnotationLiteral) { // tmp
                 isRememberMe = ((RememberMeAnnotationLiteral)rememberMeAnnotation).isRememberMe();
             }
