@@ -3,7 +3,11 @@
 Java EE Security (JSR 375) RI
 
 [Website](https://eclipse-ee4j.github.io/soteria)
-[TCK results summary](https://eclipse-ee4j.github.io/soteria/certifications/jakarta-security/1.0/TCK-Results)
+
+Certification
+-------------
+* [Jakarta Security 1.0 TCK results summary](https://eclipse-ee4j.github.io/soteria/certifications/jakarta-security/1.0/TCK-Results)
+* [Jakarta Security 2.0 TCK results summary](https://eclipse-ee4j.github.io/soteria/certifications/jakarta-security/1.0/TCK-Results)
 
 Building
 --------
