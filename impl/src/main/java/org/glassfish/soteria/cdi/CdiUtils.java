@@ -109,7 +109,14 @@ public class CdiUtils {
     }
     
     public static BeanManager getBeanManager() {
-        return jndiLookup("java:comp/BeanManager");
+        BeanManager beanManager = jndiLookup("java:comp/BeanManager");
+
+        if (beanManager == null) {
+            // Servlet containers
+            beanManager = jndiLookup("java:comp/env/BeanManager");
+        }
+
+        return beanManager;
     }
     
     // 
