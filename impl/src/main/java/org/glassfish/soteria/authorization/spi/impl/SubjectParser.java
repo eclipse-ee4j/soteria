@@ -26,7 +26,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 import java.security.Principal;
-import java.security.acl.Group;
+// import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Enumeration;
@@ -38,15 +38,16 @@ import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
-import jakarta.ejb.EJBContext;
 import javax.security.auth.Subject;
+
+import org.glassfish.soteria.authorization.EJB;
+import org.glassfish.soteria.authorization.JACC;
+
+import jakarta.ejb.EJBContext;
 import jakarta.security.enterprise.CallerPrincipal;
 import jakarta.security.jacc.PolicyContext;
 import jakarta.security.jacc.PolicyContextException;
 import jakarta.servlet.http.HttpServletRequest;
-
-import org.glassfish.soteria.authorization.EJB;
-import org.glassfish.soteria.authorization.JACC;
 
 public class SubjectParser {
 
@@ -468,6 +469,7 @@ public class SubjectParser {
      * @param principal
      * @return
      */
+    @SuppressWarnings("unchecked")
     private Principal getVendorCallerPrincipal(Principal principal, boolean isEjb) {
         switch (principal.getClass().getName()) {
             case "org.glassfish.security.common.PrincipalImpl": // GlassFish/Payara
@@ -481,18 +483,24 @@ public class SubjectParser {
                 return getAuthenticatedPrincipal(principal, "anonymous", isEjb);
             // JBoss EAP/WildFly convention 2 - the one and only principal in group called CallerPrincipal
             case "org.jboss.security.SimpleGroup":
-                if (principal.getName().equals("CallerPrincipal") && principal instanceof Group) {
+                if (principal.getName().equals("CallerPrincipal") && principal.getClass().getName().equals("org.jboss.security.SimpleGroup")) {
+                    Enumeration<? extends Principal> groupMembers = null;
+                    try {
+                        groupMembers = (Enumeration<? extends Principal>) Class.forName(className("org.jboss.security.SimpleGroup"))
+                                .getMethod("members")
+                                .invoke(principal);
+                    } catch (Exception e) {
 
-                    Enumeration<? extends Principal> groupMembers = ((Group) principal).members();
+                    }
 
-                    if (groupMembers.hasMoreElements()) {
+                    if (groupMembers != null && groupMembers.hasMoreElements()) {
                         return getAuthenticatedPrincipal(groupMembers.nextElement(), "anonymous", isEjb);
                     }
                 }
                 break;
             case "org.apache.tomee.catalina.TomcatSecurityService$TomcatUser": // TomEE
                 try {
-                    Principal tomeePrincipal = (Principal) Class.forName("org.apache.catalina.realm.GenericPrincipal")
+                    Principal tomeePrincipal = (Principal) Class.forName(className("org.apache.catalina.realm.GenericPrincipal"))
                             .getMethod("getUserPrincipal")
                             .invoke(
                                     Class.forName(className("org.apache.tomee.catalina.TomcatSecurityService$TomcatUser"))
@@ -521,6 +529,7 @@ public class SubjectParser {
 
     }
 
+    @SuppressWarnings("unchecked")
     public boolean principalToGroups(Principal principal, List<String> groups) {
         switch (principal.getClass().getName()) {
 
@@ -532,10 +541,19 @@ public class SubjectParser {
                 break;
 
             case "org.jboss.security.SimpleGroup": // JBoss EAP/WildFly
-                if (principal.getName().equals("Roles") && principal instanceof Group) {
-                    Group rolesGroup = (Group) principal;
-                    for (Principal groupPrincipal : list(rolesGroup.members())) {
-                        groups.add(groupPrincipal.getName());
+                if (principal.getName().equals("Roles") && principal.getClass().getName().equals("org.jboss.security.SimpleGroup")) {
+
+                    try {
+                        Enumeration<? extends Principal> groupMembers = (Enumeration<? extends Principal>)
+                            Class.forName(className("org.jboss.security.SimpleGroup"))
+                                 .getMethod("members")
+                                 .invoke(principal);
+
+                        for (Principal groupPrincipal : list(groupMembers)) {
+                            groups.add(groupPrincipal.getName());
+                        }
+                    } catch (Exception e) {
+
                     }
 
                     // Should only be one group holding the roles, so can exit the loop

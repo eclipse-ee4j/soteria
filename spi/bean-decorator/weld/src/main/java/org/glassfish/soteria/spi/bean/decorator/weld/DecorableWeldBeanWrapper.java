@@ -14,29 +14,28 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-package org.glassfish.soteria.spi.bean.decorator;
+package org.glassfish.soteria.spi.bean.decorator.weld;
 
 import static org.jboss.weld.util.Decorators.getOuterDelegate;
 
+import java.io.Serializable;
 import java.util.List;
 import java.util.Set;
 
+import org.jboss.weld.bean.BeanIdentifiers;
+import org.jboss.weld.bean.RIBean;
+import org.jboss.weld.bean.StringBeanIdentifier;
+import org.jboss.weld.bean.proxy.ProxyFactory;
+import org.jboss.weld.bootstrap.BeanDeployerEnvironment;
+import org.jboss.weld.injection.CurrentInjectionPoint;
+import org.jboss.weld.manager.BeanManagerImpl;
+import org.jboss.weld.util.Proxies;
+
 import jakarta.enterprise.context.spi.CreationalContext;
-import jakarta.enterprise.inject.spi.Annotated;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.Decorator;
 import jakarta.enterprise.inject.spi.InjectionPoint;
 import jakarta.enterprise.inject.spi.PassivationCapable;
-
-import org.jboss.weld.annotated.enhanced.EnhancedAnnotated;
-import org.jboss.weld.bean.AbstractBean;
-import org.jboss.weld.bean.BeanIdentifiers;
-import org.jboss.weld.bean.StringBeanIdentifier;
-import org.jboss.weld.bean.attributes.ImmutableBeanAttributes;
-import org.jboss.weld.bean.proxy.ProxyFactory;
-import org.jboss.weld.injection.CurrentInjectionPoint;
-import org.jboss.weld.manager.BeanManagerImpl;
-import org.jboss.weld.util.Proxies;
 
 /**
  * Sub class of Weld specific Bean that Weld will call back after bean discovery
@@ -46,25 +45,29 @@ import org.jboss.weld.util.Proxies;
  *
  * @param <T> type of bean that will be decorated
  */
-public class DecorableWeldBeanWrapper<T> extends AbstractBean<T, Object> implements Bean<T>, PassivationCapable {
+public class DecorableWeldBeanWrapper<T> extends RIBean<T> implements Bean<T>, PassivationCapable {
 
     private final Bean<T> bean;
     private final CurrentInjectionPoint currentInjectionPoint;
-    private final boolean proxiable;
+    private final boolean isProxyable;
+    private Class<T> type;
 
     private List<Decorator<?>> decorators;
     private Class<T> proxyClass;
+    private boolean proxyRequired;
+    private boolean isPassivationCapableBean;
+    private boolean isPassivationCapableDependency;
 
     public DecorableWeldBeanWrapper(Bean<T> bean, Class<T> type, BeanManagerImpl beanManager) {
         super(
-            new ImmutableBeanAttributes<> (bean.getQualifiers(), bean.getName(), bean),
+            bean,
             new StringBeanIdentifier(BeanIdentifiers.forBuiltInBean(beanManager, type, null)),
             beanManager);
 
         this.bean = bean;
         this.type = type;
         this.currentInjectionPoint = beanManager.getServices().get(CurrentInjectionPoint.class);
-        this.proxiable = Proxies.isTypesProxyable(getTypes(), beanManager.getServices());
+        this.isProxyable = Proxies.isTypesProxyable(getTypes(), beanManager.getServices());
     }
 
     @Override
@@ -77,6 +80,13 @@ public class DecorableWeldBeanWrapper<T> extends AbstractBean<T, Object> impleme
     }
 
     @Override
+    protected void internalInitialize(BeanDeployerEnvironment environment) {
+        proxyRequired = getScope() != null && isNormalScoped();
+        isPassivationCapableBean = Serializable.class.isAssignableFrom(type);
+        isPassivationCapableDependency = isNormalScoped() || (isDependent() && isPassivationCapableBean());
+    }
+
+    @Override
     public T create(CreationalContext<T> creationalContext) {
         T instance = bean.create(creationalContext);
 
@@ -85,7 +95,11 @@ public class DecorableWeldBeanWrapper<T> extends AbstractBean<T, Object> impleme
         }
 
         return getOuterDelegate(this, instance, creationalContext, proxyClass, currentInjectionPoint.peek(), getBeanManager(), decorators);
+    }
 
+    @Override
+    public Class<T> getType() {
+        return type;
     }
 
     @Override
@@ -104,39 +118,33 @@ public class DecorableWeldBeanWrapper<T> extends AbstractBean<T, Object> impleme
     }
 
     @Override
-    protected void checkType() {
-
+    public boolean isProxyable() {
+        return isProxyable;
     }
 
     @Override
-    public Annotated getAnnotated() {
-        return null;
+    public boolean isProxyRequired() {
+        return proxyRequired;
     }
 
     @Override
-    public EnhancedAnnotated<T, Object> getEnhancedAnnotated() {
-        return null;
+    public boolean isPassivationCapableBean() {
+        return isPassivationCapableBean;
+    }
+
+    @Override
+    public boolean isPassivationCapableDependency() {
+        return isPassivationCapableDependency;
+    }
+
+    @Override
+    public void preInitialize() {
+
     }
 
     @Override
     public void cleanupAfterBoot() {
 
     }
-
-    @Override
-    public boolean isProxyable() {
-        return proxiable;
-    }
-
-    @Override
-    public boolean isPassivationCapableBean() {
-        return false;
-    }
-
-    @Override
-    public boolean isPassivationCapableDependency() {
-        return false;
-    }
-
 
 }

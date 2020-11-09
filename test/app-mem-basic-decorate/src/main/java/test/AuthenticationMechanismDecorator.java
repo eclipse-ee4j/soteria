@@ -17,6 +17,7 @@
 package test;
 
 import java.io.IOException;
+import java.io.Serializable;
 
 import jakarta.annotation.Priority;
 import jakarta.decorator.Decorator;
@@ -39,7 +40,9 @@ import jakarta.servlet.http.HttpServletResponseWrapper;
  */
 @Decorator
 @Priority(100)
-public abstract class AuthenticationMechanismDecorator implements HttpAuthenticationMechanism {
+public abstract class AuthenticationMechanismDecorator implements HttpAuthenticationMechanism, Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Inject
     @Delegate
