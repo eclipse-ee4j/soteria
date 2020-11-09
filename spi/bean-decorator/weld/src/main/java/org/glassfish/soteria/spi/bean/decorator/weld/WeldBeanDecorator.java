@@ -14,7 +14,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-package org.glassfish.soteria.spi.bean.decorator;
+package org.glassfish.soteria.spi.bean.decorator.weld;
 
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
@@ -26,7 +26,7 @@ import org.jboss.weld.bean.builtin.BeanManagerProxy;
  * Implementation of the BeanDecorator interface specifically for Weld.
  *
  * <p>
- * Supports Weld 3.x
+ * Supports Weld 4.x
  *
  * @author Arjan Tijms
  * @since 1.1

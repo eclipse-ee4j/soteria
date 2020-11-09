@@ -1,1 +1,1 @@
-org.glassfish.soteria.spi.bean.decorator.WeldBeanDecorator
+org.glassfish.soteria.spi.bean.decorator.weld.WeldBeanDecorator
