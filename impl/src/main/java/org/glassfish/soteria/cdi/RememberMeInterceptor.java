@@ -168,7 +168,9 @@ public class RememberMeInterceptor implements Serializable {
             rememberMeIdentityStore.removeLoginToken(rememberMeCookie.getValue());
         }
 
-        invocationContext.proceed();
+        // Remove this call because invocationContext.proceed() is already called in intercept() method
+        // See: https://github.com/eclipse-ee4j/soteria/issues/254
+        // invocationContext.proceed();
     }
     
     private RememberMe getRememberMeFromIntercepted(ELProcessor elProcessor, InvocationContext invocationContext) {
