@@ -77,10 +77,17 @@ public class DecorableWeldBeanWrapper<T> extends RIBean<T> implements Bean<T>, P
         if (!decorators.isEmpty()) {
             proxyClass = new ProxyFactory<T>(getBeanManager().getContextId(), getType(), getTypes(), this).getProxyClass();
         }
+
+        // Weld doesn't call internalInitialize(BeanDeployerEnvironment) for RIBeans added dynamically
+        internalInitialize();
     }
 
     @Override
     protected void internalInitialize(BeanDeployerEnvironment environment) {
+        internalInitialize();
+    }
+
+    protected void internalInitialize() {
         proxyRequired = getScope() != null && isNormalScoped();
         isPassivationCapableBean = Serializable.class.isAssignableFrom(type);
         isPassivationCapableDependency = isNormalScoped() || (isDependent() && isPassivationCapableBean());
