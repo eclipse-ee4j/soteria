@@ -61,7 +61,9 @@ public class DecorableWeldBeanWrapper<T> extends RIBean<T> implements Bean<T>, P
     public DecorableWeldBeanWrapper(Bean<T> bean, Class<T> type, BeanManagerImpl beanManager) {
         super(
             bean,
-            new StringBeanIdentifier(BeanIdentifiers.forBuiltInBean(beanManager, type, null)),
+            new StringBeanIdentifier(BeanIdentifiers.forBuiltInBean(
+                beanManager, type,
+                bean instanceof PassivationCapable ? ((PassivationCapable) bean).getId() : null)),
             beanManager);
 
         this.bean = bean;
