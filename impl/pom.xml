@@ -29,7 +29,7 @@
     <artifactId>jakarta.security.enterprise</artifactId>
 
     <name>Soteria ${project.version}</name>
-    <description>EE4J Compatible Implementation for Java EE Security API</description>
+    <description>Compatible Implementation for Jakarta Security API</description>
 
     <build>
         <plugins>

@@ -186,7 +186,7 @@ public class SubjectParser {
                 }
 
                 if (isLiberty) {
-                    // Liberty is the only known Java EE server that doesn't put the groups in
+                    // Liberty is the only known Jakarta EE server that doesn't put the groups in
                     // the principals collection, but puts them in the credentials of a Subject.
                     // This somewhat peculiar decision means a JACC provider never gets to see
                     // groups via the principals that are passed in and must get them from
