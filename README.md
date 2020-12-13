@@ -1,6 +1,6 @@
 # Soteria
 
-Java EE Security (JSR 375) RI
+Jakarta Security Compatible Implementation (CI)
 
 [Website](https://eclipse-ee4j.github.io/soteria)
 
@@ -16,13 +16,13 @@ The API and combined API/implementation jars can then be found in /api and /impl
 Sample applications
 -------------------
 
-In /test a number of sample applications are located that each demonstrate a specific feature of JSR 375. The folder is called
+In /test a number of sample applications are located that each demonstrate a specific feature of Jakarta Security. The folder is called
 /test since these double as integration tests.
 
 The sample applications are build when the main build as shown above is executed. By default these applications are build for a
-target server that is *not* assumed to already provide a JSR 375 implementation (like a Java EE 8 server would). In that case the Soteria jars are included in the application archive.
+target server that is *not* assumed to already provide a Jakarta Security implementation (like a compatible Jakarta EE server would). In that case the Soteria jars are included in the application archive.
 
-Alternatively the sample applications can be build for a server that does provide a JSR 375 implementation. In that case the Soteria jars are not included in the application archive. This can be done using the ``provided`` profile as follows:
+Alternatively the sample applications can be build for a server that does provide a Jakarta Security implementation. In that case the Soteria jars are not included in the application archive. This can be done using the ``provided`` profile as follows:
 
 ``mvn clean package -Pprovided``
 
@@ -43,7 +43,6 @@ Testing against glassfish (which provides soteria integration):
 Compatibility
 -------------
 
-Soteria currently fully runs on Payara 4.1.1.161, JBoss WildFly 10 and TomEE 7.0.2-SNAPSHOT from 12-10 (with Tomcat 8.5.6). It runs mostly on Liberty 16.0.0.3/2016.9, TomEE 7.0.1 and GlassFish 4.1.1. "Mostly" means here that some features don't work because of bugs in the servers. For instance on Liberty 16.0.0.3 `request.authenticate` isn't supported. These bugs are likely going to be fixed in newer versions.
+Soteria currently runs fully on any of these [Jakarta EE Compatible Products](https://jakarta.ee/compatibility/).
 
-Soteria does not run at all on WebLogic 12.2.1 due to a problem with server authentication modules working at all.
-
+It runs mostly on TomEE 8.0.5 or above. "Mostly" means here that some features don't work because of bugs in the servers. These bugs are likely going to be fixed in newer versions.

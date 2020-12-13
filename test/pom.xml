@@ -274,7 +274,7 @@
     <profiles>
         <!--
             This profile assumes a target that already has the Soteria libraries.
-            In Java EE 8 that would be the default. E.g. in the case of GlassFish/Payara
+            In Jakarta EE 9 that would be the default. E.g. in the case of GlassFish/Payara
             a jakarta.security.enterprise.jar in [gf_home]/glassfish/modules
           -->
         <profile>
