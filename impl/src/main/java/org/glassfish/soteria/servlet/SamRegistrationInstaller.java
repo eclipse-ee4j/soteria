@@ -40,19 +40,19 @@ import org.glassfish.soteria.mechanisms.jaspic.HttpBridgeServerAuthModule;
 import org.glassfish.soteria.mechanisms.jaspic.Jaspic;
 
 /**
- * If an HttpAuthenticationMechanism implementation has been found on the classpath, this 
+ * If an HttpAuthenticationMechanism implementation has been found on the classpath, this
  * initializer installs a bridge SAM that delegates the validateRequest, secureResponse and
  * cleanSubject methods from the SAM to the HttpAuthenticationMechanism.
- * 
+ *
  * <p>
  * The bridge SAM uses <code>CDI.current()</code> to obtain the HttpAuthenticationMechanism, therefore
  * fully enabling CDI in the implementation of that interface.
- * 
+ *
  * @author Arjan Tijms
  *
  */
 public class SamRegistrationInstaller implements ServletContainerInitializer, ServletContextListener {
-    
+
     private static final Logger logger =  Logger.getLogger(SamRegistrationInstaller.class.getName());
 
     @Override
@@ -69,13 +69,13 @@ public class SamRegistrationInstaller implements ServletContainerInitializer, Se
                 String version = getClass().getPackage().getImplementationVersion();
                 logger.log(INFO, "Initializing Soteria {0} for context ''{1}''", new Object[]{version, ctx.getContextPath()});
             }
-            
+
         } catch (IllegalStateException e) {
-            // On GlassFish 4.1.1/Payara 4.1.1.161 CDI is not initialized (org.jboss.weld.Container#initialize is not called), 
+            // On GlassFish 4.1.1/Payara 4.1.1.161 CDI is not initialized (org.jboss.weld.Container#initialize is not called),
             // and calling CDI.current() will throw an exception. It's no use to continue then.
             // TODO: Do we need to find out *why* the default module does not have CDI initialized?
             logger.log(FINEST, "CDI not available for app context id: " + Jaspic.getAppContextID(ctx), e);
-            
+
             return;
         }
         
@@ -86,34 +86,34 @@ public class SamRegistrationInstaller implements ServletContainerInitializer, Se
             // A SAM must be registered at this point, since the programmatically added
             // Listener is for some reason restricted (not allow) from calling
             // getVirtualServerName. At this point we're still allowed to call this.
-            
+
             // TODO: Ask the Servlet EG to address this? Is there any ground for this restriction???
-            
+
             CDIPerRequestInitializer cdiPerRequestInitializer = null;
-            
+
             if (!isEmpty(System.getProperty("wlp.server.name"))) {
                 // Hardcode server check for now. TODO: design/implement proper service loader/SPI for this
                 cdiPerRequestInitializer = new LibertyCDIPerRequestInitializer();
                 logger.log(INFO, "Running on Liberty - installing CDI request scope activator");
             }
-            
-            registerServerAuthModule(new HttpBridgeServerAuthModule(cdiPerRequestInitializer), ctx);
-          
+
+            registerServerAuthModule(cdiPerRequestInitializer, ctx);
+
             // Add a listener so we can process the context destroyed event, which is needed
             // to de-register the SAM correctly.
             ctx.addListener(this);
         }
 
     }
-    
+
     @Override
     public void contextInitialized(ServletContextEvent sce) {
        // noop
     }
-    
+
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         deregisterServerAuthModule(sce.getServletContext());
     }
-    
+
 }

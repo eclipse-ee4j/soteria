@@ -17,6 +17,7 @@
 package org.glassfish.soteria.mechanisms.jaspic;
 
 import java.util.Map;
+import java.util.function.Function;
 
 import javax.security.auth.callback.CallbackHandler;
 import jakarta.security.auth.message.AuthException;
@@ -30,7 +31,7 @@ import jakarta.security.auth.message.module.ServerAuthModule;
 /**
  * This class functions as a kind of factory-factory for {@link ServerAuthConfig} instances, which are by themselves factories
  * for {@link ServerAuthContext} instances, which are delegates for the actual {@link ServerAuthModule} (SAM) that we're after.
- * 
+ *
  * @author Arjan Tijms
  */
 public class DefaultAuthConfigProvider implements AuthConfigProvider {
@@ -38,15 +39,15 @@ public class DefaultAuthConfigProvider implements AuthConfigProvider {
     private static final String CALLBACK_HANDLER_PROPERTY_NAME = "authconfigprovider.client.callbackhandler";
 
     private Map<String, String> providerProperties;
-    private ServerAuthModule serverAuthModule;
+    private Function<CallbackHandler, ServerAuthModule> serverAuthModuleFactory;
 
-    public DefaultAuthConfigProvider(ServerAuthModule serverAuthModule) {
-        this.serverAuthModule = serverAuthModule;
+    public DefaultAuthConfigProvider(Function<CallbackHandler, ServerAuthModule> serverAuthModuleFactory) {
+        this.serverAuthModuleFactory = serverAuthModuleFactory;
     }
 
     /**
      * Constructor with signature and implementation that's required by API.
-     * 
+     *
      * @param properties provider properties
      * @param factory the auth config factory
      */
@@ -71,8 +72,9 @@ public class DefaultAuthConfigProvider implements AuthConfigProvider {
     @Override
     public ServerAuthConfig getServerAuthConfig(String layer, String appContext, CallbackHandler handler) throws AuthException,
         SecurityException {
+    	
         return new DefaultServerAuthConfig(layer, appContext, handler == null ? createDefaultCallbackHandler() : handler,
-            providerProperties, serverAuthModule);
+            providerProperties, serverAuthModuleFactory.apply(handler));
     }
 
     @Override
@@ -89,7 +91,7 @@ public class DefaultAuthConfigProvider implements AuthConfigProvider {
      * Creates a default callback handler via the system property "authconfigprovider.client.callbackhandler", as seemingly
      * required by the API (API uses wording "may" create default handler). TODO: Isn't
      * "authconfigprovider.client.callbackhandler" JBoss specific?
-     * 
+     *
      * @return
      * @throws AuthException
      */
