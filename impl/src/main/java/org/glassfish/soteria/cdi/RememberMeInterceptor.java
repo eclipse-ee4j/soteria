@@ -168,7 +168,8 @@ public class RememberMeInterceptor implements Serializable {
             rememberMeIdentityStore.removeLoginToken(rememberMeCookie.getValue());
         }
 
-        invocationContext.proceed();
+        // invocationContext.proceed() will be called at the end of intercept already.
+        // invocationContext.proceed();
     }
     
     private RememberMe getRememberMeFromIntercepted(ELProcessor elProcessor, InvocationContext invocationContext) {
