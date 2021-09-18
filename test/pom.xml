@@ -73,11 +73,13 @@
 
     <properties>
         <!-- Test servers -->
+        <glassfish.version>6.2.1</glassfish.version>
+        
+        
+        <!-- Below Servers need to be updated to their Jakarta.* versions and currently don't work -->
         
         <!-- Note: Payara 5.194 has EE Security (Soteria) included, and can be updated via this pom -->
         <payara.version>5.194</payara.version>
-        
-        <glassfish.version>LATEST</glassfish.version>
         
         <!-- Note: WildFly 13 has EE Security (Soteria) included, but not activated -->
         <wildfly.version>12.0.0.Final</wildfly.version>
@@ -87,6 +89,11 @@
         <!-- Note: Liberty 18.0.0.2 has EE Security included -->
         <openliberty.version>18.0.0.1</openliberty.version>
         
+        <security-api.version>${api_dependency_version}</security-api.version>
+        <soteria.version>${project.version}</soteria.version>
+        <weld-decorator.version>${project.version}</weld-decorator.version>
+        
+        
         <arquillian-glassfish-managed-3.1.version>1.0.2</arquillian-glassfish-managed-3.1.version>
         <arquillian-glassfish-embedded-3.1.version>1.0.2</arquillian-glassfish-embedded-3.1.version>
         <arquillian-glassfish-remote-3.1.version>1.0.2</arquillian-glassfish-remote-3.1.version>
@@ -95,6 +102,7 @@
 		
         <jacc-provider.version>0.3</jacc-provider.version>
         
+        <buildDirectory>${project.basedir}/target</buildDirectory>
         <foo>${session.executionRootDirectory}</foo>
         <failsafe-plugin.version>3.0.0-M4</failsafe-plugin.version>
     </properties>
@@ -104,14 +112,14 @@
             <dependency>
                 <groupId>org.jboss.arquillian</groupId>
                 <artifactId>arquillian-bom</artifactId>
-                <version>1.7.0.Alpha3</version>
+                <version>1.7.0.Alpha10</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
             <dependency>
                 <groupId>org.jboss.arquillian.container</groupId>
                 <artifactId>arquillian-container-test-api</artifactId>
-                <version>1.7.0.Alpha3</version>
+                <version>1.7.0.Alpha10</version>
             </dependency>
             <dependency>
                 <groupId>fish.payara.arquillian</groupId>
@@ -210,21 +218,11 @@
                 <enabled>false</enabled>
             </snapshots>
         </repository>
-    
-        <repository>
-            <id>payara-milestones</id>
-            <name>Payara Milestones</name>
-            <url>https://raw.github.com/payara/Payara_PatchedProjects/master</url>
-            <releases>
-                <enabled>true</enabled>
-            </releases>
-            <snapshots>
-                <enabled>false</enabled>
-            </snapshots>
-        </repository>
     </repositories>
 
     <build>
+    	<directory>${buildDirectory}</directory>
+    
         <pluginManagement>
             <plugins>
                 <plugin>
@@ -274,7 +272,7 @@
     <profiles>
         <!--
             This profile assumes a target that already has the Soteria libraries.
-            In Jakarta EE 9 that would be the default. E.g. in the case of GlassFish/Payara
+            In Jakarta EE 9+ that would be the default. E.g. in the case of GlassFish/Payara
             a jakarta.security.enterprise.jar in [gf_home]/glassfish/modules
           -->
         <profile>
@@ -321,6 +319,184 @@
                 </dependency>
             </dependencies>
         </profile> 
+        
+        
+        
+        <!-- ### GlassFish ### -->
+
+
+        <profile>
+            <id>glassfish-ci-managed</id>
+
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+
+            <properties>
+                <glassfish.root>${maven.multiModuleProjectDirectory}/target</glassfish.root>
+            </properties>
+
+            <dependencies>
+                <!-- The actual Arquillian connector -->
+                <dependency>
+                    <groupId>fish.payara.arquillian</groupId>
+                    <artifactId>arquillian-payara-server-managed</artifactId>
+                    <version>2.2</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${glassfish.root}</outputDirectory>
+                                    <markersDirectory>${glassfish.root}/dependency-maven-plugin-markers</markersDirectory>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.glassfish.main.distributions</groupId>
+                                            <artifactId>glassfish</artifactId>
+                                            <version>${glassfish.version}</version>
+                                            <type>zip</type>
+                                            <overWrite>false</overWrite>
+                                            <outputDirectory>${glassfish.root}</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>copy</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>copy</goal>
+                                </goals>
+                                <configuration>
+                                    <artifactItems>
+                						<artifactItem>
+                                            <groupId>jakarta.security.enterprise</groupId>
+                                            <artifactId>jakarta.security.enterprise-api</artifactId>
+                                            <version>${security-api.version}</version>
+                                            <type>jar</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${glassfish.root}/glassfish6/glassfish/modules</outputDirectory>
+                                            <destFileName>jakarta.security.enterprise-api.jar</destFileName>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.glassfish.soteria</groupId>
+                                            <artifactId>jakarta.security.enterprise</artifactId>
+                                            <version>${soteria.version}</version>
+                                            <type>jar</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${glassfish.root}/glassfish6/glassfish/modules</outputDirectory>
+                                            <destFileName>jakarta.security.enterprise.jar</destFileName>
+                                        </artifactItem>
+                                        <artifactItem>
+                                            <groupId>org.glassfish.soteria</groupId>
+						                    <artifactId>soteria.spi.bean.decorator.weld</artifactId>
+                                            <version>${weld-decorator.version}</version>
+                                            <type>jar</type>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${glassfish.root}/glassfish6/glassfish/modules</outputDirectory>
+                                            <destFileName>soteria.spi.bean.decorator.weld.jar</destFileName>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>info-suspend</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <echo level="info">Suspend = ${suspend}</echo>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>set-suspend</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target if="suspend">
+                                        <echo level="info">Suspending: Replacing in ${glassfish.root}</echo>
+                                        <replace token="-Djava.awt.headless=true"
+                                            value="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009"
+                                            dir="${glassfish.root}/glassfish6/glassfish/domains/domain1/config/"
+                                            summary="yes">
+                                            <include name="domain.xml" />
+                                        </replace>
+                                        <replace token="# Framework config properties."
+                                            value="org.osgi.framework.storage.clean=onFirstInit"
+                                            dir="${glassfish.root}/glassfish6/glassfish/config/" summary="yes">
+                                            <include name="osgi.properties" />
+                                        </replace>
+                                    </target>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>unset-suspend</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target unless="suspend">
+                                        <echo level="info">Not suspending: Replacing in ${root}</echo>
+                                        <replace
+                                            token="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009"
+                                            value="-Djava.awt.headless=true"
+                                            dir="${glassfish.root}/glassfish6/glassfish/domains/domain1/config/"
+                                            summary="yes">
+                                            <include name="domain.xml" />
+                                        </replace>
+                                        <replace token="org.osgi.framework.storage.clean=onFirstInit"
+                                            value="# Framework config properties."
+                                            dir="${glassfish.root}/glassfish6/glassfish/config/" summary="yes">
+                                            <include name="osgi.properties" />
+                                        </replace>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <environmentVariables>
+                                <GLASSFISH_HOME>${glassfish.root}/glassfish6</GLASSFISH_HOME>
+                            </environmentVariables>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        
+        
+        
+        
+        
        
         
         <!-- 
@@ -330,9 +506,6 @@
         -->
         <profile>
             <id>payara-ci-managed-update</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
             
             <build>
                 <plugins>
@@ -406,9 +579,6 @@
          -->
         <profile>
             <id>payara-ci-managed</id>
-            <activation>
-                <activeByDefault>true</activeByDefault>
-            </activation>
 
             <dependencies>
                 <dependency>
