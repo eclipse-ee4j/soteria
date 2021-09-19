@@ -174,15 +174,20 @@
                         </execution>
                     </executions>
                 </plugin>
-                <plugin>
-				    <groupId>org.apache.maven.plugins</groupId>
-				    <artifactId>maven-war-plugin</artifactId>
-				    <version>3.3.2</version>
-                </plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-war-plugin</artifactId>
+						<version>3.3.2</version>
+					</plugin>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-compiler-plugin</artifactId>
+						<version>3.8.1</version>
+					</plugin>
             </plugins>
         </pluginManagement>
         <plugins>
-            <!-- Sets minimal Maven version to 3.5.4 -->
+            <!-- Sets minimal Maven version to 3.6.3 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-enforcer-plugin</artifactId>
@@ -196,7 +201,7 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>3.5.4</version>
+                                    <version>3.6.3</version>
                                 </requireMavenVersion>
                             </rules>
                         </configuration>
