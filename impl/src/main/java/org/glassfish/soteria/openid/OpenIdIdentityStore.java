@@ -117,9 +117,7 @@ public class OpenIdIdentityStore implements IdentityStore {
 
     private String getCallerName() {
         String callerNameClaim = configuration.getClaimsConfiguration().getCallerNameClaim();
-        if (OpenIdConstant.SUBJECT_IDENTIFIER.equals(callerNameClaim)) {
-            return context.getSubject();
-        }
+
         String callerName =  context.getIdentityToken().getJwtClaims().getStringClaim(callerNameClaim).orElse(null);
         if (callerName == null) {
             callerName = context.getAccessToken().getJwtClaims().getStringClaim(callerNameClaim).orElse(null);

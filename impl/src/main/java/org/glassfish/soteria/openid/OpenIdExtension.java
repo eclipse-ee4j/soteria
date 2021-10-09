@@ -104,10 +104,9 @@ public class OpenIdExtension implements Extension {
 
     protected void registerDefinition(@Observes AfterBeanDiscovery afterBeanDiscovery, BeanManager beanManager) {
 
-        LOGGER.log(INFO, "AfterBean Discovery {0}",
-                definition.getClass().getName());
-
         if (definition != null) {
+            LOGGER.log(INFO, "AfterBean Discovery {0}",
+                    definition.getClass().getName());
 
             // if definition is active we broaden the type of OpenIdAuthenticationMechanism back to
             // HttpAuthenticationMechanism, so it would be picked up by Jakarta Security.
