@@ -72,10 +72,13 @@
     </modules>
 
     <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+
         <!-- Test servers -->
         
         <!-- Note: Payara 5.194 has EE Security (Soteria) included, and can be updated via this pom -->
-        <payara.version>5.194</payara.version>
+        <payara.version>6.2021.1.Alpha1</payara.version>
         
         <glassfish.version>LATEST</glassfish.version>
         
@@ -347,7 +350,7 @@
                                     <goal>copy</goal>
                                 </goals>
                                 <configuration>
-                                    <outputDirectory>${session.executionRootDirectory}/target/payara5/glassfish/modules</outputDirectory>
+                                    <outputDirectory>${session.executionRootDirectory}/target/payara6/glassfish/modules</outputDirectory>
                                     <stripVersion>true</stripVersion>
                                     <overWrite>true</overWrite>
                                     <markersDirectory>${session.executionRootDirectory}/target/dependency-maven-plugin-markers</markersDirectory>
@@ -358,7 +361,7 @@
                                             <artifactId>jakarta.security.enterprise</artifactId>
                                             <version>${project.version}</version>
                                             <overWrite>true</overWrite>
-                                            <outputDirectory>${session.executionRootDirectory}/target/payara5/glassfish/modules</outputDirectory>
+                                            <outputDirectory>${session.executionRootDirectory}/target/payara6/glassfish/modules</outputDirectory>
                                         </artifactItem>
                                         <!-- New version of Soteria Weld SPI -->
                                         <artifactItem>
@@ -366,7 +369,7 @@
                                             <artifactId>soteria.spi.bean.decorator.weld</artifactId>
                                             <version>${project.version}</version>
                                             <overWrite>true</overWrite>
-                                            <outputDirectory>${session.executionRootDirectory}/target/payara5/glassfish/modules</outputDirectory>
+                                            <outputDirectory>${session.executionRootDirectory}/target/payara6/glassfish/modules</outputDirectory>
                                         </artifactItem>
                                     </artifactItems>
                                 </configuration>
@@ -387,8 +390,8 @@
                                 <configuration>
                                     <target>
                                         <property name="antProperty" value="${foo}"/>
-                                        <echo>deleting ${antProperty}/target/payara5/glassfish/modules/microprofile-jwt-auth.jar</echo>
-                                        <delete file="${session.executionRootDirectory}/target/payara5/glassfish/modules/microprofile-jwt-auth.jar" verbose="true"/>
+                                        <echo>deleting ${antProperty}/target/payara6/glassfish/modules/microprofile-jwt-auth.jar</echo>
+                                        <delete file="${session.executionRootDirectory}/target/payara6/glassfish/modules/microprofile-jwt-auth.jar" verbose="true"/>
                                     </target>
                                 </configuration>
                             </execution>
@@ -471,11 +474,11 @@
                         </executions>
                         <configuration>
                             <environmentVariables>
-                                <GLASSFISH_HOME>${session.executionRootDirectory}/target/payara5</GLASSFISH_HOME>
+                                <GLASSFISH_HOME>${session.executionRootDirectory}/target/payara6</GLASSFISH_HOME>
                             </environmentVariables>
                             <!-- This needs tuning -->
                             <systemPropertyVariables>
-                                <glassfishRemote_gfHome>${session.executionRootDirectory}/target/payara5</glassfishRemote_gfHome>
+                                <glassfishRemote_gfHome>${session.executionRootDirectory}/target/payara6</glassfishRemote_gfHome>
                             </systemPropertyVariables>
                         </configuration>
                     </plugin>
@@ -631,7 +634,7 @@
                         </executions>
                         <configuration>
                             <environmentVariables>
-                                <GLASSFISH_HOME>${project.build.directory}/glassfish5</GLASSFISH_HOME>
+                                <GLASSFISH_HOME>${project.build.directory}/glassfish6</GLASSFISH_HOME>
                             </environmentVariables>
                         </configuration>
                     </plugin>
