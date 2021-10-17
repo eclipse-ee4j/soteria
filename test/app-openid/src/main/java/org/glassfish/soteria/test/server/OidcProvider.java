@@ -41,7 +41,6 @@ import java.util.logging.Logger;
 
 import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.*;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
-import static java.util.Arrays.asList;
 import static java.util.logging.Level.SEVERE;
 import static java.util.stream.Collectors.joining;
 

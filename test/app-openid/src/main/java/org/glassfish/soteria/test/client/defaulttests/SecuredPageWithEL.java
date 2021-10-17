@@ -16,9 +16,6 @@
  */
 package org.glassfish.soteria.test.client.defaulttests;
 
-import static org.glassfish.soteria.test.server.OidcProvider.CLIENT_ID_VALUE;
-import static org.glassfish.soteria.test.server.OidcProvider.CLIENT_SECRET_VALUE;
-import java.io.IOException;
 import jakarta.annotation.security.DeclareRoles;
 import jakarta.security.enterprise.identitystore.OpenIdAuthenticationDefinition;
 import jakarta.servlet.ServletException;
@@ -29,6 +26,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+
 /**
  * @author Gaurav Gupta
  * @author Rudy De Busscher
@@ -36,13 +35,13 @@ import jakarta.servlet.http.HttpServletResponse;
 @WebServlet("/Secured")
 @OpenIdAuthenticationDefinition(
         providerURI = "http://localhost:8080/openid-server/webresources/oidc-provider-demo",
-        clientId = CLIENT_ID_VALUE,
-        clientSecret = CLIENT_SECRET_VALUE,
-        redirectURI = "${baseURL}/Callback"
+        clientId = "${openIdConfig.clientId}",
+        clientSecret = "${openIdConfig.clientSecret}",
+        redirectURI = "${openIdConfig.redirectURI}"
 )
 @DeclareRoles("all")
 @ServletSecurity(@HttpConstraint(rolesAllowed = "all"))
-public class SecuredPage extends HttpServlet {
+public class SecuredPageWithEL extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)

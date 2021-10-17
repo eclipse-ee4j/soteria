@@ -16,30 +16,38 @@
  */
 package org.glassfish.soteria.test;
 
+import com.gargoylesoftware.htmlunit.FailingHttpStatusCodeException;
 import com.gargoylesoftware.htmlunit.WebClient;
-import java.io.IOException;
-import java.net.URL;
-
-import org.glassfish.soteria.test.client.defaulttests.SecuredPage;
+import org.glassfish.soteria.test.client.defaulttests.OpenIdConfig;
+import org.glassfish.soteria.test.client.defaulttests.SecuredPageWithEL;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.Archive;
+import org.jboss.shrinkwrap.api.asset.StringAsset;
 import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
+import java.net.URL;
+
+import static javax.ws.rs.core.Response.Status.NOT_FOUND;
+import static org.glassfish.soteria.test.client.defaulttests.OpenIdConfig.OPEN_ID_CONFIG_PROPERTIES;
+import static org.glassfish.soteria.test.client.defaulttests.OpenIdConfig.REDIRECT_URI;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.fail;
+
 /**
- *
  * @author Gaurav Gupta
  * @author Rudy De Busscher
  */
 
 @RunWith(Arquillian.class)
-public class OpenIdDefaultIT {
+public class InvalidRedirectURIIT {
 
     private WebClient webClient;
 
@@ -57,16 +65,24 @@ public class OpenIdDefaultIT {
         return OpenIdTestUtil.createServerDeployment();
     }
 
-    @Deployment(name = "openid-client", testable=false)
+    @Deployment(name = "openid-client", testable = false)
     public static Archive<?> createClientDeployment() {
-        WebArchive war = OpenIdTestUtil.createClientDeployment(SecuredPage.class);
+        StringAsset config = new StringAsset(REDIRECT_URI + "=invalid_callback");
+        WebArchive war = OpenIdTestUtil.createClientDeployment(SecuredPageWithEL.class, OpenIdConfig.class)
+                .addAsWebInfResource(config, "classes" + OPEN_ID_CONFIG_PROPERTIES);
+        System.out.println(war.toString(true));
         return war;
     }
 
     @Test
     @RunAsClient
     public void testOpenIdConnect() throws IOException {
-        OpenIdTestUtil.testOpenIdConnect(webClient, base);
+        try {
+            webClient.getPage(base + "Secured");
+            fail("redirect uri is valid");
+        } catch (FailingHttpStatusCodeException ex) {
+            assertEquals(NOT_FOUND.getStatusCode(), ex.getStatusCode());
+        }
     }
 
 }

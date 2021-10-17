@@ -21,7 +21,6 @@ import com.gargoylesoftware.htmlunit.WebClient;
 import org.glassfish.soteria.test.client.Callback;
 import org.glassfish.soteria.test.client.GetUserName;
 import org.glassfish.soteria.test.client.UnsecuredPage;
-import org.glassfish.soteria.test.client.defaulttests.SecuredPage;
 import org.glassfish.soteria.test.server.ApplicationConfig;
 import org.glassfish.soteria.test.server.OidcProvider;
 import org.jboss.shrinkwrap.api.ShrinkWrap;
@@ -53,13 +52,14 @@ public class OpenIdTestUtil {
         return war;
     }
 
-    public static WebArchive createClientDeployment() {
+    public static WebArchive createClientDeployment(Class<?>... additionalClasses) {
 
         WebArchive war = ShrinkWrap
                 .create(WebArchive.class, "openid-client.war")
                 .addClass(Callback.class)
                 .addClass(UnsecuredPage.class)
                 .addClass(GetUserName.class)
+                .addClasses(additionalClasses)
                 .addAsWebInfResource("payara-web.xml")
                 // Always as bundled since it is a newer version!
                 .addAsLibraries(Maven.resolver()
@@ -69,11 +69,6 @@ public class OpenIdTestUtil {
                 .addAsWebInfResource(EmptyAsset.INSTANCE, "beans.xml");
 
         return war;
-    }
-
-    public static WebArchive createClientDefaultDeployment() {
-        return createClientDeployment().addClass(SecuredPage.class);
-
     }
 
     public static void testOpenIdConnect(WebClient webClient, URL base) throws IOException {

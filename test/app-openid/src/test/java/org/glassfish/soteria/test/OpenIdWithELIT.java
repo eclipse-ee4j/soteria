@@ -11,16 +11,13 @@
  * version 2 with the GNU Classpath Exception, which is available at
  * https://www.gnu.org/software/classpath/license.html.
  *
- * Contributors:
- *   2021 : Payara Foundation and/or its affiliates
  */
 package org.glassfish.soteria.test;
 
 import com.gargoylesoftware.htmlunit.WebClient;
-import java.io.IOException;
-import java.net.URL;
-
+import org.glassfish.soteria.test.client.defaulttests.OpenIdConfig;
 import org.glassfish.soteria.test.client.defaulttests.SecuredPage;
+import org.glassfish.soteria.test.client.defaulttests.SecuredPageWithEL;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
@@ -32,14 +29,16 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.io.IOException;
+import java.net.URL;
+
 /**
  *
- * @author Gaurav Gupta
  * @author Rudy De Busscher
  */
 
 @RunWith(Arquillian.class)
-public class OpenIdDefaultIT {
+public class OpenIdWithELIT {
 
     private WebClient webClient;
 
@@ -59,7 +58,7 @@ public class OpenIdDefaultIT {
 
     @Deployment(name = "openid-client", testable=false)
     public static Archive<?> createClientDeployment() {
-        WebArchive war = OpenIdTestUtil.createClientDeployment(SecuredPage.class);
+        WebArchive war = OpenIdTestUtil.createClientDeployment(SecuredPageWithEL.class, OpenIdConfig.class);
         return war;
     }
 
