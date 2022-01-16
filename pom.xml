@@ -17,7 +17,8 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
@@ -156,7 +157,7 @@
             <version>4.13.1</version>
             <scope>test</scope>
         </dependency>
-        
+
     </dependencies>
 
     <build>
@@ -209,7 +210,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- Configure the jar with the javadoc. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -230,7 +231,7 @@
                     </execution>
                 </executions>
             </plugin>
-            
+
             <!-- Configure the jar with the sources. -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -255,7 +256,7 @@
                 <module>test</module>
             </modules>
         </profile>
-    
+
         <profile>
             <id>only-eclipse</id>
             <activation>
@@ -285,7 +286,7 @@
                                                 </goals>
                                             </pluginExecutionFilter>
                                             <action>
-                                                <ignore />
+                                                <ignore/>
                                             </action>
                                         </pluginExecution>
                                         <pluginExecution>
@@ -299,11 +300,11 @@
                                                 </goals>
                                             </pluginExecutionFilter>
                                             <action>
-                                                <ignore />
+                                                <ignore/>
                                             </action>
                                         </pluginExecution>
                                         <pluginExecution>
-                                        <pluginExecutionFilter>
+                                            <pluginExecutionFilter>
                                                 <groupId>org.apache.maven.plugins</groupId>
                                                 <artifactId>maven-dependency-plugin</artifactId>
                                                 <versionRange>[3.1.0,)</versionRange>
@@ -312,7 +313,7 @@
                                                 </goals>
                                             </pluginExecutionFilter>
                                             <action>
-                                                <ignore />
+                                                <ignore/>
                                             </action>
                                         </pluginExecution>
                                     </pluginExecutions>
