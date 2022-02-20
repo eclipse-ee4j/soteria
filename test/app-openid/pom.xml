@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  Copyright (c) 2021 Contributors to the Eclipse Foundation
+
+  This program and the accompanying materials are made available under the
+  terms of the Eclipse Public License v. 2.0, which is available at
+  http://www.eclipse.org/legal/epl-2.0.
+
+  This Source Code may also be made available under the following Secondary
+  Licenses when the conditions for such availability set forth in the
+  Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
+  version 2 with the GNU Classpath Exception, which is available at
+  https://www.gnu.org/software/classpath/license.html.
+
+  Contributors:
+    2021 : Payara Foundation and/or its affiliates
+-->
+
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+        <groupId>org.glassfish.soteria.test</groupId>
+        <artifactId>parent</artifactId>
+        <version>3.0.0-SNAPSHOT</version>
+    </parent>
+
+	<artifactId>app-openid</artifactId>
+	<packaging>war</packaging>
+
+	<properties>
+        <failOnMissingWebXml>false</failOnMissingWebXml>
+    </properties>
+
+	<dependencies>
+        <dependency>
+            <groupId>org.glassfish.soteria.test</groupId>
+            <artifactId>common</artifactId>
+            <version>3.0.0-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
+            <groupId>org.jboss.shrinkwrap.resolver</groupId>
+            <artifactId>shrinkwrap-resolver-depchain</artifactId>
+            <version>3.1.3</version>
+            <scope>test</scope>
+            <type>pom</type>
+        </dependency>
+    </dependencies>
+
+	<build>
+        <finalName>app-openid</finalName>
+	</build>
+</project>
