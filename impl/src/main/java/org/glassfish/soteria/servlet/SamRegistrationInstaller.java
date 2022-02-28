@@ -16,28 +16,26 @@
 
 package org.glassfish.soteria.servlet;
 
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.CDI;
+import jakarta.servlet.ServletContainerInitializer;
+import jakarta.servlet.ServletContext;
+import jakarta.servlet.ServletContextEvent;
+import jakarta.servlet.ServletContextListener;
+import org.glassfish.soteria.cdi.CdiExtension;
+import org.glassfish.soteria.cdi.spi.CDIPerRequestInitializer;
+import org.glassfish.soteria.cdi.spi.impl.LibertyCDIPerRequestInitializer;
+import org.glassfish.soteria.mechanisms.jaspic.HttpBridgeServerAuthModule;
+import org.glassfish.soteria.mechanisms.jaspic.Jaspic;
+
+import java.util.Set;
+import java.util.logging.Logger;
+
 import static java.util.logging.Level.FINEST;
 import static java.util.logging.Level.INFO;
 import static org.glassfish.soteria.Utils.isEmpty;
 import static org.glassfish.soteria.mechanisms.jaspic.Jaspic.deregisterServerAuthModule;
 import static org.glassfish.soteria.mechanisms.jaspic.Jaspic.registerServerAuthModule;
-
-import java.util.Set;
-import java.util.logging.Logger;
-
-import jakarta.enterprise.inject.spi.BeanManager;
-import jakarta.servlet.ServletContainerInitializer;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletContextEvent;
-import jakarta.servlet.ServletContextListener;
-import jakarta.servlet.ServletException;
-
-import org.glassfish.soteria.cdi.CdiExtension;
-import org.glassfish.soteria.cdi.CdiUtils;
-import org.glassfish.soteria.cdi.spi.CDIPerRequestInitializer;
-import org.glassfish.soteria.cdi.spi.impl.LibertyCDIPerRequestInitializer;
-import org.glassfish.soteria.mechanisms.jaspic.HttpBridgeServerAuthModule;
-import org.glassfish.soteria.mechanisms.jaspic.Jaspic;
 
 /**
  * If an HttpAuthenticationMechanism implementation has been found on the classpath, this 
@@ -55,15 +53,16 @@ public class SamRegistrationInstaller implements ServletContainerInitializer, Se
     
     private static final Logger logger =  Logger.getLogger(SamRegistrationInstaller.class.getName());
 
+    // --- ServletContainerInitializer ----------------------------------------------------------------------------
+
     @Override
-    public void onStartup(Set<Class<?>> c, ServletContext ctx) throws ServletException {
+    public void onStartup(Set<Class<?>> c, ServletContext ctx) {
 
         // Obtain a reference to the CdiExtension that was used to see if
         // there's an enabled bean
 
-        BeanManager beanManager;
         try {
-            beanManager = CdiUtils.getBeanManager();
+            BeanManager beanManager = CDI.current().getBeanManager(); //CdiUtils.getBeanManager();
 
             if (logger.isLoggable(INFO)) {
                 String version = getClass().getPackage().getImplementationVersion();
@@ -79,7 +78,7 @@ public class SamRegistrationInstaller implements ServletContainerInitializer, Se
             return;
         }
         
-        CdiExtension cdiExtension = CdiUtils.getBeanReference(beanManager, CdiExtension.class);
+        CdiExtension cdiExtension = CDI.current().select(CdiExtension.class).get(); //CdiUtils.getBeanReference(beanManager, CdiExtension.class);
 
         if (cdiExtension.isHttpAuthenticationMechanismFound()) {
 
@@ -105,15 +104,19 @@ public class SamRegistrationInstaller implements ServletContainerInitializer, Se
         }
 
     }
+
+    // --- ServletContextListener ----------------------------------------------------------------------------
     
     @Override
     public void contextInitialized(ServletContextEvent sce) {
-       // noop
+        // noop
+        logger.info("contextInitialized");
     }
     
     @Override
     public void contextDestroyed(ServletContextEvent sce) {
         deregisterServerAuthModule(sce.getServletContext());
+        logger.info("contextDestroyed");
     }
     
 }

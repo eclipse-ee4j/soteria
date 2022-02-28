@@ -15,38 +15,17 @@
  */
 package org.glassfish.soteria.servlet;
 
+import jakarta.security.enterprise.CallerPrincipal;
+import jakarta.servlet.*;
+import jakarta.servlet.http.*;
+import org.junit.Test;
+
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectOutputStream;
-import java.io.UnsupportedEncodingException;
 import java.security.Principal;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.Map;
-
-import jakarta.security.enterprise.CallerPrincipal;
-import jakarta.servlet.AsyncContext;
-import jakarta.servlet.DispatcherType;
-import jakarta.servlet.RequestDispatcher;
-import jakarta.servlet.ServletContext;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.ServletInputStream;
-import jakarta.servlet.ServletRequest;
-import jakarta.servlet.ServletResponse;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.servlet.http.HttpUpgradeHandler;
-import jakarta.servlet.http.Part;
-
-import org.junit.Test;
+import java.util.*;
 
 /**
  *
@@ -75,7 +54,7 @@ public class RequestDataSerializableTest {
             this.cookies = new Cookie[]{new Cookie("name", "value")};
             this.headers = new HashMap<>();
             headers.put("header1", Arrays.asList("value1", "value2"));
-            this.locales = Arrays.asList(Locale.ENGLISH);
+            this.locales = List.of(Locale.ENGLISH);
             this.parameters = new HashMap<>();
             parameters.put("param1", new String[]{"value1", "value2"});
         }
@@ -211,32 +190,32 @@ public class RequestDataSerializableTest {
         }
 
         @Override
-        public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
+        public boolean authenticate(HttpServletResponse response) {
             return false;
         }
 
         @Override
-        public void login(String username, String password) throws ServletException {
+        public void login(String username, String password) {
 
         }
 
         @Override
-        public void logout() throws ServletException {
+        public void logout() {
 
         }
 
         @Override
-        public Collection<Part> getParts() throws IOException, ServletException {
+        public Collection<Part> getParts() {
             return Collections.emptyList();
         }
 
         @Override
-        public Part getPart(String name) throws IOException, ServletException {
+        public Part getPart(String name) {
             return null;
         }
 
         @Override
-        public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) throws IOException, ServletException {
+        public <T extends HttpUpgradeHandler> T upgrade(Class<T> handlerClass) {
             return null;
         }
 
@@ -256,7 +235,7 @@ public class RequestDataSerializableTest {
         }
 
         @Override
-        public void setCharacterEncoding(String env) throws UnsupportedEncodingException {
+        public void setCharacterEncoding(String env) {
 
         }
 
@@ -276,7 +255,7 @@ public class RequestDataSerializableTest {
         }
 
         @Override
-        public ServletInputStream getInputStream() throws IOException {
+        public ServletInputStream getInputStream() {
             return null;
         }
 
@@ -321,7 +300,7 @@ public class RequestDataSerializableTest {
         }
 
         @Override
-        public BufferedReader getReader() throws IOException {
+        public BufferedReader getReader() {
             return null;
         }
 

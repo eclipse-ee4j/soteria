@@ -54,7 +54,7 @@ public class SubjectParser {
     private static Object geronimoPolicyConfigurationFactoryInstance;
     private static ConcurrentMap<String, Map<Principal, Set<String>>> geronimoContextToRoleMapping;
 
-    private Map<String, List<String>> groupToRoles = new HashMap<>();
+    private final Map<String,List<String>> groupToRoles = new HashMap<>();
 
     private boolean isJboss;
     private boolean isLiberty;
@@ -71,13 +71,14 @@ public class SubjectParser {
             // This protection can be beat by creating an instance of GeronimoPolicyConfigurationFactory once. This instance
             // will statically register itself with an internal Geronimo class
 
-            geronimoPolicyConfigurationFactoryInstance = Class.forName(className("org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfiguration")).newInstance();
+            geronimoPolicyConfigurationFactoryInstance = Class.forName(className("org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfiguration")).getDeclaredConstructor().newInstance();
             geronimoContextToRoleMapping = new ConcurrentHashMap<>();
         } catch (Exception e) {
             // ignore
         }
     }
 
+    @SuppressWarnings("unchecked")
     public static void onPolicyConfigurationCreated(final String contextID) {
 
         // Are we dealing with Geronimo?
@@ -87,21 +88,16 @@ public class SubjectParser {
             try {
                 Class<?> geronimoPolicyConfigurationClass = Class.forName(className("org.apache.geronimo.security.jacc.mappingprovider.GeronimoPolicyConfiguration"));
 
-                Object geronimoPolicyConfigurationProxy = Proxy.newProxyInstance(SubjectParser.class.getClassLoader(), new Class[]{geronimoPolicyConfigurationClass}, new InvocationHandler() {
+                Object geronimoPolicyConfigurationProxy = Proxy.newProxyInstance(SubjectParser.class.getClassLoader(), new Class[]{geronimoPolicyConfigurationClass}, (proxy, method, args) -> {
 
-                    @SuppressWarnings("unchecked")
-                    @Override
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+                    // Take special action on the following method:
+                    // void setPrincipalRoleMapping(Map<Principal, Set<String>> principalRoleMap) throws PolicyContextException;
+                    if (method.getName().equals("setPrincipalRoleMapping")) {
 
-                        // Take special action on the following method:
-                        // void setPrincipalRoleMapping(Map<Principal, Set<String>> principalRoleMap) throws PolicyContextException;
-                        if (method.getName().equals("setPrincipalRoleMapping")) {
+                        geronimoContextToRoleMapping.put(contextID, (Map<Principal, Set<String>>) args[0]);
 
-                            geronimoContextToRoleMapping.put(contextID, (Map<Principal, Set<String>>) args[0]);
-
-                        }
-                        return null;
                     }
+                    return null;
                 });
 
                 // Set the proxy on the GeronimoPolicyConfigurationFactory so it will call us back later with the role mapping via the following method:
@@ -121,16 +117,16 @@ public class SubjectParser {
 
         // Try to get a hold of the proprietary role mapper of each known
         // AS. Sad that this is needed :(
-        if (tryGlassFish(contextID, allDeclaredRoles)) {
-            return;
+        if (tryGlassFish(contextID,allDeclaredRoles)) {
+
         } else if (tryJBoss()) {
-            return;
+
         } else if (tryLiberty()) {
-            return;
-        } else if (tryWebLogic(contextID, allDeclaredRoles)) {
-            return;
-        } else if (tryGeronimo(contextID, allDeclaredRoles)) {
-            return;
+
+        } else if (tryWebLogic(contextID,allDeclaredRoles)) {
+
+        } else if (tryGeronimo(contextID,allDeclaredRoles)) {
+
         } else {
             oneToOneMapping = true;
         }
@@ -356,8 +352,8 @@ public class SubjectParser {
                     List<String> groupsOrUserNames = asList(roleToPrincipalNamesMap.get(role));
 
                     for (String groupOrUserName : roleToPrincipalNamesMap.get(role)) {
-                        // Ignore the fact that the collection also contains user names and hope
-                        // that there are no user names in the application with the same name as a group
+                        // Ignore the fact that the collection also contains usernames and hope
+                        // that there are no usernames in the application with the same name as a group
                         if (!groupToRoles.containsKey(groupOrUserName)) {
                             groupToRoles.put(groupOrUserName, new ArrayList<>());
                         }

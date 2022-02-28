@@ -150,7 +150,7 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>2.3.3</version>
+            <version>3.0.1</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -166,12 +166,12 @@
             <scope>test</scope>
         </dependency>
     
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.13.1</version>
-            <scope>test</scope>
-        </dependency>
+<!--        <dependency>-->
+<!--            <groupId>junit</groupId>-->
+<!--            <artifactId>junit</artifactId>-->
+<!--            <version>4.13.2</version>-->
+<!--            <scope>test</scope>-->
+<!--        </dependency>-->
 
         <dependency>
             <groupId>org.jboss.arquillian.junit</groupId>
@@ -349,8 +349,8 @@
                                 <configuration>
                                     <outputDirectory>${session.executionRootDirectory}/target/payara5/glassfish/modules</outputDirectory>
                                     <stripVersion>true</stripVersion>
-                                    <overWrite>true</overWrite>
-                                    <markersDirectory>${session.executionRootDirectory}/target/dependency-maven-plugin-markers</markersDirectory>
+<!--                                    <overWrite>true</overWrite>-->
+<!--                                    <markersDirectory>${session.executionRootDirectory}/target/dependency-maven-plugin-markers</markersDirectory>-->
                                     <artifactItems>
                                         <!-- New version of Soteria core  -->
                                         <artifactItem>

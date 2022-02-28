@@ -33,16 +33,8 @@ import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
 import java.security.Principal;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.Map.Entry;
-import java.util.Set;
 import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
@@ -62,29 +54,20 @@ import jakarta.xml.bind.DatatypeConverter;
  * @author Arjan Tijms
  *
  */
-public final class Utils {
-    
-    public final static Method validateRequestMethod = getMethod(
-        HttpAuthenticationMechanism.class,
-        "validateRequest",
-        HttpServletRequest.class, HttpServletResponse.class, HttpMessageContext.class);
-        
-    public final static Method cleanSubjectMethod = getMethod(
-        HttpAuthenticationMechanism.class, 
-        "cleanSubject",
-        HttpServletRequest.class, HttpServletResponse.class, HttpMessageContext.class);
+public enum Utils { INSTANCE;
 
-	private static final String ERROR_UNSUPPORTED_ENCODING = "UTF-8 is apparently not supported on this platform.";
+	public final static Method validateRequestMethod = getMethod(
+			HttpAuthenticationMechanism.class,
+			"validateRequest",
+			HttpServletRequest.class, HttpServletResponse.class, HttpMessageContext.class);
 
-    private Utils() {}
+	public final static Method cleanSubjectMethod = getMethod(
+			HttpAuthenticationMechanism.class,
+			"cleanSubject",
+			HttpServletRequest.class, HttpServletResponse.class, HttpMessageContext.class);
 
 	public static boolean notNull(Object... objects) {
-		for (Object object : objects) {
-			if (object == null) {
-				return false;
-			}
-		}
-
+		for (Object object : objects) if (object == null) return false;
 		return true;
 	}
 
@@ -127,18 +110,13 @@ public final class Utils {
 	 */
 	@SafeVarargs
 	public static <T> boolean isOneOf(T object, T... objects) {
-		for (Object other : objects) {
-			if (object == null ? other == null : object.equals(other)) {
-				return true;
-			}
-		}
-
+		for (Object other : objects) if (Objects.equals(object, other)) return true;
 		return false;
 	}
-	
+
 	@SuppressWarnings("unchecked")
-    public static <T> T getParam(InvocationContext invocationContext, int param) {
-	    return (T) invocationContext.getParameters()[param];
+	public static <T> T getParam(InvocationContext invocationContext, int param) {
+		return (T) invocationContext.getParameters()[param];
 	}
 
 	public static String getBaseURL(HttpServletRequest request) {
@@ -153,36 +131,36 @@ public final class Utils {
 			throw new IllegalStateException(e);
 		}
 	}
-	
+
 	public static ELProcessor getELProcessor(String name, Object bean) {
-	    ELProcessor elProcessor = new ELProcessor();
-        elProcessor.defineBean(name, bean);
-        return elProcessor;
+		ELProcessor elProcessor = new ELProcessor();
+		elProcessor.defineBean(name, bean);
+		return elProcessor;
 	}
-	
+
 	public static ELProcessor getELProcessor(String name1, Object bean1, String name2, Object bean2) {
-        ELProcessor elProcessor = new ELProcessor();
-        elProcessor.defineBean(name1, bean1);
-        elProcessor.defineBean(name2, bean2);
-        return elProcessor;
-    }
-	
-    public static ELProcessor getELProcessor(String name1, Object bean1, String name2, Object bean2, String name3, Object bean3) {
-        ELProcessor elProcessor = new ELProcessor();
-        elProcessor.defineBean(name1, bean1);
-        elProcessor.defineBean(name2, bean2);
-        elProcessor.defineBean(name3, bean3);
-        return elProcessor;
-    }
-	
-    public static CallerPrincipal toCallerPrincipal(Principal principal) {
-        if (principal instanceof CallerPrincipal) {
-            return (CallerPrincipal) principal;
-        }
-        
-        return new WrappingCallerPrincipal(principal);
-    }
-    
+		ELProcessor elProcessor = new ELProcessor();
+		elProcessor.defineBean(name1, bean1);
+		elProcessor.defineBean(name2, bean2);
+		return elProcessor;
+	}
+
+	public static ELProcessor getELProcessor(String name1, Object bean1, String name2, Object bean2, String name3, Object bean3) {
+		ELProcessor elProcessor = new ELProcessor();
+		elProcessor.defineBean(name1, bean1);
+		elProcessor.defineBean(name2, bean2);
+		elProcessor.defineBean(name3, bean3);
+		return elProcessor;
+	}
+
+	public static CallerPrincipal toCallerPrincipal(Principal principal) {
+		if (principal instanceof CallerPrincipal) {
+			return (CallerPrincipal) principal;
+		}
+
+		return new WrappingCallerPrincipal(principal);
+	}
+
 	public static void redirect(HttpServletRequest request, HttpServletResponse response, String location) {
 		try {
 			if (isFacesAjaxRequest(request)) {
@@ -200,73 +178,38 @@ public final class Utils {
 			throw new IllegalStateException(e);
 		}
 	}
-	
+
 	private static final Set<String> FACES_AJAX_HEADERS = unmodifiableSet("partial/ajax", "partial/process");
 	private static final String FACES_AJAX_REDIRECT_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
-		+ "<partial-response><redirect url=\"%s\"></redirect></partial-response>";
-	
+			+ "<partial-response><redirect url=\"%s\"></redirect></partial-response>";
+
 	public static boolean isFacesAjaxRequest(HttpServletRequest request) {
 		return FACES_AJAX_HEADERS.contains(request.getHeader("Faces-Request"));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static <E> Set<E> unmodifiableSet(Object... values) {
 		Set<E> set = new HashSet<>();
-
 		for (Object value : values) {
-			if (value instanceof Object[]) {
-				for (Object item : (Object[]) value) {
-					set.add((E) item);
-				}
-			}
-			else if (value instanceof Collection<?>) {
-				for (Object item : (Collection<?>) value) {
-					set.add((E) item);
-				}
-			}
-			else {
-				set.add((E) value);
-			}
+			if (value instanceof Object[]) for (Object item : (Object[]) value) set.add((E) item);
+			else if (value instanceof Collection<?>) for (Object item : (Collection<?>) value) set.add((E)item);
+			else set.add((E)value);
 		}
-
 		return Collections.unmodifiableSet(set);
 	}
 
 	public static String encodeURL(String string) {
-		if (string == null) {
-			return null;
-		}
-
-		try {
-			return URLEncoder.encode(string, UTF_8.name());
-		}
-		catch (UnsupportedEncodingException e) {
-			throw new UnsupportedOperationException(ERROR_UNSUPPORTED_ENCODING, e);
-		}
+		return string == null ? null : URLEncoder.encode(string,UTF_8);
 	}
 
 	public static String decodeURL(String string) {
-		if (string == null) {
-			return null;
-		}
-
-		try {
-			return URLDecoder.decode(string, UTF_8.name());
-		}
-		catch (UnsupportedEncodingException e) {
-			throw new UnsupportedOperationException(ERROR_UNSUPPORTED_ENCODING, e);
-		}
+		return string == null ? null : URLDecoder.decode(string,UTF_8);
 	}
 
 	public static String getSingleParameterFromState(String state, String paramName) {
-		Map<String, List<String>> requestStateParameters = getParameterMapFromState(state);
-
+		Map<String,List<String>> requestStateParameters = getParameterMapFromState(state);
 		List<String> parameterValues = requestStateParameters.get(paramName);
-		if (!isEmpty(parameterValues)) {
-			return parameterValues.get(0);
-		}
-
-		return null;
+		return !isEmpty(parameterValues) ? parameterValues.get(0) : null;
 	}
 
 	public static Map<String, List<String>> getParameterMapFromState(String state) {
@@ -321,13 +264,13 @@ public final class Utils {
 
 	public static String getSingleParameterFromQueryString(String queryString, String paramName) {
 		if (!isEmpty(queryString)) {
-			Map<String, List<String>> requestParameters = toParameterMap(queryString);
-	
+			Map<String,List<String>> requestParameters = toParameterMap(queryString);
+
 			if (!isEmpty(requestParameters.get(paramName))) {
 				return requestParameters.get(paramName).get(0);
 			}
 		}
-	
+
 		return null;
 	}
 
@@ -341,9 +284,7 @@ public final class Utils {
 	 * @return The serialized URL-safe string, or <code>null</code> when the given string is itself <code>null</code>.
 	 */
 	public static String serializeURLSafe(String string) {
-		if (string == null) {
-			return null;
-		}
+		if (string == null) return null;
 
 		try {
 			InputStream raw = new ByteArrayInputStream(string.getBytes(UTF_8));
@@ -366,9 +307,7 @@ public final class Utils {
 	 * {@link #serializeURLSafe(String)}.
 	 */
 	public static String unserializeURLSafe(String string) {
-		if (string == null) {
-			return null;
-		}
+		if (string == null) return null;
 
 		try {
 			String base64 = string.replace('-', '+').replace('_', '/') + "===".substring(0, string.length() % 4);
@@ -387,7 +326,7 @@ public final class Utils {
 
 	public static long stream(InputStream input, OutputStream output) throws IOException {
 		try (ReadableByteChannel inputChannel = Channels.newChannel(input);
-			WritableByteChannel outputChannel = Channels.newChannel(output))
+			 WritableByteChannel outputChannel = Channels.newChannel(output))
 		{
 			ByteBuffer buffer = ByteBuffer.allocateDirect(10240);
 			long size = 0;
@@ -414,21 +353,21 @@ public final class Utils {
 		stream(input, output);
 		return output.toByteArray();
 	}
-	
-   public static boolean isImplementationOf(Method implementationMethod, Method interfaceMethod) {
-        return
-            interfaceMethod.getDeclaringClass().isAssignableFrom(implementationMethod.getDeclaringClass()) &&
-            interfaceMethod.getName().equals(implementationMethod.getName()) &&
-            Arrays.equals(interfaceMethod.getParameterTypes(), implementationMethod.getParameterTypes());
-    }
-    
-   public static Method getMethod(Class<?> base, String name, Class<?>... parameterTypes) {
-        try {
-            // Method literals in Java would be nice
-            return base.getMethod(name, parameterTypes);
-        } catch (NoSuchMethodException | SecurityException e) {
-            throw new IllegalStateException(e);
-        }
-    }
-	
+
+	public static boolean isImplementationOf(Method implementationMethod, Method interfaceMethod) {
+		return
+				interfaceMethod.getDeclaringClass().isAssignableFrom(implementationMethod.getDeclaringClass()) &&
+						interfaceMethod.getName().equals(implementationMethod.getName()) &&
+						Arrays.equals(interfaceMethod.getParameterTypes(), implementationMethod.getParameterTypes());
+	}
+
+	public static Method getMethod(Class<?> base, String name, Class<?>... parameterTypes) {
+		try {
+			// Method literals in Java would be nice
+			return base.getMethod(name, parameterTypes);
+		} catch (NoSuchMethodException | SecurityException e) {
+			throw new IllegalStateException(e);
+		}
+	}
+
 }
