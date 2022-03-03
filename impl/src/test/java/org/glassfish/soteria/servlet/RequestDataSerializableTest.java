@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -30,10 +31,13 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 
+import org.junit.Test;
+
 import jakarta.security.enterprise.CallerPrincipal;
 import jakarta.servlet.AsyncContext;
 import jakarta.servlet.DispatcherType;
 import jakarta.servlet.RequestDispatcher;
+import jakarta.servlet.ServletConnection;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.ServletInputStream;
@@ -45,8 +49,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.servlet.http.HttpUpgradeHandler;
 import jakarta.servlet.http.Part;
-
-import org.junit.Test;
 
 /**
  *
@@ -206,11 +208,6 @@ public class RequestDataSerializableTest {
         }
 
         @Override
-        public boolean isRequestedSessionIdFromUrl() {
-            return false;
-        }
-
-        @Override
         public boolean authenticate(HttpServletResponse response) throws IOException, ServletException {
             return false;
         }
@@ -366,11 +363,6 @@ public class RequestDataSerializableTest {
         }
 
         @Override
-        public String getRealPath(String path) {
-            return "test";
-        }
-
-        @Override
         public int getRemotePort() {
             return 80;
         }
@@ -423,6 +415,21 @@ public class RequestDataSerializableTest {
         @Override
         public DispatcherType getDispatcherType() {
             return DispatcherType.REQUEST;
+        }
+
+        @Override
+        public String getRequestId() {
+            return null;
+        }
+
+        @Override
+        public String getProtocolRequestId() {
+            return null;
+        }
+
+        @Override
+        public ServletConnection getServletConnection() {
+            return null;
         }
 
     }

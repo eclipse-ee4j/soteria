@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -20,6 +21,7 @@ import java.util.Collections;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
+
 import jakarta.security.auth.message.AuthException;
 import jakarta.security.auth.message.AuthStatus;
 import jakarta.security.auth.message.MessageInfo;
@@ -34,7 +36,7 @@ import jakarta.security.auth.message.module.ServerAuthModule;
  * <p>
  * Since this simple example only has a single SAM, we delegate directly to that one. Note that this {@link ServerAuthContext}
  * and the {@link ServerAuthModule} (SAM) share a common base interface: {@link ServerAuth}.
- * 
+ *
  * @author Arjan Tijms
  */
 public class DefaultServerAuthContext implements ServerAuthContext {
@@ -43,7 +45,7 @@ public class DefaultServerAuthContext implements ServerAuthContext {
 
     public DefaultServerAuthContext(CallbackHandler handler, ServerAuthModule serverAuthModule) throws AuthException {
         this.serverAuthModule = serverAuthModule;
-        serverAuthModule.initialize(null, null, handler, Collections.<String, String> emptyMap());
+        serverAuthModule.initialize(null, null, handler, Collections.<String, Object> emptyMap());
     }
 
     @Override
