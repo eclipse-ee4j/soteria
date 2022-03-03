@@ -17,15 +17,14 @@
  */
 package org.glassfish.soteria.openid.domain;
 
-import org.glassfish.soteria.Utils;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.isNull;
+import static org.glassfish.soteria.Utils.isEmpty;
 
 import java.io.Serializable;
 import java.security.SecureRandom;
 import java.util.Base64;
 import java.util.Objects;
-
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.isNull;
 
 /**
  * Creates a random nonce as a character sequence of the specified byte length
@@ -35,6 +34,8 @@ import static java.util.Objects.isNull;
  * @author Rudy De Busscher
  */
 public class OpenIdNonce implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     /**
      * The default byte length of randomly generated nonce.
@@ -55,7 +56,7 @@ public class OpenIdNonce implements Serializable {
      * @param value The nonce value. Must not be {@code null} or empty.
      */
     public OpenIdNonce(String value) {
-        if (Utils.isEmpty(value)) {
+        if (isEmpty(value)) {
             throw new IllegalArgumentException("The nonce value can't be null or empty");
         }
         this.value = value;

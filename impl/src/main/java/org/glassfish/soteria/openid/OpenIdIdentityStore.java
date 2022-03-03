@@ -17,6 +17,22 @@
  */
 package org.glassfish.soteria.openid;
 
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import org.glassfish.soteria.openid.controller.TokenController;
+import org.glassfish.soteria.openid.domain.AccessTokenImpl;
+import org.glassfish.soteria.openid.domain.IdentityTokenImpl;
+import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
+import org.glassfish.soteria.openid.domain.OpenIdContextImpl;
+
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jwt.JWTClaimsSet;
 
@@ -26,25 +42,9 @@ import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageCont
 import jakarta.security.enterprise.credential.Credential;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;
 import jakarta.security.enterprise.identitystore.IdentityStore;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
-import org.glassfish.soteria.openid.controller.TokenController;
-import org.glassfish.soteria.openid.domain.AccessTokenImpl;
-import org.glassfish.soteria.openid.domain.IdentityTokenImpl;
-import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
-import org.glassfish.soteria.openid.domain.OpenIdContextImpl;
-
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
 
 /**
- * Identity store validates the identity token & access token and returns the
+ * Identity store validates the identity token and access token and returns the
  * validation result with the caller name and groups.
  *
  * @author Gaurav Gupta
@@ -68,9 +68,9 @@ public class OpenIdIdentityStore implements IdentityStore {
     public CredentialValidationResult validate(OpenIdCredential credential) {
         HttpMessageContext httpContext = credential.getHttpContext();
         IdentityTokenImpl idToken = credential.getIdentityTokenImpl();
-        
+
         Algorithm idTokenAlgorithm = idToken.getTokenJWT().getHeader().getAlgorithm();
-        
+
         JWTClaimsSet idTokenClaims;
         if (isNull(context.getIdentityToken())) {
             idTokenClaims = tokenController.validateIdToken(idToken, httpContext);
@@ -92,7 +92,7 @@ public class OpenIdIdentityStore implements IdentityStore {
         context.setCallerName(callerName);
         Set<String> callerGroups = getCallerGroups();
         context.setCallerGroups(callerGroups);
-        
+
         if (LOGGER.isLoggable(Level.FINE)) {
             LOGGER.log(Level.FINE, "Setting caller groups into the OpenID context: " + callerGroups);
             if (LOGGER.isLoggable(Level.FINER)) {
@@ -105,7 +105,7 @@ public class OpenIdIdentityStore implements IdentityStore {
                 context.getCallerGroups()
         );
     }
-    
+
     @Override
     public CredentialValidationResult validate(Credential credential) {
         if (credential instanceof OpenIdCredential) {

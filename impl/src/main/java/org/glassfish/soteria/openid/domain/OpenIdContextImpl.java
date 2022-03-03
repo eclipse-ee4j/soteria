@@ -17,27 +17,33 @@
  */
 package org.glassfish.soteria.openid.domain;
 
-import jakarta.enterprise.context.SessionScoped;
-import jakarta.inject.Inject;
-import jakarta.json.Json;
-import jakarta.json.JsonObject;
-import jakarta.security.enterprise.identitystore.openid.*;
-import jakarta.servlet.ServletException;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.core.UriBuilder;
-import org.glassfish.soteria.Utils;
-import org.glassfish.soteria.openid.controller.AuthenticationController;
-import org.glassfish.soteria.openid.controller.UserInfoController;
-import org.glassfish.soteria.openid.http.HttpStorageController;
+import static java.util.logging.Level.WARNING;
 
 import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import static java.util.logging.Level.WARNING;
+import org.glassfish.soteria.Utils;
+import org.glassfish.soteria.openid.controller.AuthenticationController;
+import org.glassfish.soteria.openid.controller.UserInfoController;
+import org.glassfish.soteria.openid.http.HttpStorageController;
+
+import jakarta.enterprise.context.SessionScoped;
+import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.security.enterprise.identitystore.openid.AccessToken;
+import jakarta.security.enterprise.identitystore.openid.IdentityToken;
+import jakarta.security.enterprise.identitystore.openid.OpenIdClaims;
+import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
+import jakarta.security.enterprise.identitystore.openid.OpenIdContext;
+import jakarta.security.enterprise.identitystore.openid.RefreshToken;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
+import jakarta.ws.rs.core.UriBuilder;
 
 /**
  * An injectable interface that provides access to access token, identity token,
@@ -48,8 +54,9 @@ import static java.util.logging.Level.WARNING;
  */
 @SessionScoped
 public class OpenIdContextImpl implements OpenIdContext {
-    @Inject
-    private UserInfoController userInfoController;
+    private static final long serialVersionUID = 1L;
+
+    private static final Logger LOGGER = Logger.getLogger(OpenIdContextImpl.class.getName());
 
     private String callerName;
     private Set<String> callerGroups;
@@ -61,12 +68,13 @@ public class OpenIdContextImpl implements OpenIdContext {
     private JsonObject claims;
 
     @Inject
+    private UserInfoController userInfoController;
+
+    @Inject
     private OpenIdConfiguration configuration;
 
     @Inject
     private AuthenticationController authenticationController;
-
-    private static final Logger LOGGER = Logger.getLogger(OpenIdContextImpl.class.getName());
 
     @Override
     public String getCallerName() {
@@ -158,6 +166,7 @@ public class OpenIdContextImpl implements OpenIdContext {
         return configuration.getProviderMetadata().getDocument();
     }
 
+    @Override
     public void logout(HttpServletRequest request, HttpServletResponse response) {
         LogoutConfiguration logout = configuration.getLogoutConfiguration();
         try {

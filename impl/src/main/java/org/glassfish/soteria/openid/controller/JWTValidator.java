@@ -18,14 +18,34 @@
 
 package org.glassfish.soteria.openid.controller;
 
-import com.nimbusds.jose.*;
+import static com.nimbusds.jose.jwk.source.RemoteJWKSet.DEFAULT_HTTP_SIZE_LIMIT;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.Objects.isNull;
+
+import java.text.ParseException;
+import java.util.concurrent.ConcurrentHashMap;
+
+import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
+
+import com.nimbusds.jose.Algorithm;
+import com.nimbusds.jose.JOSEException;
+import com.nimbusds.jose.JWEHeader;
+import com.nimbusds.jose.JWSAlgorithm;
+import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
-import com.nimbusds.jose.proc.*;
+import com.nimbusds.jose.proc.BadJOSEException;
+import com.nimbusds.jose.proc.JWEKeySelector;
+import com.nimbusds.jose.proc.JWSKeySelector;
+import com.nimbusds.jose.proc.JWSVerificationKeySelector;
 import com.nimbusds.jose.util.DefaultResourceRetriever;
 import com.nimbusds.jose.util.ResourceRetriever;
-import com.nimbusds.jwt.*;
+import com.nimbusds.jwt.EncryptedJWT;
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.PlainJWT;
+import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
@@ -33,14 +53,6 @@ import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
-import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
-
-import java.text.ParseException;
-import java.util.concurrent.ConcurrentHashMap;
-
-import static com.nimbusds.jose.jwk.source.RemoteJWKSet.DEFAULT_HTTP_SIZE_LIMIT;
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.Objects.isNull;
 
 @ApplicationScoped
 public class JWTValidator {
@@ -91,6 +103,7 @@ public class JWTValidator {
         } catch (ParseException | BadJOSEException | JOSEException ex) {
             throw new IllegalStateException(ex);
         }
+
         return claimsSet;
     }
 
@@ -119,7 +132,9 @@ public class JWTValidator {
         JWSAlgorithm jWSAlgorithm = new JWSAlgorithm(alg);
         if (Algorithm.NONE.equals(jWSAlgorithm)) {
             throw new IllegalStateException("Unsupported JWS algorithm : " + jWSAlgorithm);
-        } else if (JWSAlgorithm.Family.RSA.contains(jWSAlgorithm)
+        }
+
+        if (JWSAlgorithm.Family.RSA.contains(jWSAlgorithm)
                 || JWSAlgorithm.Family.EC.contains(jWSAlgorithm)) {
             ResourceRetriever jwkSetRetriever = new DefaultResourceRetriever(
                     configuration.getJwksConnectTimeout(),
@@ -136,6 +151,7 @@ public class JWTValidator {
         } else {
             throw new IllegalStateException("Unsupported JWS algorithm : " + jWSAlgorithm);
         }
+
         return new JWSVerificationKeySelector<>(jWSAlgorithm, jwkSource);
     }
 

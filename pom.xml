@@ -242,6 +242,7 @@
                         </goals>
                         <configuration>
                             <additionalJOption>-Xdoclint:none</additionalJOption>
+                            <quiet>true</quiet>
                             <notimestamp>true</notimestamp>
                             <splitindex>true</splitindex>
                             <doctitle>${project.name} ${project.version}</doctitle>

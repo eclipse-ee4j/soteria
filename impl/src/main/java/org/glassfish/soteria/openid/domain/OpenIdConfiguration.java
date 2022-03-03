@@ -18,10 +18,10 @@
 package org.glassfish.soteria.openid.domain;
 
 
-import jakarta.servlet.http.HttpServletRequest;
-
 import java.util.Arrays;
 import java.util.Map;
+
+import jakarta.servlet.http.HttpServletRequest;
 
 /**
  * OpenId Connect client configuration.

@@ -30,6 +30,10 @@ import java.util.Set;
 
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
+
+import org.glassfish.soteria.Utils;
+import org.glassfish.soteria.mechanisms.jaspic.Jaspic;
+
 import jakarta.security.auth.message.MessageInfo;
 import jakarta.security.enterprise.AuthenticationStatus;
 import jakarta.security.enterprise.CallerPrincipal;
@@ -39,9 +43,6 @@ import jakarta.security.enterprise.identitystore.CredentialValidationResult;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
-import org.glassfish.soteria.Utils;
-import org.glassfish.soteria.mechanisms.jaspic.Jaspic;
 
 /**
  * A convenience context that provides access to JASPIC Servlet Profile specific types
@@ -198,8 +199,8 @@ public class HttpMessageContextImpl implements HttpMessageContext {
                     result.getCallerPrincipal(),
                     result.getCallerGroups());
 
-        } 
-            
+        }
+
         return SEND_FAILURE;
     }
 
@@ -255,6 +256,8 @@ public class HttpMessageContextImpl implements HttpMessageContext {
      * way to store and return the caller's name; this is it.
      */
     private static class NameHolderPrincipal extends CallerPrincipal {
+        private static final long serialVersionUID = 1L;
+
         NameHolderPrincipal(String name) {
             super(name);
         }

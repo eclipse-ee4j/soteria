@@ -17,18 +17,20 @@
  */
 package org.glassfish.soteria.openid.controller;
 
-import com.nimbusds.jose.proc.SecurityContext;
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.proc.BadJWTException;
-import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
-import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
+import static java.util.Objects.isNull;
 
 import java.util.Date;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
-import static java.util.Objects.isNull;
+import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
+
+import com.nimbusds.jose.proc.SecurityContext;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.proc.BadJWTException;
+import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
+
+import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
 
 /**
  *

@@ -18,28 +18,37 @@
 package org.glassfish.soteria.openid.controller;
 
 
+import static java.util.stream.Collectors.joining;
+import static org.glassfish.soteria.Utils.isEmpty;
+import static org.glassfish.soteria.cdi.AnnotationELPProcessor.evalImmediate;
+
+import java.io.Serializable;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.glassfish.soteria.openid.domain.ClaimsConfiguration;
+import org.glassfish.soteria.openid.domain.LogoutConfiguration;
+import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
+import org.glassfish.soteria.openid.domain.OpenIdProviderData;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonString;
-import jakarta.security.enterprise.identitystore.*;
+import jakarta.security.enterprise.identitystore.OpenIdAuthenticationDefinition;
+import jakarta.security.enterprise.identitystore.OpenIdProviderMetadata;
+import jakarta.security.enterprise.identitystore.PromptType;
 import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
-import org.glassfish.soteria.Utils;
-import org.glassfish.soteria.openid.domain.ClaimsConfiguration;
-import org.glassfish.soteria.openid.domain.LogoutConfiguration;
-import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
-import org.glassfish.soteria.openid.domain.OpenIdProviderData;
-
-import java.io.Serializable;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.util.*;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.joining;
-import static org.glassfish.soteria.cdi.AnnotationELPProcessor.evalImmediate;
 
 /**
  * Build and validate the OpenId Connect client configuration.
@@ -49,6 +58,8 @@ import static org.glassfish.soteria.cdi.AnnotationELPProcessor.evalImmediate;
  */
 @ApplicationScoped
 public class ConfigurationController implements Serializable {
+
+    private static final long serialVersionUID = 1L;
 
     @Inject
     private ProviderMetadataController providerMetadataController;
@@ -69,6 +80,7 @@ public class ConfigurationController implements Serializable {
         }
         OpenIdConfiguration config = buildConfig(definition);
         lastBuiltConfig = new LastBuiltConfig(definition, config);
+
         return config;
     }
 
@@ -82,7 +94,6 @@ public class ConfigurationController implements Serializable {
      * @return
      */
     public OpenIdConfiguration buildConfig(OpenIdAuthenticationDefinition definition) {
-
         String providerURI;
         JsonObject providerDocument;
         String authorizationEndpoint;
@@ -97,27 +108,27 @@ public class ConfigurationController implements Serializable {
         OpenIdProviderMetadata providerMetadata = definition.providerMetadata();
         providerDocument = providerMetadataController.getDocument(providerURI);
 
-        if (Utils.isEmpty(providerMetadata.authorizationEndpoint()) && providerDocument.containsKey(OpenIdConstant.AUTHORIZATION_ENDPOINT)) {
+        if (isEmpty(providerMetadata.authorizationEndpoint()) && providerDocument.containsKey(OpenIdConstant.AUTHORIZATION_ENDPOINT)) {
             authorizationEndpoint = evalImmediate(providerDocument.getString(OpenIdConstant.AUTHORIZATION_ENDPOINT));
         } else {
             authorizationEndpoint = evalImmediate(providerMetadata.authorizationEndpoint());
         }
-        if (Utils.isEmpty(providerMetadata.tokenEndpoint()) && providerDocument.containsKey(OpenIdConstant.TOKEN_ENDPOINT)) {
+        if (isEmpty(providerMetadata.tokenEndpoint()) && providerDocument.containsKey(OpenIdConstant.TOKEN_ENDPOINT)) {
             tokenEndpoint = evalImmediate(providerDocument.getString(OpenIdConstant.TOKEN_ENDPOINT));
         } else {
             tokenEndpoint = evalImmediate(providerMetadata.tokenEndpoint());
         }
-        if (Utils.isEmpty(providerMetadata.userinfoEndpoint()) && providerDocument.containsKey(OpenIdConstant.USERINFO_ENDPOINT)) {
+        if (isEmpty(providerMetadata.userinfoEndpoint()) && providerDocument.containsKey(OpenIdConstant.USERINFO_ENDPOINT)) {
             userinfoEndpoint = evalImmediate(providerDocument.getString(OpenIdConstant.USERINFO_ENDPOINT));
         } else {
             userinfoEndpoint = evalImmediate(providerMetadata.userinfoEndpoint());
         }
-        if (Utils.isEmpty(providerMetadata.endSessionEndpoint()) && providerDocument.containsKey(OpenIdConstant.END_SESSION_ENDPOINT)) {
+        if (isEmpty(providerMetadata.endSessionEndpoint()) && providerDocument.containsKey(OpenIdConstant.END_SESSION_ENDPOINT)) {
             endSessionEndpoint = evalImmediate(providerDocument.getString(OpenIdConstant.END_SESSION_ENDPOINT));
         } else {
             endSessionEndpoint = evalImmediate(providerMetadata.endSessionEndpoint());
         }
-        if (Utils.isEmpty(providerMetadata.jwksURI()) && providerDocument.containsKey(OpenIdConstant.JWKS_URI)) {
+        if (isEmpty(providerMetadata.jwksURI()) && providerDocument.containsKey(OpenIdConstant.JWKS_URI)) {
             jwksURI = evalImmediate(providerDocument.getString(OpenIdConstant.JWKS_URI));
         } else {
             jwksURI = evalImmediate(providerMetadata.jwksURI());
@@ -128,7 +139,7 @@ public class ConfigurationController implements Serializable {
             throw new IllegalStateException("jwksURI is invalid", ex);
         }
 
-        if (Utils.isEmpty(providerMetadata.issuer()) && providerDocument.containsKey(OpenIdConstant.ISSUER)) {
+        if (isEmpty(providerMetadata.issuer()) && providerDocument.containsKey(OpenIdConstant.ISSUER)) {
             issuer = evalImmediate(providerDocument.getString(OpenIdConstant.ISSUER));
         } else {
             issuer = evalImmediate(providerMetadata.issuer());
@@ -138,7 +149,7 @@ public class ConfigurationController implements Serializable {
         if (providerDocument.containsKey(OpenIdConstant.RESPONSE_TYPES_SUPPORTED)) {
             supportedResponseTypes = providerDocument.getJsonArray(OpenIdConstant.RESPONSE_TYPES_SUPPORTED).getValuesAs(JsonString::getString);
         }
-        if (Utils.isEmpty(supportedResponseTypes)) {
+        if (isEmpty(supportedResponseTypes)) {
             String value = evalImmediate(providerMetadata.responseTypeSupported());
             supportedResponseTypes = Arrays.stream(value.split(","))
                     .map(String::trim)
@@ -149,7 +160,7 @@ public class ConfigurationController implements Serializable {
         if (providerDocument.containsKey(OpenIdConstant.ID_TOKEN_SIGNING_ALG_VALUES_SUPPORTED)) {
             supportedIdTokenSigningAlgorithms = providerDocument.getJsonArray(OpenIdConstant.ID_TOKEN_SIGNING_ALG_VALUES_SUPPORTED).getValuesAs(JsonString::getString);
         }
-        if (Utils.isEmpty(supportedIdTokenSigningAlgorithms)) {
+        if (isEmpty(supportedIdTokenSigningAlgorithms)) {
             String value = evalImmediate(providerMetadata.idTokenSigningAlgorithmsSupported());
             supportedIdTokenSigningAlgorithms = Arrays.stream(value.split(","))
                     .map(String::trim)
@@ -160,7 +171,7 @@ public class ConfigurationController implements Serializable {
         if (providerDocument.containsKey(OpenIdConstant.SUBJECT_TYPES_SUPPORTED)) {
             supportedSubjectTypes = providerDocument.getJsonArray(OpenIdConstant.SUBJECT_TYPES_SUPPORTED).getValuesAs(JsonString::getString);
         }
-        if (Utils.isEmpty(supportedSubjectTypes)) {
+        if (isEmpty(supportedSubjectTypes)) {
             String value = evalImmediate(providerMetadata.subjectTypeSupported());
             supportedSubjectTypes = Arrays.stream(value.split(","))
                     .map(String::trim)
@@ -174,7 +185,7 @@ public class ConfigurationController implements Serializable {
 
         String scopes = String.join(SPACE_SEPARATOR, definition.scope());
         scopes = evalImmediate(definition.scopeExpression(), scopes);
-        if (Utils.isEmpty(scopes)) {
+        if (isEmpty(scopes)) {
             scopes = OpenIdConstant.OPENID_SCOPE;
         } else if (!scopes.contains(OpenIdConstant.OPENID_SCOPE)) {
             scopes = OpenIdConstant.OPENID_SCOPE + SPACE_SEPARATOR + scopes;
@@ -285,13 +296,13 @@ public class ConfigurationController implements Serializable {
     private List<String> validateProviderMetadata(OpenIdConfiguration configuration) {
         List<String> errorMessages = new ArrayList<>();
 
-        if (Utils.isEmpty(configuration.getProviderMetadata().getIssuerURI())) {
+        if (isEmpty(configuration.getProviderMetadata().getIssuerURI())) {
             errorMessages.add("issuer metadata is mandatory");
         }
-        if (Utils.isEmpty(configuration.getProviderMetadata().getAuthorizationEndpoint())) {
+        if (isEmpty(configuration.getProviderMetadata().getAuthorizationEndpoint())) {
             errorMessages.add("authorization_endpoint metadata is mandatory");
         }
-        if (Utils.isEmpty(configuration.getProviderMetadata().getTokenEndpoint())) {
+        if (isEmpty(configuration.getProviderMetadata().getTokenEndpoint())) {
             errorMessages.add("token_endpoint metadata is mandatory");
         }
         if (configuration.getProviderMetadata().getJwksURL() == null) {
@@ -306,16 +317,17 @@ public class ConfigurationController implements Serializable {
         if (configuration.getProviderMetadata().getIdTokenSigningAlgorithmsSupported().isEmpty()) {
             errorMessages.add("id_token_signing_alg_values_supported metadata is mandatory");
         }
+
         return errorMessages;
     }
 
     private List<String> validateClientConfiguration(OpenIdConfiguration configuration) {
         List<String> errorMessages = new ArrayList<>();
 
-        if (Utils.isEmpty(configuration.getClientId())) {
+        if (isEmpty(configuration.getClientId())) {
             errorMessages.add("client_id request parameter is mandatory");
         }
-        if (Utils.isEmpty(configuration.getRedirectURI())) {
+        if (isEmpty(configuration.getRedirectURI())) {
             errorMessages.add("redirect_uri request parameter is mandatory");
         }
         if (configuration.getJwksConnectTimeout() <= 0) {
@@ -325,7 +337,7 @@ public class ConfigurationController implements Serializable {
             errorMessages.add("jwksReadTimeout value is not valid");
         }
 
-        if (Utils.isEmpty(configuration.getResponseType())) {
+        if (isEmpty(configuration.getResponseType())) {
             errorMessages.add("The response type must contain at least one value");
         } else if (!configuration.getProviderMetadata().getResponseTypeSupported().contains(configuration.getResponseType())
                 && !OpenIdConstant.AUTHORIZATION_CODE_FLOW_TYPES.contains(configuration.getResponseType())

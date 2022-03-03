@@ -17,9 +17,18 @@
  */
 package org.glassfish.soteria.openid.controller;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static java.util.Collections.emptyMap;
+
+import java.util.Map;
+
+import org.glassfish.soteria.openid.domain.AccessTokenImpl;
+import org.glassfish.soteria.openid.domain.IdentityTokenImpl;
+import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
+import org.glassfish.soteria.openid.domain.OpenIdNonce;
+
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -35,15 +44,6 @@ import jakarta.ws.rs.client.Entity;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Form;
 import jakarta.ws.rs.core.Response;
-import org.glassfish.soteria.openid.domain.AccessTokenImpl;
-import org.glassfish.soteria.openid.domain.IdentityTokenImpl;
-import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
-import org.glassfish.soteria.openid.domain.OpenIdNonce;
-
-import java.util.Map;
-
-import static java.util.Collections.emptyMap;
-import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * Controller for Token endpoint
@@ -124,8 +124,9 @@ public class TokenController {
         }
 
         try {
-            JWTClaimsSetVerifier jwtVerifier = new IdTokenClaimsSetVerifier(expectedNonceHash, configuration);
-            claimsSet = validator.validateBearerToken(idToken.getTokenJWT(), jwtVerifier);
+            claimsSet = validator.validateBearerToken(
+                            idToken.getTokenJWT(),
+                            new IdTokenClaimsSetVerifier(expectedNonceHash, configuration));
         } finally {
             nonceController.remove(configuration, request, response);
         }
@@ -141,13 +142,13 @@ public class TokenController {
      * @return JWT Claims
      */
     public JWTClaimsSet validateRefreshedIdToken(IdentityToken previousIdToken, IdentityTokenImpl newIdToken) {
-        JWTClaimsSetVerifier jwtVerifier = new RefreshedIdTokenClaimsSetVerifier(previousIdToken, configuration);
-        JWTClaimsSet claimsSet = validator.validateBearerToken(newIdToken.getTokenJWT(), jwtVerifier);
-        return claimsSet;
+        return validator.validateBearerToken(
+                newIdToken.getTokenJWT(),
+                new RefreshedIdTokenClaimsSetVerifier(previousIdToken, configuration));
     }
 
     /**
-     * (5.2) Validate the Access Token & it's claims and verify the signature.
+     * (5.2) Validate the Access Token and its claims and verify the signature.
      *
      * @param accessToken
      * @param idTokenAlgorithm
@@ -164,13 +165,7 @@ public class TokenController {
                 configuration
         );
 
-        // https://support.okta.com/help/s/article/Signature-Validation-Failed-on-Access-Token
-//        if (accessToken.getType() == AccessToken.Type.BEARER) {
-//            JWTClaimsSet claimsSet = validateBearerToken(accessToken.getTokenJWT(), jwtVerifier, configuration);
-//            claims = claimsSet.getClaims();
-//        } else {
-            jwtVerifier.validateAccessToken();
-//        }
+        jwtVerifier.validateAccessToken();
 
         return claims;
     }
@@ -184,7 +179,6 @@ public class TokenController {
      * from the Token endpoint.
      */
     public Response refreshTokens(RefreshToken refreshToken) {
-
         Form form = new Form()
                 .param(OpenIdConstant.CLIENT_ID, configuration.getClientId())
                 .param(OpenIdConstant.CLIENT_SECRET, new String(configuration.getClientSecret()))

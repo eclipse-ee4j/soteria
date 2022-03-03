@@ -18,6 +18,40 @@
 package org.glassfish.soteria.openid;
 
 
+import static jakarta.security.enterprise.AuthenticationStatus.SEND_FAILURE;
+import static jakarta.security.enterprise.AuthenticationStatus.SUCCESS;
+import static jakarta.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
+import static jakarta.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.ERROR_DESCRIPTION_PARAM;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.ERROR_PARAM;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.EXPIRES_IN;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.REFRESH_TOKEN;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.STATE;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.TOKEN_TYPE;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
+import static java.util.logging.Level.INFO;
+import static java.util.logging.Level.WARNING;
+
+import java.io.IOException;
+import java.io.Serializable;
+import java.io.StringReader;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+
+import javax.security.auth.callback.Callback;
+import javax.security.auth.callback.UnsupportedCallbackException;
+
+import org.glassfish.soteria.Utils;
+import org.glassfish.soteria.openid.controller.AuthenticationController;
+import org.glassfish.soteria.openid.controller.StateController;
+import org.glassfish.soteria.openid.controller.TokenController;
+import org.glassfish.soteria.openid.domain.LogoutConfiguration;
+import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
+import org.glassfish.soteria.openid.domain.OpenIdContextImpl;
+import org.glassfish.soteria.openid.domain.RefreshTokenImpl;
+
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.inject.Instance;
@@ -40,32 +74,6 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-import org.glassfish.soteria.Utils;
-import org.glassfish.soteria.openid.controller.AuthenticationController;
-import org.glassfish.soteria.openid.controller.StateController;
-import org.glassfish.soteria.openid.controller.TokenController;
-import org.glassfish.soteria.openid.domain.LogoutConfiguration;
-import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
-import org.glassfish.soteria.openid.domain.OpenIdContextImpl;
-import org.glassfish.soteria.openid.domain.RefreshTokenImpl;
-
-import javax.security.auth.callback.Callback;
-import javax.security.auth.callback.UnsupportedCallbackException;
-import java.io.IOException;
-import java.io.Serializable;
-import java.io.StringReader;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import static jakarta.security.enterprise.AuthenticationStatus.*;
-import static jakarta.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
-import static jakarta.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.*;
-import static java.util.Objects.isNull;
-import static java.util.Objects.nonNull;
-import static java.util.logging.Level.INFO;
-import static java.util.logging.Level.WARNING;
 
 /**
  * The AuthenticationMechanism used to authenticate users using the OpenId
@@ -129,6 +137,7 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
     private static final Logger LOGGER = Logger.getLogger(OpenIdAuthenticationMechanism.class.getName());
 
     private static class Lock implements Serializable {
+        private static final long serialVersionUID = 1L;
     }
 
     private static final String SESSION_LOCK_NAME = OpenIdAuthenticationMechanism.class.getName();
@@ -359,6 +368,7 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
 
             }
         }
+
         return lock;
     }
 
