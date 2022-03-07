@@ -78,6 +78,7 @@ public class ConfigurationController implements Serializable {
         if (cached != null) {
             return cached;
         }
+
         OpenIdConfiguration config = buildConfig(definition);
         lastBuiltConfig = new LastBuiltConfig(definition, config);
 

@@ -15,7 +15,7 @@
  *   2021 : Payara Foundation and/or its affiliates
  *      Initially authored in Security Connectors
  */
-package org.glassfish.soteria.openid;
+package org.glassfish.soteria.mechanisms;
 
 
 import static jakarta.security.enterprise.AuthenticationStatus.SEND_FAILURE;
@@ -30,20 +30,22 @@ import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.ST
 import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.TOKEN_TYPE;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
+import static org.glassfish.soteria.Utils.isEmpty;
 
 import java.io.IOException;
 import java.io.Serializable;
 import java.io.StringReader;
 import java.util.Optional;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.glassfish.soteria.Utils;
+import org.glassfish.soteria.openid.OpenIdCredential;
+import org.glassfish.soteria.openid.OpenIdState;
 import org.glassfish.soteria.openid.controller.AuthenticationController;
 import org.glassfish.soteria.openid.controller.StateController;
 import org.glassfish.soteria.openid.controller.TokenController;
@@ -154,66 +156,60 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
     }
 
     @Override
-    public AuthenticationStatus validateRequest(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            HttpMessageContext httpContext) throws AuthenticationException {
-
+    public AuthenticationStatus validateRequest(HttpServletRequest request, HttpServletResponse response, HttpMessageContext httpContext) throws AuthenticationException {
         if (isNull(request.getUserPrincipal())) {
             LOGGER.fine("UserPrincipal is not set, authenticate user using OpenId Connect protocol.");
 
             // User is not authenticated
             // Perform steps (1) to (6)
-            return this.authenticate(request, response, httpContext);
-        } else {
-            // User has been authenticated in request before
-
-            // Try-catch-block taken from AutoApplySessionInterceptor
-            // We cannot use @AutoApplySession, because validateRequest(...) must be called on every request
-            // to handle re-authentication (refreshing tokens)
-            // https://stackoverflow.com/questions/51678821/soteria-httpmessagecontext-setregistersession-not-working-as-expected/51819055
-            // https://github.com/javaee/security-soteria/blob/master/impl/src/main/java/org/glassfish/soteria/cdi/AutoApplySessionInterceptor.java
-            try {
-                httpContext.getHandler().handle(new Callback[]{
-                        new CallerPrincipalCallback(httpContext.getClientSubject(), request.getUserPrincipal())}
-                );
-            } catch (IOException | UnsupportedCallbackException ex) {
-                throw new AuthenticationException("Failed to register CallerPrincipalCallback.", ex);
-            }
-
-            LogoutConfiguration logout = configuration.getLogoutConfiguration();
-            boolean accessTokenExpired = this.context.getAccessToken().isExpired();
-            boolean identityTokenExpired = this.context.getIdentityToken().isExpired();
-            if (logout.isIdentityTokenExpiry()) {
-                LOGGER.log(Level.FINE, "UserPrincipal is set, check if Identity Token is valid.");
-            }
-            if (logout.isAccessTokenExpiry()) {
-                LOGGER.log(Level.FINE, "UserPrincipal is set, check if Access Token is valid.");
-            }
-
-            if ((accessTokenExpired || identityTokenExpired) && configuration.isTokenAutoRefresh()) {
-                if (accessTokenExpired) {
-                    LOGGER.fine("Access Token is expired. Request new Access Token with Refresh Token.");
-                }
-                if (identityTokenExpired) {
-                    LOGGER.fine("Identity Token is expired. Request new Identity Token with Refresh Token.");
-                }
-                return this.reAuthenticate(httpContext);
-            } else if ((logout.isAccessTokenExpiry() && accessTokenExpired)
-                    || (logout.isIdentityTokenExpiry() && identityTokenExpired)) {
-                context.logout(request, response);
-                return SEND_FAILURE;
-            } else {
-                return SUCCESS;
-            }
+            return authenticate(request, response, httpContext);
         }
+
+        // User has been authenticated in request before
+
+        // Try-catch-block taken from AutoApplySessionInterceptor
+        // We cannot use @AutoApplySession, because validateRequest(...) must be called on every request
+        // to handle re-authentication (refreshing tokens)
+        // https://stackoverflow.com/questions/51678821/soteria-httpmessagecontext-setregistersession-not-working-as-expected/51819055
+        // https://github.com/javaee/security-soteria/blob/master/impl/src/main/java/org/glassfish/soteria/cdi/AutoApplySessionInterceptor.java
+        try {
+            httpContext.getHandler().handle(new Callback[]{
+                    new CallerPrincipalCallback(httpContext.getClientSubject(), request.getUserPrincipal())}
+            );
+        } catch (IOException | UnsupportedCallbackException ex) {
+            throw new AuthenticationException("Failed to register CallerPrincipalCallback.", ex);
+        }
+
+        LogoutConfiguration logout = configuration.getLogoutConfiguration();
+        boolean accessTokenExpired = this.context.getAccessToken().isExpired();
+        boolean identityTokenExpired = this.context.getIdentityToken().isExpired();
+        if (logout.isIdentityTokenExpiry()) {
+            LOGGER.log(FINE, "UserPrincipal is set, check if Identity Token is valid.");
+        }
+
+        if (logout.isAccessTokenExpiry()) {
+            LOGGER.log(FINE, "UserPrincipal is set, check if Access Token is valid.");
+        }
+
+        if ((accessTokenExpired || identityTokenExpired) && configuration.isTokenAutoRefresh()) {
+            if (accessTokenExpired) {
+                LOGGER.fine("Access Token is expired. Request new Access Token with Refresh Token.");
+            }
+            if (identityTokenExpired) {
+                LOGGER.fine("Identity Token is expired. Request new Identity Token with Refresh Token.");
+            }
+            return this.reAuthenticate(httpContext);
+        }
+
+        if ((logout.isAccessTokenExpiry() && accessTokenExpired) || (logout.isIdentityTokenExpiry() && identityTokenExpired)) {
+            context.logout(request, response);
+            return SEND_FAILURE;
+        }
+
+        return SUCCESS;
     }
 
-    private AuthenticationStatus authenticate(
-            HttpServletRequest request,
-            HttpServletResponse response,
-            HttpMessageContext httpContext) {
-
+    private AuthenticationStatus authenticate(HttpServletRequest request, HttpServletResponse response, HttpMessageContext httpContext) {
         if (httpContext.isProtected() && isNull(request.getUserPrincipal())) {
             // (1) The End-User is not authenticated.
             return authenticationController.authenticateUser(request, response);
@@ -226,11 +222,13 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
                 LOGGER.log(INFO, "OpenID Redirect URL {0} not matched with request URL {1}", new Object[]{redirectURI, request.getRequestURL().toString()});
                 return httpContext.notifyContainerAboutLogin(NOT_VALIDATED_RESULT);
             }
+
             Optional<OpenIdState> expectedState = stateController.get(request, response);
             if (!expectedState.isPresent()) {
                 LOGGER.fine("Expected state not found");
                 return httpContext.notifyContainerAboutLogin(NOT_VALIDATED_RESULT);
             }
+
             if (!expectedState.equals(receivedState)) {
                 LOGGER.fine("Inconsistent received state, value not matched");
                 return httpContext.notifyContainerAboutLogin(INVALID_RESULT);
@@ -238,6 +236,7 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
             // (3) Successful Authentication Response : redirect_uri?code=abc&state=123
             return validateAuthorizationCode(httpContext);
         }
+
         return httpContext.doNothing();
     }
 
@@ -255,11 +254,13 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
         HttpServletResponse response = httpContext.getResponse();
         String error = request.getParameter(ERROR_PARAM);
         String errorDescription = request.getParameter(ERROR_DESCRIPTION_PARAM);
-        if (!Utils.isEmpty(error)) {
+
+        if (!isEmpty(error)) {
             // Error responses sent to the redirect_uri
             LOGGER.log(WARNING, "Error occurred in receiving Authorization Code : {0} caused by {1}", new Object[]{error, errorDescription});
             return httpContext.notifyContainerAboutLogin(INVALID_RESULT);
         }
+
         stateController.remove(request, response);
 
         LOGGER.finer("Authorization Code received, now fetching Access token & Id token");
@@ -274,14 +275,17 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
 
             // Register session manually (if @AutoApplySession used, this would be done by its interceptor)
             httpContext.setRegisterSession(validationResult.getCallerPrincipal().getName(), validationResult.getCallerGroups());
+
             return httpContext.notifyContainerAboutLogin(validationResult);
-        } else {
-            // Token Request is invalid or unauthorized
-            error = tokensObject.getString(ERROR_PARAM, "Unknown Error");
-            errorDescription = tokensObject.getString(ERROR_DESCRIPTION_PARAM, "Unknown");
-            LOGGER.log(WARNING, "Error occurred in validating Authorization Code : {0} caused by {1}", new Object[]{error, errorDescription});
-            return httpContext.notifyContainerAboutLogin(INVALID_RESULT);
         }
+
+        // Token Request is invalid or unauthorized
+        error = tokensObject.getString(ERROR_PARAM, "Unknown Error");
+        errorDescription = tokensObject.getString(ERROR_DESCRIPTION_PARAM, "Unknown");
+        LOGGER.log(WARNING, "Error occurred in validating Authorization Code : {0} caused by {1}", new Object[]{error, errorDescription});
+
+        return httpContext.notifyContainerAboutLogin(INVALID_RESULT);
+
     }
 
     private AuthenticationStatus reAuthenticate(HttpMessageContext httpContext) throws AuthenticationException {
@@ -304,7 +308,7 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
                         .orElse(AuthenticationStatus.SEND_FAILURE);
 
                 if (refreshStatus != AuthenticationStatus.SUCCESS) {
-                    LOGGER.log(Level.FINE, "Failed to refresh token (Refresh Token might be invalid).");
+                    LOGGER.log(FINE, "Failed to refresh token (Refresh Token might be invalid).");
                     context.logout(request, response);
                 }
                 return refreshStatus;
@@ -327,13 +331,15 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
             // Do not register session, as this will invalidate the currently active session (destroys session beans and removes attributes set in session)!
             // httpContext.setRegisterSession(validationResult.getCallerPrincipal().getName(), validationResult.getCallerGroups());
             return httpContext.notifyContainerAboutLogin(validationResult);
-        } else {
-            // Token Request is invalid (refresh token invalid or expired)
-            String error = tokensObject.getString(ERROR_PARAM, "Unknown Error");
-            String errorDescription = tokensObject.getString(ERROR_DESCRIPTION_PARAM, "Unknown");
-            LOGGER.log(Level.FINE, "Error occurred in refreshing Access Token and Refresh Token : {0} caused by {1}", new Object[]{error, errorDescription});
-            return AuthenticationStatus.SEND_FAILURE;
         }
+
+        // Token Request is invalid (refresh token invalid or expired)
+        String error = tokensObject.getString(ERROR_PARAM, "Unknown Error");
+        String errorDescription = tokensObject.getString(ERROR_DESCRIPTION_PARAM, "Unknown");
+        LOGGER.log(FINE, "Error occurred in refreshing Access Token and Refresh Token : {0} caused by {1}", new Object[]{error, errorDescription});
+
+        return AuthenticationStatus.SEND_FAILURE;
+
     }
 
     private JsonObject readJsonObject(String tokensBody) {

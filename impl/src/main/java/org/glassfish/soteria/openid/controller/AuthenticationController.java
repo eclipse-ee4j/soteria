@@ -17,6 +17,27 @@
  */
 package org.glassfish.soteria.openid.controller;
 
+import static jakarta.security.enterprise.AuthenticationStatus.SEND_CONTINUE;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.CLIENT_ID;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.DISPLAY;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.NONCE;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.ORIGINAL_REQUEST;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.PROMPT;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.REDIRECT_URI;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.RESPONSE_MODE;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.RESPONSE_TYPE;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.SCOPE;
+import static java.util.logging.Level.FINEST;
+import static org.glassfish.soteria.Utils.isEmpty;
+
+import java.io.IOException;
+import java.util.logging.Logger;
+
+import org.glassfish.soteria.openid.OpenIdState;
+import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
+import org.glassfish.soteria.openid.domain.OpenIdNonce;
+import org.glassfish.soteria.openid.http.HttpStorageController;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.AuthenticationStatus;
@@ -24,17 +45,6 @@ import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.UriBuilder;
-import org.glassfish.soteria.Utils;
-import org.glassfish.soteria.openid.OpenIdState;
-import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
-import org.glassfish.soteria.openid.domain.OpenIdNonce;
-import org.glassfish.soteria.openid.http.HttpStorageController;
-
-import java.io.IOException;
-import java.util.logging.Logger;
-
-import static java.util.logging.Level.FINEST;
-import static jakarta.security.enterprise.AuthenticationStatus.SEND_CONTINUE;
 
 /**
  * Controller for Authentication endpoint
@@ -70,9 +80,7 @@ public class AuthenticationController {
      * @param response
      * @return
      */
-    public AuthenticationStatus authenticateUser(
-            HttpServletRequest request,
-            HttpServletResponse response) {
+    public AuthenticationStatus authenticateUser(HttpServletRequest request, HttpServletResponse response) {
 
         /*
          * Client prepares an authentication request and redirect to the
@@ -81,10 +89,10 @@ public class AuthenticationController {
          */
         UriBuilder authRequest
                 = UriBuilder.fromUri(configuration.getProviderMetadata().getAuthorizationEndpoint())
-                        .queryParam(OpenIdConstant.SCOPE, configuration.getScopes())
-                        .queryParam(OpenIdConstant.RESPONSE_TYPE, configuration.getResponseType())
-                        .queryParam(OpenIdConstant.CLIENT_ID, configuration.getClientId())
-                        .queryParam(OpenIdConstant.REDIRECT_URI, configuration.buildRedirectURI(request));
+                        .queryParam(SCOPE, configuration.getScopes())
+                        .queryParam(RESPONSE_TYPE, configuration.getResponseType())
+                        .queryParam(CLIENT_ID, configuration.getClientId())
+                        .queryParam(REDIRECT_URI, configuration.buildRedirectURI(request));
 
         OpenIdState state = new OpenIdState();
         authRequest.queryParam(OpenIdConstant.STATE, state.getValue());
@@ -92,23 +100,23 @@ public class AuthenticationController {
 
         storeRequestURL(request, response);
 
-        // add nonce for replay attack prevention
+        // Add nonce for replay attack prevention
         if (configuration.isUseNonce()) {
             OpenIdNonce nonce = new OpenIdNonce();
             // use a cryptographic hash of the value as the nonce parameter
             String nonceHash = nonceController.getNonceHash(nonce);
-            authRequest.queryParam(OpenIdConstant.NONCE, nonceHash);
+            authRequest.queryParam(NONCE, nonceHash);
             nonceController.store(nonce, configuration, request, response);
 
         }
-        if (!Utils.isEmpty(configuration.getResponseMode())) {
-            authRequest.queryParam(OpenIdConstant.RESPONSE_MODE, configuration.getResponseMode());
+        if (!isEmpty(configuration.getResponseMode())) {
+            authRequest.queryParam(RESPONSE_MODE, configuration.getResponseMode());
         }
-        if (!Utils.isEmpty(configuration.getDisplay())) {
-            authRequest.queryParam(OpenIdConstant.DISPLAY, configuration.getDisplay());
+        if (!isEmpty(configuration.getDisplay())) {
+            authRequest.queryParam(DISPLAY, configuration.getDisplay());
         }
-        if (!Utils.isEmpty(configuration.getPrompt())) {
-            authRequest.queryParam(OpenIdConstant.PROMPT, configuration.getPrompt());
+        if (!isEmpty(configuration.getPrompt())) {
+            authRequest.queryParam(PROMPT, configuration.getPrompt());
         }
 
         configuration.getExtraParameters().forEach(authRequest::queryParam);
@@ -120,15 +128,13 @@ public class AuthenticationController {
         } catch (IOException e) {
             throw new IllegalStateException(e);
         }
+
         return SEND_CONTINUE;
     }
 
-    private void storeRequestURL(HttpServletRequest request,
-                                 HttpServletResponse response) {
-        HttpStorageController storage = HttpStorageController.getInstance(configuration, request, response);
-
-        storage.store(OpenIdConstant.ORIGINAL_REQUEST, getFullURL(request), null);
-
+    private void storeRequestURL(HttpServletRequest request, HttpServletResponse response) {
+        HttpStorageController.getInstance(configuration, request, response)
+                             .store(ORIGINAL_REQUEST, getFullURL(request), null);
     }
 
     private  String getFullURL(HttpServletRequest request) {
@@ -137,8 +143,8 @@ public class AuthenticationController {
 
         if (queryString == null) {
             return requestURL.toString();
-        } else {
-            return requestURL.append('?').append(queryString).toString();
         }
+
+        return requestURL.append('?').append(queryString).toString();
     }
 }

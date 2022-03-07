@@ -18,15 +18,20 @@
 package org.glassfish.soteria.openid;
 
 
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.ACCESS_TOKEN;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.EXPIRES_IN;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.IDENTITY_TOKEN;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.SCOPE;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.TOKEN_TYPE;
+import static java.util.Objects.nonNull;
+
+import org.glassfish.soteria.openid.domain.AccessTokenImpl;
+import org.glassfish.soteria.openid.domain.IdentityTokenImpl;
+
 import jakarta.json.JsonObject;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
 import jakarta.security.enterprise.credential.Credential;
 import jakarta.security.enterprise.identitystore.openid.AccessToken;
-import org.glassfish.soteria.openid.domain.AccessTokenImpl;
-import org.glassfish.soteria.openid.domain.IdentityTokenImpl;
-
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.*;
-import static java.util.Objects.nonNull;
 
 /**
  * @author Gaurav Gupta
@@ -35,9 +40,7 @@ import static java.util.Objects.nonNull;
 public class OpenIdCredential implements Credential {
 
     private final HttpMessageContext httpContext;
-
     private final IdentityTokenImpl identityToken;
-
     private final AccessToken accessToken;
 
     public OpenIdCredential(JsonObject tokensObject, HttpMessageContext httpContext, long tokenMinValidity) {

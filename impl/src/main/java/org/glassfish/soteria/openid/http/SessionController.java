@@ -17,10 +17,10 @@
  */
 package org.glassfish.soteria.openid.http;
 
+import java.util.Optional;
+
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-
-import java.util.Optional;
 
 /**
  * @author Gaurav Gupta
@@ -45,9 +45,9 @@ public class SessionController implements HttpStorageController {
         HttpSession session = request.getSession(false);
         if (session != null) {
             return Optional.ofNullable(session.getAttribute(name));
-        } else {
-            return Optional.empty();
         }
+
+        return Optional.empty();
     }
 
     @Override

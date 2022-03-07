@@ -17,21 +17,23 @@
  */
 package org.glassfish.soteria.openid.controller;
 
-import com.nimbusds.jose.util.Base64URL;
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.util.Objects.requireNonNull;
+
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+
 import org.glassfish.soteria.Utils;
 import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
 import org.glassfish.soteria.openid.domain.OpenIdNonce;
 import org.glassfish.soteria.openid.http.HttpStorageController;
 
-import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
+import com.nimbusds.jose.util.Base64URL;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
-import static java.util.Objects.requireNonNull;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  * Controller to manage nonce state and create the nonce hash.
@@ -88,6 +90,7 @@ public class NonceController {
         } catch (NoSuchAlgorithmException ex) {
             throw new IllegalStateException("No MessageDigest instance found with the specified algorithm for nonce hash", ex);
         }
+
         return nonceHash;
     }
 }

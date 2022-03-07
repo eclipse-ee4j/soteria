@@ -18,6 +18,18 @@
 package org.glassfish.soteria.openid.controller;
 
 
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.ERROR_DESCRIPTION_PARAM;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.SUBJECT_IDENTIFIER;
+import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static java.util.Objects.nonNull;
+import static java.util.logging.Level.WARNING;
+
+import java.io.StringReader;
+import java.util.logging.Logger;
+
+import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
+
 import jakarta.enterprise.context.RequestScoped;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
@@ -31,15 +43,6 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
-
-import java.io.StringReader;
-import java.util.logging.Logger;
-
-import static java.util.Objects.nonNull;
-import static java.util.logging.Level.WARNING;
-import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
-import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * Controller for Token endpoint
@@ -99,10 +102,11 @@ public class UserInfoController {
             // UserInfo Error Response
             JsonObject responseObject = Json.createReader(new StringReader(responseBody)).readObject();
             String error = responseObject.getString(OpenIdConstant.ERROR_PARAM, "Unknown Error");
-            String errorDescription = responseObject.getString(OpenIdConstant.ERROR_DESCRIPTION_PARAM, "Unknown");
+            String errorDescription = responseObject.getString(ERROR_DESCRIPTION_PARAM, "Unknown");
             LOGGER.log(WARNING, "Error occurred in fetching user info: {0} caused by {1}", new Object[]{error, errorDescription});
             throw new IllegalStateException("Error occurred in fetching user info");
         }
+
         validateUserInfoClaims(userInfo);
         return userInfo;
     }
@@ -113,7 +117,7 @@ public class UserInfoController {
          * Response must be verified to exactly match the sub claim in the ID
          * Token.
          */
-        if (!context.getSubject().equals(userInfo.getString(OpenIdConstant.SUBJECT_IDENTIFIER))) {
+        if (!context.getSubject().equals(userInfo.getString(SUBJECT_IDENTIFIER))) {
             throw new IllegalStateException("UserInfo Response is invalid as sub claim must match with the sub Claim in the ID Token");
         }
     }

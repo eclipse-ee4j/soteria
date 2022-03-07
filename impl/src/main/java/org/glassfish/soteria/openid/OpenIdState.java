@@ -22,6 +22,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.glassfish.soteria.mechanisms.OpenIdAuthenticationMechanism;
+
 /**
  * Class to hold state of OpenId
  * <p>

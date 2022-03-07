@@ -17,11 +17,12 @@
  */
 package org.glassfish.soteria.openid.http;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import java.util.Optional;
+
 import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
 
-import java.util.Optional;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 
 /**
  *
@@ -37,10 +38,7 @@ public interface HttpStorageController {
      * @param response
      * @return
      */
-    static HttpStorageController getInstance(
-            OpenIdConfiguration configuration,
-            HttpServletRequest request,
-            HttpServletResponse response) {
+    static HttpStorageController getInstance(OpenIdConfiguration configuration, HttpServletRequest request, HttpServletResponse response) {
         HttpStorageController controller;
 
         if (configuration.isUseSession()) {

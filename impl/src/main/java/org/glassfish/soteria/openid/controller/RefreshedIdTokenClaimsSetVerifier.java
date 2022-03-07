@@ -17,15 +17,17 @@
  */
 package org.glassfish.soteria.openid.controller;
 
-import com.nimbusds.jwt.JWTClaimsSet;
-import com.nimbusds.jwt.proc.BadJWTException;
-import jakarta.security.enterprise.identitystore.openid.IdentityToken;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
-import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
+import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.AUTHORIZED_PARTY;
+import static java.util.Objects.isNull;
 
 import java.util.List;
 
-import static java.util.Objects.isNull;
+import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
+
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.proc.BadJWTException;
+
+import jakarta.security.enterprise.identitystore.openid.IdentityToken;
 
 /**
  * Validates the ID token received from the Refresh token response
@@ -50,7 +52,6 @@ public class RefreshedIdTokenClaimsSetVerifier extends TokenClaimsSetVerifier {
      */
     @Override
     public void verify(JWTClaimsSet claims) throws BadJWTException {
-
         String previousIssuer = previousIdToken.getJwtClaims().getIssuer().orElse(null);
         String newIssuer = claims.getIssuer();
         if (newIssuer == null || !newIssuer.equals(previousIssuer)) {
@@ -73,8 +74,8 @@ public class RefreshedIdTokenClaimsSetVerifier extends TokenClaimsSetVerifier {
             throw new IllegalStateException("iat Claim Value must not be null.");
         }
 
-        String previousAzp = (String) previousIdToken.getClaims().get(OpenIdConstant.AUTHORIZED_PARTY);
-        String newAzp = (String) claims.getClaim(OpenIdConstant.AUTHORIZED_PARTY);
+        String previousAzp = (String) previousIdToken.getClaims().get(AUTHORIZED_PARTY);
+        String newAzp = (String) claims.getClaim(AUTHORIZED_PARTY);
         if (previousAzp == null ? newAzp != null : !previousAzp.equals(newAzp)) {
             throw new IllegalStateException("azp Claim Value MUST be the same as in the ID Token issued when the original authentication occurred.");
         }

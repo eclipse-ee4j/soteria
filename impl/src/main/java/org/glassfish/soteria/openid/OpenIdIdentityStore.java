@@ -17,14 +17,15 @@
  */
 package org.glassfish.soteria.openid;
 
+import static java.util.Collections.emptySet;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
+import static java.util.logging.Level.FINE;
+import static java.util.logging.Level.FINER;
 
-import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.glassfish.soteria.openid.controller.TokenController;
@@ -93,10 +94,10 @@ public class OpenIdIdentityStore implements IdentityStore {
         Set<String> callerGroups = getCallerGroups();
         context.setCallerGroups(callerGroups);
 
-        if (LOGGER.isLoggable(Level.FINE)) {
-            LOGGER.log(Level.FINE, "Setting caller groups into the OpenID context: " + callerGroups);
-            if (LOGGER.isLoggable(Level.FINER)) {
-                LOGGER.log(Level.FINER, "Setting caller name into the OpenID context: " + callerName);
+        if (LOGGER.isLoggable(FINE)) {
+            LOGGER.log(FINE, "Setting caller groups into the OpenID context: " + callerGroups);
+            if (LOGGER.isLoggable(FINER)) {
+                LOGGER.log(FINER, "Setting caller name into the OpenID context: " + callerName);
             }
         }
 
@@ -110,9 +111,9 @@ public class OpenIdIdentityStore implements IdentityStore {
     public CredentialValidationResult validate(Credential credential) {
         if (credential instanceof OpenIdCredential) {
             return validate((OpenIdCredential) credential);
-        } else {
-            return CredentialValidationResult.NOT_VALIDATED_RESULT;
         }
+
+        return CredentialValidationResult.NOT_VALIDATED_RESULT;
     }
 
     private String getCallerName() {
@@ -128,6 +129,7 @@ public class OpenIdIdentityStore implements IdentityStore {
         if (callerName == null) {
             callerName = context.getSubject();
         }
+
         return callerName;
     }
 
@@ -135,28 +137,25 @@ public class OpenIdIdentityStore implements IdentityStore {
         String callerGroupsClaim = configuration.getClaimsConfiguration().getCallerGroupsClaim();
 
         // Try CallerGroups from AccessToken
-        List<String> groupsAccessClaim
-                = context.getAccessToken().getJwtClaims().getArrayStringClaim(callerGroupsClaim);
+        List<String> groupsAccessClaim = context.getAccessToken().getJwtClaims().getArrayStringClaim(callerGroupsClaim);
         if (!groupsAccessClaim.isEmpty()) {
             return new HashSet<>(groupsAccessClaim);
         }
 
         // Try CallerGroups from IdentityToken
-        List<String> groupsIdentityClaim
-                = context.getIdentityToken().getJwtClaims().getArrayStringClaim(callerGroupsClaim);
+        List<String> groupsIdentityClaim = context.getIdentityToken().getJwtClaims().getArrayStringClaim(callerGroupsClaim);
         if (!groupsIdentityClaim.isEmpty()) {
             return new HashSet<>(groupsIdentityClaim);
         }
 
         // Try CallerGroups from info returned by /userinfo endpoint.
-        List<String> groupsUserinfoClaim
-                = context.getClaims().getArrayStringClaim(callerGroupsClaim);
+        List<String> groupsUserinfoClaim = context.getClaims().getArrayStringClaim(callerGroupsClaim);
         if (!groupsUserinfoClaim.isEmpty()) {
             return new HashSet<>(groupsUserinfoClaim);
         }
 
         // No luck, just empty set.
-        return Collections.emptySet();
+        return emptySet();
     }
 
 }

@@ -17,6 +17,14 @@
  */
 package org.glassfish.soteria.openid.controller;
 
+import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
+import static java.util.Objects.isNull;
+import static org.glassfish.soteria.Utils.isEmpty;
+
+import java.io.StringReader;
+import java.util.HashMap;
+import java.util.Map;
+
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
@@ -26,14 +34,6 @@ import jakarta.ws.rs.client.ClientBuilder;
 import jakarta.ws.rs.client.WebTarget;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
-import org.glassfish.soteria.Utils;
-
-import java.io.StringReader;
-import java.util.HashMap;
-import java.util.Map;
-
-import static java.util.Objects.isNull;
-import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 
 /**
  * Manages the OpenId Connect Provider metadata
@@ -62,8 +62,8 @@ public class ProviderMetadataController {
      */
     public JsonObject getDocument(String providerURI) {
         if (isNull(providerDocuments.get(providerURI))) {
-            if (Utils.isEmpty(providerURI)) {
-                // empty providerURI so all data needs to be defined within OpenIdProviderMetadata structure
+            if (isEmpty(providerURI)) {
+                // Empty providerURI so all data needs to be defined within OpenIdProviderMetadata structure
                 providerDocuments.put(providerURI, Json.createObjectBuilder().build());
             } else {
                 if (providerURI.endsWith("/")) {
@@ -98,6 +98,7 @@ public class ProviderMetadataController {
                 }
             }
         }
+
         return providerDocuments.get(providerURI);
     }
 

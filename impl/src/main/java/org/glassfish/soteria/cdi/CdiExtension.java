@@ -41,7 +41,7 @@ import org.glassfish.soteria.identitystores.hash.Pbkdf2PasswordHashImpl;
 import org.glassfish.soteria.mechanisms.BasicAuthenticationMechanism;
 import org.glassfish.soteria.mechanisms.CustomFormAuthenticationMechanism;
 import org.glassfish.soteria.mechanisms.FormAuthenticationMechanism;
-import org.glassfish.soteria.openid.OpenIdAuthenticationMechanism;
+import org.glassfish.soteria.mechanisms.OpenIdAuthenticationMechanism;
 import org.glassfish.soteria.openid.OpenIdIdentityStore;
 import org.glassfish.soteria.openid.controller.AuthenticationController;
 import org.glassfish.soteria.openid.controller.ConfigurationController;

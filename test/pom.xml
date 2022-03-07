@@ -361,7 +361,7 @@
                                             <artifactId>glassfish</artifactId>
                                             <version>${glassfish.version}</version>
                                             <type>zip</type>
-                                            <overWrite>false</overWrite>
+                                            <overWrite>true</overWrite>
                                             <outputDirectory>${glassfish.root}</outputDirectory>
                                         </artifactItem>
                                     </artifactItems>
