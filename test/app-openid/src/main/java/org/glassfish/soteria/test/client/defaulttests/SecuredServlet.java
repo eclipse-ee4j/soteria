@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,7 +18,9 @@ package org.glassfish.soteria.test.client.defaulttests;
 
 import static org.glassfish.soteria.test.server.OidcProvider.CLIENT_ID_VALUE;
 import static org.glassfish.soteria.test.server.OidcProvider.CLIENT_SECRET_VALUE;
+
 import java.io.IOException;
+
 import jakarta.annotation.security.DeclareRoles;
 import jakarta.security.enterprise.identitystore.OpenIdAuthenticationDefinition;
 import jakarta.servlet.ServletException;
@@ -35,18 +37,18 @@ import jakarta.servlet.http.HttpServletResponse;
  */
 @WebServlet("/Secured")
 @OpenIdAuthenticationDefinition(
-        providerURI = "http://localhost:8080/openid-server/webresources/oidc-provider-demo",
-        clientId = CLIENT_ID_VALUE,
-        clientSecret = CLIENT_SECRET_VALUE,
-        redirectURI = "${baseURL}/Callback"
-)
+    providerURI = "http://localhost:8080/openid-server/webresources/oidc-provider-demo",
+    clientId = CLIENT_ID_VALUE,
+    clientSecret = CLIENT_SECRET_VALUE,
+    redirectURI = "${baseURL}/Callback")
 @DeclareRoles("all")
 @ServletSecurity(@HttpConstraint(rolesAllowed = "all"))
-public class SecuredPage extends HttpServlet {
+public class SecuredServlet extends HttpServlet {
+
+    private static final long serialVersionUID = 1L;
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
         response.getWriter().println("This is a secured web page");
     }
 }

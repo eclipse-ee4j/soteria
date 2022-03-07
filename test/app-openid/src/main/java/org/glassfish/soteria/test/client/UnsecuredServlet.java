@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,6 +18,7 @@
 package org.glassfish.soteria.test.client;
 
 import java.io.IOException;
+
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -25,17 +26,17 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * @author Ondrej Mihalyi
+ * @author Gaurav Gupta
  * @author Rudy De Busscher
  */
-@WebServlet("/Username")
-public class GetUserName extends HttpServlet {
+@WebServlet("/Unsecured")
+public class UnsecuredServlet extends HttpServlet {
+
+    private static final long serialVersionUID = 8776735963516465547L;
 
     @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        
-        String user = request.getUserPrincipal() != null ? request.getUserPrincipal().getName() : "";
-        response.getWriter().print(user);
+    protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        response.getWriter().print("This is an unsecured web page");
     }
+
 }

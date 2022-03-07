@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -14,14 +14,15 @@
  */
 package org.glassfish.soteria.test.client.defaulttests;
 
-import jakarta.annotation.PostConstruct;
-import jakarta.enterprise.context.Dependent;
-import jakarta.inject.Named;
-import org.glassfish.soteria.test.server.OidcProvider;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
+
+import org.glassfish.soteria.test.server.OidcProvider;
+
+import jakarta.annotation.PostConstruct;
+import jakarta.enterprise.context.Dependent;
+import jakarta.inject.Named;
 
 @Named
 @Dependent
@@ -36,7 +37,6 @@ public class OpenIdConfig {
 
     @PostConstruct
     public void init() {
-
         config = new Properties();
 
         InputStream configFile = OpenIdConfig.class.getResourceAsStream(OPEN_ID_CONFIG_PROPERTIES);
@@ -60,6 +60,7 @@ public class OpenIdConfig {
         if (config.containsKey(CLIENT_ID)) {
             return config.getProperty(CLIENT_ID);
         }
+
         return OidcProvider.CLIENT_ID_VALUE;
     }
 
@@ -67,6 +68,7 @@ public class OpenIdConfig {
         if (config.containsKey(CLIENT_SECRET)) {
             return config.getProperty(CLIENT_SECRET);
         }
+
         return OidcProvider.CLIENT_SECRET_VALUE;
     }
 }
