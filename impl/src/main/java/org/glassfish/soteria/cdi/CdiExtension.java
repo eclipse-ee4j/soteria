@@ -19,6 +19,7 @@ package org.glassfish.soteria.cdi;
 
 import static org.glassfish.soteria.cdi.CdiUtils.addAnnotatedTypes;
 import static org.glassfish.soteria.cdi.CdiUtils.getAnnotation;
+import static org.glassfish.soteria.cdi.CdiUtils.getBeanReference;
 
 import java.lang.annotation.Annotation;
 import java.util.ArrayList;
@@ -27,27 +28,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
-import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
-import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
-import jakarta.enterprise.inject.spi.Annotated;
-import jakarta.enterprise.inject.spi.Bean;
-import jakarta.enterprise.inject.spi.BeanManager;
-import jakarta.enterprise.inject.spi.BeforeBeanDiscovery;
-import jakarta.enterprise.inject.spi.Extension;
-import jakarta.enterprise.inject.spi.ProcessBean;
-import jakarta.security.enterprise.authentication.mechanism.http.AutoApplySession;
-import jakarta.security.enterprise.authentication.mechanism.http.BasicAuthenticationMechanismDefinition;
-import jakarta.security.enterprise.authentication.mechanism.http.CustomFormAuthenticationMechanismDefinition;
-import jakarta.security.enterprise.authentication.mechanism.http.FormAuthenticationMechanismDefinition;
-import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
-import jakarta.security.enterprise.authentication.mechanism.http.LoginToContinue;
-import jakarta.security.enterprise.authentication.mechanism.http.RememberMe;
-import jakarta.security.enterprise.identitystore.DatabaseIdentityStoreDefinition;
-import jakarta.security.enterprise.identitystore.IdentityStore;
-import jakarta.security.enterprise.identitystore.IdentityStoreHandler;
-import jakarta.security.enterprise.identitystore.LdapIdentityStoreDefinition;
 
 import org.glassfish.soteria.SecurityContextImpl;
 import org.glassfish.soteria.SoteriaServiceProviders;
@@ -61,6 +41,41 @@ import org.glassfish.soteria.identitystores.hash.Pbkdf2PasswordHashImpl;
 import org.glassfish.soteria.mechanisms.BasicAuthenticationMechanism;
 import org.glassfish.soteria.mechanisms.CustomFormAuthenticationMechanism;
 import org.glassfish.soteria.mechanisms.FormAuthenticationMechanism;
+import org.glassfish.soteria.openid.OpenIdAuthenticationMechanism;
+import org.glassfish.soteria.openid.OpenIdIdentityStore;
+import org.glassfish.soteria.openid.controller.AuthenticationController;
+import org.glassfish.soteria.openid.controller.ConfigurationController;
+import org.glassfish.soteria.openid.controller.JWTValidator;
+import org.glassfish.soteria.openid.controller.NonceController;
+import org.glassfish.soteria.openid.controller.ProviderMetadataController;
+import org.glassfish.soteria.openid.controller.StateController;
+import org.glassfish.soteria.openid.controller.TokenController;
+import org.glassfish.soteria.openid.controller.UserInfoController;
+import org.glassfish.soteria.openid.domain.OpenIdContextImpl;
+
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.context.Dependent;
+import jakarta.enterprise.event.Observes;
+import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
+import jakarta.enterprise.inject.spi.Annotated;
+import jakarta.enterprise.inject.spi.Bean;
+import jakarta.enterprise.inject.spi.BeanManager;
+import jakarta.enterprise.inject.spi.BeforeBeanDiscovery;
+import jakarta.enterprise.inject.spi.DefinitionException;
+import jakarta.enterprise.inject.spi.Extension;
+import jakarta.enterprise.inject.spi.ProcessBean;
+import jakarta.security.enterprise.authentication.mechanism.http.AutoApplySession;
+import jakarta.security.enterprise.authentication.mechanism.http.BasicAuthenticationMechanismDefinition;
+import jakarta.security.enterprise.authentication.mechanism.http.CustomFormAuthenticationMechanismDefinition;
+import jakarta.security.enterprise.authentication.mechanism.http.FormAuthenticationMechanismDefinition;
+import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
+import jakarta.security.enterprise.authentication.mechanism.http.LoginToContinue;
+import jakarta.security.enterprise.authentication.mechanism.http.RememberMe;
+import jakarta.security.enterprise.identitystore.DatabaseIdentityStoreDefinition;
+import jakarta.security.enterprise.identitystore.IdentityStore;
+import jakarta.security.enterprise.identitystore.IdentityStoreHandler;
+import jakarta.security.enterprise.identitystore.LdapIdentityStoreDefinition;
+import jakarta.security.enterprise.identitystore.OpenIdAuthenticationDefinition;
 
 public class CdiExtension implements Extension {
 
@@ -71,6 +86,8 @@ public class CdiExtension implements Extension {
     // This could be extended later to support multiple
     private List<Bean<IdentityStore>> identityStoreBeans = new ArrayList<>();
     private Bean<HttpAuthenticationMechanism> authenticationMechanismBean;
+    private List<Bean<?>> extraBeans = new ArrayList<>();
+
     private boolean httpAuthenticationMechanismFound;
 
     public void register(@Observes BeforeBeanDiscovery beforeBean, BeanManager beanManager) {
@@ -82,15 +99,27 @@ public class CdiExtension implements Extension {
             CustomFormAuthenticationMechanism.class,
             SecurityContextImpl.class,
             IdentityStoreHandler.class,
-            Pbkdf2PasswordHashImpl.class
+            Pbkdf2PasswordHashImpl.class,
+
+            // OpenID types
+            AuthenticationController.class,
+            ConfigurationController.class,
+            NonceController.class,
+            ProviderMetadataController.class,
+            StateController.class,
+            TokenController.class,
+            UserInfoController.class,
+            OpenIdContextImpl.class,
+            OpenIdIdentityStore.class,
+            OpenIdAuthenticationMechanism.class,
+            JWTValidator.class
         );
     }
 
     public <T> void processBean(@Observes ProcessBean<T> eventIn, BeanManager beanManager) {
-
         ProcessBean<T> event = eventIn; // JDK8 u60 workaround
-
         Class<?> beanClass = event.getBean().getBeanClass();
+
         Optional<EmbeddedIdentityStoreDefinition> optionalEmbeddedStore = getAnnotation(beanManager, event.getAnnotated(), EmbeddedIdentityStoreDefinition.class);
         optionalEmbeddedStore.ifPresent(embeddedIdentityStoreDefinition -> {
             logActivatedIdentityStore(EmbeddedIdentityStore.class, beanClass);
@@ -148,8 +177,6 @@ public class CdiExtension implements Extension {
                             basicAuthenticationMechanismDefinition)));
         });
 
-
-
         Optional<FormAuthenticationMechanismDefinition> optionalFormMechanism = getAnnotation(beanManager, event.getAnnotated(), FormAuthenticationMechanismDefinition.class);
         optionalFormMechanism.ifPresent(formAuthenticationMechanismDefinition -> {
             logActivatedAuthenticationMechanism(FormAuthenticationMechanismDefinition.class, beanClass);
@@ -183,10 +210,42 @@ public class CdiExtension implements Extension {
 
                         authMethod.setLoginToContinue(
                             LoginToContinueAnnotationLiteral.eval(customFormAuthenticationMechanismDefinition.loginToContinue()));
-                                  
+
                         return authMethod;
                     });
         });
+
+        Optional<OpenIdAuthenticationDefinition> opentionalOpenIdMechanism = getAnnotation(beanManager, event.getAnnotated(), OpenIdAuthenticationDefinition.class);
+        opentionalOpenIdMechanism.ifPresent(definition -> {
+            logActivatedAuthenticationMechanism(OpenIdAuthenticationDefinition.class, beanClass);
+
+            validateOpenIdParametersFormat(definition);
+
+            authenticationMechanismBean = new CdiProducer<HttpAuthenticationMechanism>()
+                    .scope(ApplicationScoped.class)
+                    .beanClass(HttpAuthenticationMechanism.class)
+                    .types(HttpAuthenticationMechanism.class)
+                    .addToId(OpenIdAuthenticationDefinition.class)
+                    .create(e -> getBeanReference(OpenIdAuthenticationMechanism.class));
+
+            identityStoreBeans.add(new CdiProducer<IdentityStore>()
+                    .scope(ApplicationScoped.class)
+                    .beanClass(IdentityStore.class)
+                    .types(IdentityStore.class)
+                    .addToId(OpenIdIdentityStore.class)
+                    .create(e -> getBeanReference(OpenIdIdentityStore.class))
+            );
+
+            extraBeans.add(new CdiProducer<OpenIdAuthenticationDefinition>()
+                    .scope(ApplicationScoped.class)
+                    .beanClass(OpenIdAuthenticationDefinition.class)
+                    .types(OpenIdAuthenticationDefinition.class)
+                    .addToId("OpenId Definition")
+                    .create(e -> definition)
+            );
+        });
+
+
 
         if (event.getBean().getTypes().contains(HttpAuthenticationMechanism.class)) {
             // enabled bean implementing the HttpAuthenticationMechanism found
@@ -207,19 +266,19 @@ public class CdiExtension implements Extension {
                     decorator.decorateBean(identityStoreBean, IdentityStore.class, beanManager));
             }
         }
-        
+
         if (authenticationMechanismBean == null && loginConfig.getAuthMethod() != null) {
-            
+
             if ("basic".equalsIgnoreCase(loginConfig.getAuthMethod())) {
                 authenticationMechanismBean = new CdiProducer<HttpAuthenticationMechanism>()
                     .scope(ApplicationScoped.class)
                     .beanClass(BasicAuthenticationMechanism.class)
                     .types(Object.class, HttpAuthenticationMechanism.class, BasicAuthenticationMechanism.class)
                     .addToId(BasicAuthenticationMechanismDefinition.class)
-                    .create(e -> 
+                    .create(e ->
                         new BasicAuthenticationMechanism(
                             new BasicAuthenticationMechanismDefinitionAnnotationLiteral(loginConfig.getRealmName())));
-                
+
                 httpAuthenticationMechanismFound = true;
             } else if ("form".equalsIgnoreCase(loginConfig.getAuthMethod())) {
                 authenticationMechanismBean = new CdiProducer<HttpAuthenticationMechanism>()
@@ -232,8 +291,8 @@ public class CdiExtension implements Extension {
 
                             authMethod.setLoginToContinue(
                                 new LoginToContinueAnnotationLiteral(
-                                    loginConfig.getFormLoginPage(), 
-                                    true, null, 
+                                    loginConfig.getFormLoginPage(),
+                                    true, null,
                                     loginConfig.getFormErrorPage())
                                 );
 
@@ -247,7 +306,25 @@ public class CdiExtension implements Extension {
             afterBeanDiscovery.addBean(
                 decorator.decorateBean(authenticationMechanismBean, HttpAuthenticationMechanism.class, beanManager));
         }
-        
+
+        for (Bean<?> bean : extraBeans) {
+            afterBeanDiscovery.addBean(bean);
+        }
+
+        if (extraBeans.isEmpty()) {
+            // Publish empty definition to prevent injection errors. The helper components will not work, but
+            // will not cause definition error. This is quite unlucky situation, but when definition is on an
+            // alternative bean we don't know before this moment whether the bean is enabled or not.
+
+            // Probably can circumvent this using programmatic lookup or Instance injection
+            afterBeanDiscovery.addBean()
+                .scope(Dependent.class)
+                .beanClass(OpenIdAuthenticationDefinition.class)
+                .types(OpenIdAuthenticationDefinition.class)
+                .id("Null OpenId Definition")
+                .createWith(cc -> null);
+        }
+
         afterBeanDiscovery.addBean(
             decorator.decorateBean(
                 new CdiProducer<IdentityStoreHandler>()
@@ -288,6 +365,19 @@ public class CdiExtension implements Extension {
                     HttpAuthenticationMechanism.class.getName(),
                     annotation.getName(),
                     beanClass.getName()});
+            }
+        }
+    }
+
+    private void validateOpenIdParametersFormat(OpenIdAuthenticationDefinition definition) {
+        for (String extraParameter : definition.extraParameters()) {
+            String[] parts = extraParameter.split("=");
+            if (parts.length != 2) {
+                throw new DefinitionException(
+                        OpenIdAuthenticationDefinition.class.getSimpleName()
+                                + ".extraParameters() value '" + extraParameter
+                                + "' is not of the format key=value"
+                );
             }
         }
     }
