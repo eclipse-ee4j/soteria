@@ -44,15 +44,15 @@ import java.util.logging.Logger;
 import javax.security.auth.callback.Callback;
 import javax.security.auth.callback.UnsupportedCallbackException;
 
-import org.glassfish.soteria.openid.OpenIdCredential;
-import org.glassfish.soteria.openid.OpenIdState;
-import org.glassfish.soteria.openid.controller.AuthenticationController;
-import org.glassfish.soteria.openid.controller.StateController;
-import org.glassfish.soteria.openid.controller.TokenController;
-import org.glassfish.soteria.openid.domain.LogoutConfiguration;
-import org.glassfish.soteria.openid.domain.OpenIdConfiguration;
-import org.glassfish.soteria.openid.domain.OpenIdContextImpl;
-import org.glassfish.soteria.openid.domain.RefreshTokenImpl;
+import org.glassfish.soteria.mechanisms.openid.OpenIdCredential;
+import org.glassfish.soteria.mechanisms.openid.OpenIdState;
+import org.glassfish.soteria.mechanisms.openid.controller.AuthenticationController;
+import org.glassfish.soteria.mechanisms.openid.controller.StateController;
+import org.glassfish.soteria.mechanisms.openid.controller.TokenController;
+import org.glassfish.soteria.mechanisms.openid.domain.LogoutConfiguration;
+import org.glassfish.soteria.mechanisms.openid.domain.OpenIdConfiguration;
+import org.glassfish.soteria.mechanisms.openid.domain.OpenIdContextImpl;
+import org.glassfish.soteria.mechanisms.openid.domain.RefreshTokenImpl;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
