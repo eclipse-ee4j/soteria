@@ -119,7 +119,7 @@
         <dependency>
             <groupId>jakarta.authentication</groupId>
             <artifactId>jakarta.authentication-api</artifactId>
-            <version>3.0.0-RC2</version>
+            <version>3.0.0</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
