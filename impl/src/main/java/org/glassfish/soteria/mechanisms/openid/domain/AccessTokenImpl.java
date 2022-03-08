@@ -18,9 +18,10 @@
 package org.glassfish.soteria.mechanisms.openid.domain;
 
 import com.nimbusds.jwt.*;
+
+import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
 import jakarta.security.enterprise.identitystore.openid.AccessToken;
 import jakarta.security.enterprise.identitystore.openid.JwtClaims;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
 import jakarta.security.enterprise.identitystore.openid.Scope;
 
 import java.text.ParseException;

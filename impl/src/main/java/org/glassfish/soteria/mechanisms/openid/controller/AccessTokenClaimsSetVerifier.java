@@ -21,8 +21,9 @@ import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.util.Base64URL;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
+
+import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
 import jakarta.security.enterprise.identitystore.openid.AccessToken;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;

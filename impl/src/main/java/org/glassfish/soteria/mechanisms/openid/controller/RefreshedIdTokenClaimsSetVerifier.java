@@ -17,7 +17,7 @@
  */
 package org.glassfish.soteria.mechanisms.openid.controller;
 
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.AUTHORIZED_PARTY;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.AUTHORIZED_PARTY;
 import static java.util.Objects.isNull;
 
 import java.util.List;

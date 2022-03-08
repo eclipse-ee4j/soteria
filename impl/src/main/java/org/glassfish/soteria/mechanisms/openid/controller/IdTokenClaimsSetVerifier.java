@@ -19,7 +19,8 @@ package org.glassfish.soteria.mechanisms.openid.controller;
 
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
+
+import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
 
 import static java.util.Objects.isNull;
 

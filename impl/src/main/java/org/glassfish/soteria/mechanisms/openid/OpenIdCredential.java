@@ -18,11 +18,11 @@
 package org.glassfish.soteria.mechanisms.openid;
 
 
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.ACCESS_TOKEN;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.EXPIRES_IN;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.IDENTITY_TOKEN;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.SCOPE;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.TOKEN_TYPE;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.ACCESS_TOKEN;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.EXPIRES_IN;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.IDENTITY_TOKEN;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.SCOPE;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.TOKEN_TYPE;
 import static java.util.Objects.nonNull;
 
 import org.glassfish.soteria.mechanisms.openid.domain.AccessTokenImpl;

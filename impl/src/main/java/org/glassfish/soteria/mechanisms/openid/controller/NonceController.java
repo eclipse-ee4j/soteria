@@ -31,7 +31,7 @@ import org.glassfish.soteria.mechanisms.openid.http.HttpStorageController;
 import com.nimbusds.jose.util.Base64URL;
 
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
+import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 

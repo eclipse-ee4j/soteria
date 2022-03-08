@@ -23,11 +23,11 @@ import jakarta.json.JsonString;
 import java.net.URL;
 import java.util.Set;
 
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.*;
 import static java.util.Collections.emptySet;
 import static java.util.Objects.isNull;
 import static java.util.stream.Collectors.toSet;
 import static jakarta.json.JsonValue.ValueType.STRING;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.*;
 
 /**
  * OpenId Connect Provider information.

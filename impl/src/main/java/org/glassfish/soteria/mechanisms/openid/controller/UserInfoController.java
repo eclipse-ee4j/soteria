@@ -18,8 +18,8 @@
 package org.glassfish.soteria.mechanisms.openid.controller;
 
 
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.ERROR_DESCRIPTION_PARAM;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.SUBJECT_IDENTIFIER;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.ERROR_DESCRIPTION_PARAM;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.SUBJECT_IDENTIFIER;
 import static jakarta.ws.rs.core.HttpHeaders.CONTENT_TYPE;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static java.util.Objects.nonNull;
@@ -35,8 +35,8 @@ import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonReader;
+import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
 import jakarta.security.enterprise.identitystore.openid.AccessToken;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
 import jakarta.security.enterprise.identitystore.openid.OpenIdContext;
 import jakarta.ws.rs.client.Client;
 import jakarta.ws.rs.client.ClientBuilder;

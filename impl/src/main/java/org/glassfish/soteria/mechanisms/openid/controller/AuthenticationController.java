@@ -18,15 +18,15 @@
 package org.glassfish.soteria.mechanisms.openid.controller;
 
 import static jakarta.security.enterprise.AuthenticationStatus.SEND_CONTINUE;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.CLIENT_ID;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.DISPLAY;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.NONCE;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.ORIGINAL_REQUEST;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.PROMPT;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.REDIRECT_URI;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.RESPONSE_MODE;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.RESPONSE_TYPE;
-import static jakarta.security.enterprise.identitystore.openid.OpenIdConstant.SCOPE;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.CLIENT_ID;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.DISPLAY;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.NONCE;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.ORIGINAL_REQUEST;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.PROMPT;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.REDIRECT_URI;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.RESPONSE_MODE;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.RESPONSE_TYPE;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.SCOPE;
 import static java.util.logging.Level.FINEST;
 import static org.glassfish.soteria.Utils.isEmpty;
 
@@ -41,7 +41,7 @@ import org.glassfish.soteria.mechanisms.openid.http.HttpStorageController;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.AuthenticationStatus;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
+import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.core.UriBuilder;

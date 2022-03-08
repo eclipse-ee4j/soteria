@@ -22,7 +22,7 @@ import static org.glassfish.soteria.test.server.OidcProvider.CLIENT_SECRET_VALUE
 import java.io.IOException;
 
 import jakarta.annotation.security.DeclareRoles;
-import jakarta.security.enterprise.identitystore.OpenIdAuthenticationDefinition;
+import jakarta.security.enterprise.authentication.mechanism.http.OpenIdAuthenticationMechanismDefinition;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.HttpConstraint;
 import jakarta.servlet.annotation.ServletSecurity;
@@ -36,7 +36,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * @author Rudy De Busscher
  */
 @WebServlet("/Secured")
-@OpenIdAuthenticationDefinition(
+@OpenIdAuthenticationMechanismDefinition(
     providerURI = "http://localhost:8080/openid-server/webresources/oidc-provider-demo",
     clientId = CLIENT_ID_VALUE,
     clientSecret = CLIENT_SECRET_VALUE,

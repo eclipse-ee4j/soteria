@@ -30,7 +30,7 @@ import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.proc.BadJWTException;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
+import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
 
 /**
  *

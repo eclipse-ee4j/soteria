@@ -52,7 +52,7 @@ import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
+import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
 
 @ApplicationScoped
 public class JWTValidator {

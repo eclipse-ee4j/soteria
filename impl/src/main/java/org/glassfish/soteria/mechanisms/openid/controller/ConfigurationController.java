@@ -45,10 +45,10 @@ import jakarta.enterprise.inject.Produces;
 import jakarta.inject.Inject;
 import jakarta.json.JsonObject;
 import jakarta.json.JsonString;
-import jakarta.security.enterprise.identitystore.OpenIdAuthenticationDefinition;
-import jakarta.security.enterprise.identitystore.OpenIdProviderMetadata;
-import jakarta.security.enterprise.identitystore.PromptType;
-import jakarta.security.enterprise.identitystore.openid.OpenIdConstant;
+import jakarta.security.enterprise.authentication.mechanism.http.OpenIdAuthenticationMechanismDefinition;
+import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
+import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdProviderMetadata;
+import jakarta.security.enterprise.authentication.mechanism.http.openid.PromptType;
 
 /**
  * Build and validate the OpenId Connect client configuration.
@@ -70,7 +70,7 @@ public class ConfigurationController implements Serializable {
 
     @Produces
     @RequestScoped
-    public OpenIdConfiguration produceConfiguration(OpenIdAuthenticationDefinition definition) {
+    public OpenIdConfiguration produceConfiguration(OpenIdAuthenticationMechanismDefinition definition) {
         if (lastBuiltConfig == null) {
             lastBuiltConfig = new LastBuiltConfig(null, null);
         }
@@ -87,14 +87,14 @@ public class ConfigurationController implements Serializable {
 
     /**
      * Creates the {@link OpenIdConfiguration} using the properties as defined
-     * in an {@link OpenIdAuthenticationDefinition} annotation or using MP
+     * in an {@link OpenIdAuthenticationMechanismDefinition} annotation or using MP
      * Config source. MP Config source value take precedence over
-     * {@link OpenIdAuthenticationDefinition} annotation value.
+     * {@link OpenIdAuthenticationMechanismDefinition} annotation value.
      *
      * @param definition
      * @return
      */
-    public OpenIdConfiguration buildConfig(OpenIdAuthenticationDefinition definition) {
+    public OpenIdConfiguration buildConfig(OpenIdAuthenticationMechanismDefinition definition) {
         String providerURI;
         JsonObject providerDocument;
         String authorizationEndpoint;
@@ -364,15 +364,15 @@ public class ConfigurationController implements Serializable {
     }
 
     static class LastBuiltConfig {
-        private final OpenIdAuthenticationDefinition definition;
+        private final OpenIdAuthenticationMechanismDefinition definition;
         private final OpenIdConfiguration configuration;
 
-        public LastBuiltConfig(OpenIdAuthenticationDefinition definition, OpenIdConfiguration configuration) {
+        public LastBuiltConfig(OpenIdAuthenticationMechanismDefinition definition, OpenIdConfiguration configuration) {
             this.definition = definition;
             this.configuration = configuration;
         }
 
-        OpenIdConfiguration cachedConfiguration(OpenIdAuthenticationDefinition definition) {
+        OpenIdConfiguration cachedConfiguration(OpenIdAuthenticationMechanismDefinition definition) {
             if (this.definition != null && this.definition.equals(definition)) {
                 return configuration;
             }

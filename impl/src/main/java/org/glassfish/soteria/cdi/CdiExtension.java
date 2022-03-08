@@ -70,12 +70,12 @@ import jakarta.security.enterprise.authentication.mechanism.http.CustomFormAuthe
 import jakarta.security.enterprise.authentication.mechanism.http.FormAuthenticationMechanismDefinition;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
 import jakarta.security.enterprise.authentication.mechanism.http.LoginToContinue;
+import jakarta.security.enterprise.authentication.mechanism.http.OpenIdAuthenticationMechanismDefinition;
 import jakarta.security.enterprise.authentication.mechanism.http.RememberMe;
 import jakarta.security.enterprise.identitystore.DatabaseIdentityStoreDefinition;
 import jakarta.security.enterprise.identitystore.IdentityStore;
 import jakarta.security.enterprise.identitystore.IdentityStoreHandler;
 import jakarta.security.enterprise.identitystore.LdapIdentityStoreDefinition;
-import jakarta.security.enterprise.identitystore.OpenIdAuthenticationDefinition;
 
 public class CdiExtension implements Extension {
 
@@ -215,9 +215,9 @@ public class CdiExtension implements Extension {
                     });
         });
 
-        Optional<OpenIdAuthenticationDefinition> opentionalOpenIdMechanism = getAnnotation(beanManager, event.getAnnotated(), OpenIdAuthenticationDefinition.class);
+        Optional<OpenIdAuthenticationMechanismDefinition> opentionalOpenIdMechanism = getAnnotation(beanManager, event.getAnnotated(), OpenIdAuthenticationMechanismDefinition.class);
         opentionalOpenIdMechanism.ifPresent(definition -> {
-            logActivatedAuthenticationMechanism(OpenIdAuthenticationDefinition.class, beanClass);
+            logActivatedAuthenticationMechanism(OpenIdAuthenticationMechanismDefinition.class, beanClass);
 
             validateOpenIdParametersFormat(definition);
 
@@ -225,7 +225,7 @@ public class CdiExtension implements Extension {
                     .scope(ApplicationScoped.class)
                     .beanClass(HttpAuthenticationMechanism.class)
                     .types(HttpAuthenticationMechanism.class)
-                    .addToId(OpenIdAuthenticationDefinition.class)
+                    .addToId(OpenIdAuthenticationMechanism.class)
                     .create(e -> getBeanReference(OpenIdAuthenticationMechanism.class));
 
             identityStoreBeans.add(new CdiProducer<IdentityStore>()
@@ -236,10 +236,10 @@ public class CdiExtension implements Extension {
                     .create(e -> getBeanReference(OpenIdIdentityStore.class))
             );
 
-            extraBeans.add(new CdiProducer<OpenIdAuthenticationDefinition>()
+            extraBeans.add(new CdiProducer<OpenIdAuthenticationMechanismDefinition>()
                     .scope(ApplicationScoped.class)
-                    .beanClass(OpenIdAuthenticationDefinition.class)
-                    .types(OpenIdAuthenticationDefinition.class)
+                    .beanClass(OpenIdAuthenticationMechanismDefinition.class)
+                    .types(OpenIdAuthenticationMechanismDefinition.class)
                     .addToId("OpenId Definition")
                     .create(e -> definition)
             );
@@ -319,8 +319,8 @@ public class CdiExtension implements Extension {
             // Probably can circumvent this using programmatic lookup or Instance injection
             afterBeanDiscovery.addBean()
                 .scope(Dependent.class)
-                .beanClass(OpenIdAuthenticationDefinition.class)
-                .types(OpenIdAuthenticationDefinition.class)
+                .beanClass(OpenIdAuthenticationMechanismDefinition.class)
+                .types(OpenIdAuthenticationMechanismDefinition.class)
                 .id("Null OpenId Definition")
                 .createWith(cc -> null);
         }
@@ -369,12 +369,12 @@ public class CdiExtension implements Extension {
         }
     }
 
-    private void validateOpenIdParametersFormat(OpenIdAuthenticationDefinition definition) {
+    private void validateOpenIdParametersFormat(OpenIdAuthenticationMechanismDefinition definition) {
         for (String extraParameter : definition.extraParameters()) {
             String[] parts = extraParameter.split("=");
             if (parts.length != 2) {
                 throw new DefinitionException(
-                        OpenIdAuthenticationDefinition.class.getSimpleName()
+                        OpenIdAuthenticationMechanismDefinition.class.getSimpleName()
                                 + ".extraParameters() value '" + extraParameter
                                 + "' is not of the format key=value"
                 );
