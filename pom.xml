@@ -72,7 +72,7 @@
     </scm>
 
     <properties>
-        <api_dependency_version>3.0.0-RC2</api_dependency_version>
+        <api_dependency_version>3.0.0-RC3</api_dependency_version>
 
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>

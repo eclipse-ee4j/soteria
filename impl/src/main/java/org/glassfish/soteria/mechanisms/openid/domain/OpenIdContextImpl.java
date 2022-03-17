@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -17,14 +17,10 @@
  */
 package org.glassfish.soteria.mechanisms.openid.domain;
 
-import static java.util.logging.Level.WARNING;
-
-import java.io.IOException;
 import java.util.Optional;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.glassfish.soteria.Utils;
 import org.glassfish.soteria.mechanisms.openid.controller.AuthenticationController;
 import org.glassfish.soteria.mechanisms.openid.controller.UserInfoController;
 import org.glassfish.soteria.mechanisms.openid.http.HttpStorageController;
@@ -33,17 +29,13 @@ import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;
 import jakarta.json.Json;
 import jakarta.json.JsonObject;
-import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
 import jakarta.security.enterprise.identitystore.openid.AccessToken;
 import jakarta.security.enterprise.identitystore.openid.IdentityToken;
 import jakarta.security.enterprise.identitystore.openid.OpenIdClaims;
 import jakarta.security.enterprise.identitystore.openid.OpenIdContext;
 import jakarta.security.enterprise.identitystore.openid.RefreshToken;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import jakarta.ws.rs.core.UriBuilder;
 
 /**
  * An injectable interface that provides access to access token, identity token,
@@ -164,53 +156,6 @@ public class OpenIdContextImpl implements OpenIdContext {
     @Override
     public JsonObject getProviderMetadata() {
         return configuration.getProviderMetadata().getDocument();
-    }
-
-    @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response) {
-        LogoutConfiguration logout = configuration.getLogoutConfiguration();
-        try {
-            request.logout();
-        } catch (ServletException ex) {
-            LOGGER.log(WARNING, "Failed to logout the user.", ex);
-        }
-        HttpSession session = request.getSession(false);
-        if (session != null) {
-            session.invalidate();
-        }
-
-        if (logout == null) {
-            LOGGER.log(WARNING, "Logout invoked on session without OpenID session");
-            redirect(response, request.getContextPath());
-            return;
-        }
-        /*
-         * See section 5. RP-Initiated Logout
-         * https://openid.net/specs/openid-connect-session-1_0.html#RPLogout
-         */
-        if (logout.isNotifyProvider()
-                && !Utils.isEmpty(configuration.getProviderMetadata().getEndSessionEndpoint())) {
-            UriBuilder logoutURI = UriBuilder.fromUri(configuration.getProviderMetadata().getEndSessionEndpoint())
-                    .queryParam(OpenIdConstant.ID_TOKEN_HINT, getIdentityToken().getToken());
-            if (!Utils.isEmpty(logout.getRedirectURI())) {
-                // User Agent redirected to POST_LOGOUT_REDIRECT_URI after a logout operation performed in OP.
-                logoutURI.queryParam(OpenIdConstant.POST_LOGOUT_REDIRECT_URI, logout.buildRedirectURI(request));
-            }
-            redirect(response, logoutURI.toString());
-        } else if (!Utils.isEmpty(logout.getRedirectURI())) {
-            redirect(response, logout.buildRedirectURI(request));
-        } else {
-            // Redirect user to OpenID connect provider for re-authentication
-            authenticationController.authenticateUser(request, response);
-        }
-    }
-
-    private static void redirect(HttpServletResponse response, String uri) {
-        try {
-            response.sendRedirect(uri);
-        } catch (IOException e) {
-            throw new IllegalStateException(e);
-        }
     }
 
     @Override

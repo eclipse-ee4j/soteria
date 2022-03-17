@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -23,6 +23,8 @@ import static jakarta.security.enterprise.AuthenticationStatus.SUCCESS;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.ERROR_DESCRIPTION_PARAM;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.ERROR_PARAM;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.EXPIRES_IN;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.ID_TOKEN_HINT;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.POST_LOGOUT_REDIRECT_URI;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.REFRESH_TOKEN;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.STATE;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.TOKEN_TYPE;
@@ -76,6 +78,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
+import jakarta.ws.rs.core.UriBuilder;
 
 /**
  * The AuthenticationMechanism used to authenticate users using the OpenId
@@ -181,8 +184,8 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
         }
 
         LogoutConfiguration logout = configuration.getLogoutConfiguration();
-        boolean accessTokenExpired = this.context.getAccessToken().isExpired();
-        boolean identityTokenExpired = this.context.getIdentityToken().isExpired();
+        boolean accessTokenExpired = context.getAccessToken().isExpired();
+        boolean identityTokenExpired = context.getIdentityToken().isExpired();
         if (logout.isIdentityTokenExpiry()) {
             LOGGER.log(FINE, "UserPrincipal is set, check if Identity Token is valid.");
         }
@@ -202,11 +205,16 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
         }
 
         if ((logout.isAccessTokenExpiry() && accessTokenExpired) || (logout.isIdentityTokenExpiry() && identityTokenExpired)) {
-            context.logout(request, response);
+            logout(request, response);
             return SEND_FAILURE;
         }
 
         return SUCCESS;
+    }
+
+    @Override
+    public void cleanSubject(HttpServletRequest request, HttpServletResponse response, HttpMessageContext httpMessageContext) {
+        logout(request, response);
     }
 
     private AuthenticationStatus authenticate(HttpServletRequest request, HttpServletResponse response, HttpMessageContext httpContext) {
@@ -305,11 +313,11 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
 
                 AuthenticationStatus refreshStatus = this.context.getRefreshToken()
                         .map(rt -> this.refreshTokens(httpContext, rt))
-                        .orElse(AuthenticationStatus.SEND_FAILURE);
+                        .orElse(SEND_FAILURE);
 
-                if (refreshStatus != AuthenticationStatus.SUCCESS) {
+                if (refreshStatus != SUCCESS) {
                     LOGGER.log(FINE, "Failed to refresh token (Refresh Token might be invalid).");
-                    context.logout(request, response);
+                    logout(request, response);
                 }
                 return refreshStatus;
             }
@@ -338,8 +346,55 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
         String errorDescription = tokensObject.getString(ERROR_DESCRIPTION_PARAM, "Unknown");
         LOGGER.log(FINE, "Error occurred in refreshing Access Token and Refresh Token : {0} caused by {1}", new Object[]{error, errorDescription});
 
-        return AuthenticationStatus.SEND_FAILURE;
+        return SEND_FAILURE;
 
+    }
+
+    private void logout(HttpServletRequest request, HttpServletResponse response) {
+        LogoutConfiguration logout = configuration.getLogoutConfiguration();
+
+        if (logout == null) {
+            LOGGER.log(WARNING, "Logout invoked on session without OpenID session");
+            redirect(response, request.getContextPath());
+            return;
+        }
+
+        HttpSession session = request.getSession(false);
+        if (session != null) {
+            session.invalidate();
+        }
+
+        /*
+         * See section 5. RP-Initiated Logout
+         * https://openid.net/specs/openid-connect-session-1_0.html#RPLogout
+         */
+        if (logout.isNotifyProvider() && !isEmpty(configuration.getProviderMetadata().getEndSessionEndpoint())) {
+            UriBuilder logoutURI =
+                UriBuilder.fromUri(configuration.getProviderMetadata().getEndSessionEndpoint())
+                          .queryParam(
+                              ID_TOKEN_HINT,
+                              context.getIdentityToken().getToken());
+
+            if (!isEmpty(logout.getRedirectURI())) {
+                // User Agent redirected to POST_LOGOUT_REDIRECT_URI after a logout operation performed in OP.
+                logoutURI.queryParam(POST_LOGOUT_REDIRECT_URI, logout.buildRedirectURI(request));
+            }
+
+            redirect(response, logoutURI.toString());
+        } else if (!isEmpty(logout.getRedirectURI())) {
+            redirect(response, logout.buildRedirectURI(request));
+        } else {
+            // Redirect user to OpenID connect provider for re-authentication
+            authenticationController.authenticateUser(request, response);
+        }
+    }
+
+    private static void redirect(HttpServletResponse response, String uri) {
+        try {
+            response.sendRedirect(uri);
+        } catch (IOException e) {
+            throw new IllegalStateException(e);
+        }
     }
 
     private JsonObject readJsonObject(String tokensBody) {
