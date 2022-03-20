@@ -18,8 +18,6 @@
 package org.glassfish.soteria.mechanisms.openid.domain;
 
 import java.util.Optional;
-import java.util.Set;
-import java.util.logging.Logger;
 
 import org.glassfish.soteria.mechanisms.openid.controller.AuthenticationController;
 import org.glassfish.soteria.mechanisms.openid.controller.UserInfoController;
@@ -48,10 +46,6 @@ import jakarta.servlet.http.HttpServletResponse;
 public class OpenIdContextImpl implements OpenIdContext {
     private static final long serialVersionUID = 1L;
 
-    private static final Logger LOGGER = Logger.getLogger(OpenIdContextImpl.class.getName());
-
-    private String callerName;
-    private Set<String> callerGroups;
     private String tokenType;
     private AccessToken accessToken;
     private IdentityToken identityToken;
@@ -67,24 +61,6 @@ public class OpenIdContextImpl implements OpenIdContext {
 
     @Inject
     private AuthenticationController authenticationController;
-
-    @Override
-    public String getCallerName() {
-        return callerName;
-    }
-
-    public void setCallerName(String callerName) {
-        this.callerName = callerName;
-    }
-
-    @Override
-    public Set<String> getCallerGroups() {
-        return callerGroups;
-    }
-
-    public void setCallerGroups(Set<String> callerGroups) {
-        this.callerGroups = callerGroups;
-    }
 
     @Override
     public String getSubject() {

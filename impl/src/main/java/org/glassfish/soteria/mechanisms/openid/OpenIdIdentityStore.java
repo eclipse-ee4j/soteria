@@ -90,21 +90,12 @@ public class OpenIdIdentityStore implements IdentityStore {
         }
 
         String callerName = getCallerName();
-        context.setCallerName(callerName);
         Set<String> callerGroups = getCallerGroups();
-        context.setCallerGroups(callerGroups);
 
-        if (LOGGER.isLoggable(FINE)) {
-            LOGGER.log(FINE, "Setting caller groups into the OpenID context: " + callerGroups);
-            if (LOGGER.isLoggable(FINER)) {
-                LOGGER.log(FINER, "Setting caller name into the OpenID context: " + callerName);
-            }
-        }
+        LOGGER.log(FINER, () -> "Returning caller name: " + callerName);
+        LOGGER.log(FINE, () -> "Returning caller: " + callerGroups);
 
-        return new CredentialValidationResult(
-                context.getCallerName(),
-                context.getCallerGroups()
-        );
+        return new CredentialValidationResult(callerName, callerGroups);
     }
 
     @Override
