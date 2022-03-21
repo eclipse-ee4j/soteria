@@ -25,7 +25,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.glassfish.soteria.Utils;
 import org.glassfish.soteria.mechanisms.openid.OpenIdState;
 import org.glassfish.soteria.mechanisms.openid.domain.OpenIdConfiguration;
-import org.glassfish.soteria.mechanisms.openid.http.HttpStorageController;
+import org.glassfish.soteria.servlet.HttpStorageController;
 
 import java.util.Optional;
 

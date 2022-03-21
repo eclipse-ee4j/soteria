@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -15,7 +15,7 @@
  *   2021 : Payara Foundation and/or its affiliates
  *      Initially authored in Security Connectors
  */
-package org.glassfish.soteria.mechanisms.openid.http;
+package org.glassfish.soteria.servlet;
 
 import java.util.Optional;
 
@@ -35,9 +35,11 @@ public class SessionController implements HttpStorageController {
     }
 
     @Override
-    public void store(String name, String value, Integer maxAge) {
-        HttpSession session = request.getSession();
-        session.setAttribute(name, value);
+    public HttpStorageController store(String name, String value, Integer maxAge) {
+        request.getSession()
+               .setAttribute(name, value);
+
+        return this;
     }
 
     @Override

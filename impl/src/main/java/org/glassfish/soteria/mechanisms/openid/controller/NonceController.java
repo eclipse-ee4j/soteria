@@ -26,7 +26,7 @@ import java.security.NoSuchAlgorithmException;
 import org.glassfish.soteria.Utils;
 import org.glassfish.soteria.mechanisms.openid.domain.OpenIdConfiguration;
 import org.glassfish.soteria.mechanisms.openid.domain.OpenIdNonce;
-import org.glassfish.soteria.mechanisms.openid.http.HttpStorageController;
+import org.glassfish.soteria.servlet.HttpStorageController;
 
 import com.nimbusds.jose.util.Base64URL;
 

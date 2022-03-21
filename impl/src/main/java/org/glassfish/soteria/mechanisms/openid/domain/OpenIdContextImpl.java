@@ -21,7 +21,7 @@ import java.util.Optional;
 
 import org.glassfish.soteria.mechanisms.openid.controller.AuthenticationController;
 import org.glassfish.soteria.mechanisms.openid.controller.UserInfoController;
-import org.glassfish.soteria.mechanisms.openid.http.HttpStorageController;
+import org.glassfish.soteria.servlet.HttpStorageController;
 
 import jakarta.enterprise.context.SessionScoped;
 import jakarta.inject.Inject;

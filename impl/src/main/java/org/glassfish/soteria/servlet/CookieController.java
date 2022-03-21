@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -15,21 +15,23 @@
  *   2021 : Payara Foundation and/or its affiliates
  *      Initially authored in Security Connectors
  */
-package org.glassfish.soteria.mechanisms.openid.http;
+package org.glassfish.soteria.servlet;
+
+import static java.util.Objects.nonNull;
+
+import java.util.Optional;
+
+import org.glassfish.soteria.Utils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.glassfish.soteria.Utils;
-
-import java.util.Optional;
-
-import static java.util.Objects.nonNull;
 
 /**
  *
  * @author Gaurav Gupta
  * @author Rudy De Busscher
+ * @author Arjan Tijms
  */
 public class CookieController implements HttpStorageController {
 
@@ -42,7 +44,7 @@ public class CookieController implements HttpStorageController {
     }
 
     @Override
-    public void store(String name, String value, Integer maxAge) {
+    public HttpStorageController store(String name, String value, Integer maxAge) {
         Cookie cookie = new Cookie(name, value);
         if (maxAge != null) {
             cookie.setMaxAge(maxAge);
@@ -53,6 +55,8 @@ public class CookieController implements HttpStorageController {
         cookie.setPath(Utils.isEmpty(contextPath) ? "/" : contextPath);
 
         response.addCookie(cookie);
+
+        return this;
     }
 
     @Override

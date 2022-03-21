@@ -15,7 +15,7 @@
  *   2021 : Payara Foundation and/or its affiliates
  *      Initially authored in Security Connectors
  */
-package org.glassfish.soteria.mechanisms.openid.http;
+package org.glassfish.soteria.servlet;
 
 import java.util.Optional;
 
@@ -28,6 +28,7 @@ import jakarta.servlet.http.HttpServletResponse;
  *
  * @author Gaurav Gupta
  * @author Rudy De Busscher
+ * @author Arjan Tijms
  */
 public interface HttpStorageController {
 
@@ -50,7 +51,7 @@ public interface HttpStorageController {
         return controller;
     }
 
-    void store(String name, String value, Integer maxAge);
+    HttpStorageController store(String name, String value, Integer maxAge);
 
     <T> Optional<T> get(String name);
 
