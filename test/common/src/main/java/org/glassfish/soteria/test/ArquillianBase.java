@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -89,6 +90,9 @@ public class ArquillianBase {
             }
         };
         webClient.getOptions().setThrowExceptionOnFailingStatusCode(false);
+        if (System.getProperty("glassfish.suspend") != null) {
+            webClient.getOptions().setTimeout(0);
+        }
     }
 
     @After
