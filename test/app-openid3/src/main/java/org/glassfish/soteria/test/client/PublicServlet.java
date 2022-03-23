@@ -10,16 +10,11 @@
  * Eclipse Public License v. 2.0 are satisfied: GNU General Public License,
  * version 2 with the GNU Classpath Exception, which is available at
  * https://www.gnu.org/software/classpath/license.html.
- *
- * Contributors:
- *   2021 : Payara Foundation and/or its affiliates
  */
 package org.glassfish.soteria.test.client;
 
 import java.io.IOException;
 
-import jakarta.inject.Inject;
-import jakarta.security.enterprise.identitystore.openid.OpenIdContext;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -27,26 +22,29 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 /**
- * This is the servlet that the Mitre OpenID provider calls back after the end-user successfully authenticates there.
+ * A public servlet that we should be able to access when authenticated and not authenticated.
  *
- * <p>
- * Note that the URI of this Servlet must be known to Mitre.
- *
- * @author Gaurav Gupta
- * @author Rudy De Busscher
+ * @author Arkan Tijms
  */
-@WebServlet("/Callback")
-public class CallbackServlet extends HttpServlet {
+@WebServlet("/publicServlet")
+public class PublicServlet extends HttpServlet {
 
-    private static final long serialVersionUID = -417476984908088827L;
-
-    @Inject
-    private OpenIdContext context;
+    private static final long serialVersionUID = 8776735963516465547L;
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.getWriter().println("This is the callback servlet");
-        response.getWriter().println(context.getAccessToken());
+        response.getWriter().write("This is a public servlet \n");
+
+        String webName = null;
+        if (request.getUserPrincipal() != null) {
+            webName = request.getUserPrincipal().getName();
+        }
+
+        response.getWriter().write("web username: " + webName + "\n");
+
+        response.getWriter().write("web user has role \"foo\": " + request.isUserInRole("foo") + "\n");
+        response.getWriter().write("web user has role \"bar\": " + request.isUserInRole("bar") + "\n");
+        response.getWriter().write("web user has role \"kaz\": " + request.isUserInRole("kaz") + "\n");
     }
 
 }

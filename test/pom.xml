@@ -56,8 +56,11 @@
         <module>app-custom</module>
         <module>app-multiple-store</module>
         <module>app-multiple-store-backup</module>
+        
+        <!-- app-[authentication mechanism] (with build-in identity store) -->
         <module>app-openid</module>
         <module>app-openid2</module>
+        <module>app-openid3</module>
 
         <!-- app-[identity-store]-[authentication mechanism] -->
         <module>app-mem-basic</module>

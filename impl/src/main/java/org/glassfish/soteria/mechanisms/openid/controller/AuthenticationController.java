@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -29,6 +29,7 @@ import static jakarta.security.enterprise.authentication.mechanism.http.openid.O
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.SCOPE;
 import static java.util.logging.Level.FINEST;
 import static org.glassfish.soteria.Utils.isEmpty;
+import static org.glassfish.soteria.mechanisms.OpenIdAuthenticationMechanism.ORIGINAL_REQUEST_DATA_JSON;
 
 import java.io.IOException;
 import java.util.logging.Logger;
@@ -36,7 +37,8 @@ import java.util.logging.Logger;
 import org.glassfish.soteria.mechanisms.openid.OpenIdState;
 import org.glassfish.soteria.mechanisms.openid.domain.OpenIdConfiguration;
 import org.glassfish.soteria.mechanisms.openid.domain.OpenIdNonce;
-import org.glassfish.soteria.mechanisms.openid.http.HttpStorageController;
+import org.glassfish.soteria.servlet.HttpStorageController;
+import org.glassfish.soteria.servlet.RequestData;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -51,6 +53,7 @@ import jakarta.ws.rs.core.UriBuilder;
  *
  * @author Gaurav Gupta
  * @author Rudy De Busscher
+ * @author Arjan Tijms
  */
 @ApplicationScoped
 public class AuthenticationController {
@@ -103,7 +106,7 @@ public class AuthenticationController {
         // Add nonce for replay attack prevention
         if (configuration.isUseNonce()) {
             OpenIdNonce nonce = new OpenIdNonce();
-            // use a cryptographic hash of the value as the nonce parameter
+            // Use a cryptographic hash of the value as the nonce parameter
             String nonceHash = nonceController.getNonceHash(nonce);
             authRequest.queryParam(NONCE, nonceHash);
             nonceController.store(nonce, configuration, request, response);
@@ -133,8 +136,12 @@ public class AuthenticationController {
     }
 
     private void storeRequestURL(HttpServletRequest request, HttpServletResponse response) {
-        HttpStorageController.getInstance(configuration, request, response)
-                             .store(ORIGINAL_REQUEST, getFullURL(request), null);
+        HttpStorageController storage = HttpStorageController.getInstance(configuration, request, response);
+
+        storage.store(ORIGINAL_REQUEST, getFullURL(request));
+        if (configuration.isRedirectToOriginalResource()) {
+            storage.store(ORIGINAL_REQUEST_DATA_JSON, RequestData.of(request).toJson());
+        }
     }
 
     private  String getFullURL(HttpServletRequest request) {

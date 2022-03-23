@@ -19,7 +19,6 @@ package org.glassfish.soteria.test;
 import static org.glassfish.soteria.test.Assert.assertAuthenticated;
 import static org.glassfish.soteria.test.Assert.assertDefaultNotAuthenticated;
 import static org.glassfish.soteria.test.ShrinkWrap.mavenWar;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -31,10 +30,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import com.gargoylesoftware.htmlunit.TextPage;
-import com.gargoylesoftware.htmlunit.WebResponse;
 import com.gargoylesoftware.htmlunit.html.HtmlPage;
 import com.gargoylesoftware.htmlunit.html.HtmlRadioButtonInput;
-import com.gargoylesoftware.htmlunit.util.NameValuePair;
 
 /**
  *
@@ -43,7 +40,7 @@ import com.gargoylesoftware.htmlunit.util.NameValuePair;
  * @author Arjan Tijms
  */
 @RunWith(Arquillian.class)
-public class OpenId2DefaultIT extends ArquillianBase {
+public class OpenId3DefaultIT extends ArquillianBase {
 
     @Deployment(testable = false)
     public static Archive<?> createClientDeployment() {
@@ -58,23 +55,7 @@ public class OpenId2DefaultIT extends ArquillianBase {
         assertDefaultNotAuthenticated(
                 readFromServer("/publicServlet"));
 
-
         // 2. Access to secured web page redirects us to OpenID Connect Provider's login page
-
-        // Look at redirect:
-        getWebClient().getOptions().setRedirectEnabled(false);
-
-        WebResponse response = responseFromServer("/protectedServlet");
-
-        for (NameValuePair header : response.getResponseHeaders()) {
-            System.out.println("name: " + header.getName() + " : " + header.getValue());
-        }
-
-        // Automatically follow redirects and request secured page again
-        getWebClient().getOptions().setRedirectEnabled(true);
-
-
-        // 3. We should now see the login page from the OpenId Provider
         HtmlPage providerLoginPage = pageFromServer("/protectedServlet");
 
         printPage(providerLoginPage);
@@ -87,7 +68,7 @@ public class OpenId2DefaultIT extends ArquillianBase {
                          .setAttribute("value", "password");
 
 
-        // 4. We should now get a confirmation page, which we acknowledge.
+        // 3. We should now get a confirmation page, which we acknowledge.
         HtmlPage confirmationPage = providerLoginPage.getElementByName("submit")
                                                      .click();
 
@@ -99,21 +80,13 @@ public class OpenId2DefaultIT extends ArquillianBase {
         radioButton.setChecked(true);
 
 
-        // 5. After authenticating and confirmation, we are now redirected back to our application.
-        // A servlet on the /callBack URI is called.
-        TextPage callbackPage = confirmationPage.getElementByName("authorize")
+        // 4. After authenticating and confirmation, we are now redirected back to our original resource
+        TextPage originalPage = confirmationPage.getElementByName("authorize")
                                                 .click();
-        printPage(callbackPage);
-
-        assertTrue(callbackPage.getContent().contains("This is the callback servlet"));
-
-
-        // 6. Access protected servlet as an authenticated user
         assertAuthenticated("web", "user",
-            readFromServer("/protectedServlet"), "foo", "bar");
+                originalPage.getContent(), "foo", "bar");
 
-
-        // 7. Finally, access should still be allowed to a public web page when already logged in
+        // 5. Finally, access should still be allowed to a public web page when already logged in
         assertAuthenticated("web", "user",
                 readFromServer("/publicServlet"), "foo", "bar");
     }

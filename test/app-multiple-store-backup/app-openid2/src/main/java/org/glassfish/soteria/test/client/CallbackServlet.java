@@ -45,7 +45,6 @@ public class CallbackServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        response.getWriter().println("This is the callback servlet");
         response.getWriter().println(context.getAccessToken());
     }
 

@@ -19,7 +19,6 @@ package org.glassfish.soteria.test;
 import static org.glassfish.soteria.test.Assert.assertAuthenticated;
 import static org.glassfish.soteria.test.Assert.assertDefaultNotAuthenticated;
 import static org.glassfish.soteria.test.ShrinkWrap.mavenWar;
-import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 
@@ -104,8 +103,6 @@ public class OpenId2DefaultIT extends ArquillianBase {
         TextPage callbackPage = confirmationPage.getElementByName("authorize")
                                                 .click();
         printPage(callbackPage);
-
-        assertTrue(callbackPage.getContent().contains("This is the callback servlet"));
 
 
         // 6. Access protected servlet as an authenticated user

@@ -28,12 +28,14 @@ import jakarta.servlet.http.HttpServletRequest;
  *
  * @author Gaurav Gupta
  * @author Rudy De Busscher
+ * @author Arjan Tijms
  */
 public class OpenIdConfiguration {
 
     private String clientId;
     private char[] clientSecret;
     private String redirectURI;
+    private boolean redirectToOriginalResource;
     private String scopes;
     private String responseType;
     private String responseMode;
@@ -85,6 +87,15 @@ public class OpenIdConfiguration {
 
     public OpenIdConfiguration setRedirectURI(String redirectURI) {
         this.redirectURI = redirectURI;
+        return this;
+    }
+
+    public boolean isRedirectToOriginalResource() {
+        return redirectToOriginalResource;
+    }
+
+    public OpenIdConfiguration setRedirectToOriginalResource(boolean redirectToOriginalResource) {
+        this.redirectToOriginalResource = redirectToOriginalResource;
         return this;
     }
 

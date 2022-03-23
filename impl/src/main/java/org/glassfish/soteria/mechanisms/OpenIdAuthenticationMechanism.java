@@ -24,18 +24,21 @@ import static jakarta.security.enterprise.authentication.mechanism.http.openid.O
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.ERROR_PARAM;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.EXPIRES_IN;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.ID_TOKEN_HINT;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.ORIGINAL_REQUEST;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.POST_LOGOUT_REDIRECT_URI;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.REFRESH_TOKEN;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.STATE;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.TOKEN_TYPE;
 import static jakarta.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
 import static jakarta.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
+import static jakarta.ws.rs.core.Response.Status.OK;
 import static java.util.Objects.isNull;
 import static java.util.Objects.nonNull;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
 import static org.glassfish.soteria.Utils.isEmpty;
+import static org.glassfish.soteria.Utils.isOneOf;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -55,6 +58,9 @@ import org.glassfish.soteria.mechanisms.openid.domain.LogoutConfiguration;
 import org.glassfish.soteria.mechanisms.openid.domain.OpenIdConfiguration;
 import org.glassfish.soteria.mechanisms.openid.domain.OpenIdContextImpl;
 import org.glassfish.soteria.mechanisms.openid.domain.RefreshTokenImpl;
+import org.glassfish.soteria.servlet.HttpServletRequestDelegator;
+import org.glassfish.soteria.servlet.HttpStorageController;
+import org.glassfish.soteria.servlet.RequestData;
 
 import jakarta.annotation.PostConstruct;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -77,7 +83,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.ws.rs.core.Response;
-import jakarta.ws.rs.core.Response.Status;
 import jakarta.ws.rs.core.UriBuilder;
 
 /**
@@ -89,6 +94,7 @@ import jakarta.ws.rs.core.UriBuilder;
  *
  * @author Gaurav Gupta
  * @author Rudy De Busscher
+ * @author Arjan Tijms
  */
 //  +--------+                                                       +--------+
 //  |        |                                                       |        |
@@ -119,6 +125,11 @@ import jakarta.ws.rs.core.UriBuilder;
 @Typed(OpenIdAuthenticationMechanism.class)
 public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanism {
 
+    private static final Logger LOGGER = Logger.getLogger(OpenIdAuthenticationMechanism.class.getName());
+
+    public static final String ORIGINAL_REQUEST_DATA_JSON = "org.glassfish.soteria.original.request.json";
+    private static final String SESSION_LOCK_NAME = OpenIdAuthenticationMechanism.class.getName();
+
     @Inject
     private OpenIdConfiguration configuration;
 
@@ -139,13 +150,10 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
     @Inject
     Instance<IdentityStoreHandler> storeHandlerInstance;
 
-    private static final Logger LOGGER = Logger.getLogger(OpenIdAuthenticationMechanism.class.getName());
-
     private static class Lock implements Serializable {
         private static final long serialVersionUID = 1L;
     }
 
-    private static final String SESSION_LOCK_NAME = OpenIdAuthenticationMechanism.class.getName();
 
     @PostConstruct
     void init() {
@@ -218,17 +226,32 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
     }
 
     private AuthenticationStatus authenticate(HttpServletRequest request, HttpServletResponse response, HttpMessageContext httpContext) {
-        if (httpContext.isProtected() && isNull(request.getUserPrincipal())) {
+        Optional<OpenIdState> receivedState = OpenIdState.from(request.getParameter(STATE));
+
+        if (receivedState.isEmpty() && httpContext.isProtected() && isNull(request.getUserPrincipal())) {
             // (1) The End-User is not authenticated.
             return authenticationController.authenticateUser(request, response);
         }
 
-        Optional<OpenIdState> receivedState = OpenIdState.from(request.getParameter(STATE));
-        String redirectURI = configuration.buildRedirectURI(request);
         if (receivedState.isPresent()) {
-            if (!request.getRequestURL().toString().equals(redirectURI)) {
-                LOGGER.log(INFO, "OpenID Redirect URL {0} not matched with request URL {1}", new Object[]{redirectURI, request.getRequestURL().toString()});
-                return httpContext.notifyContainerAboutLogin(NOT_VALIDATED_RESULT);
+            String callbackUrl = configuration.buildRedirectURI(request);
+            String orginalUrl = getOriginalUrl(request, response);
+            String requestUrl = request.getRequestURL().toString();
+
+            if (configuration.isRedirectToOriginalResource()) {
+                if (!isOneOf(requestUrl, orginalUrl, callbackUrl)) {
+                    LOGGER.log(INFO,
+                        "OpenID request URL {0} not matched with either callback {1} or original URL {2}",
+                        new Object[]{requestUrl, callbackUrl, orginalUrl});
+                    return httpContext.notifyContainerAboutLogin(NOT_VALIDATED_RESULT);
+                }
+            } else {
+                if (!isOneOf(requestUrl, callbackUrl)) {
+                    LOGGER.log(INFO,
+                        "OpenID request URL {0} not matched with callback URL {1}",
+                        new Object[]{requestUrl, callbackUrl, orginalUrl});
+                    return httpContext.notifyContainerAboutLogin(NOT_VALIDATED_RESULT);
+                }
             }
 
             Optional<OpenIdState> expectedState = stateController.get(request, response);
@@ -241,11 +264,62 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
                 LOGGER.fine("Inconsistent received state, value not matched");
                 return httpContext.notifyContainerAboutLogin(INVALID_RESULT);
             }
+
             // (3) Successful Authentication Response : redirect_uri?code=abc&state=123
+            if (configuration.isRedirectToOriginalResource() && !isOnOriginalURL(request, response)) {
+                return httpContext.redirect(getOriginalRedirectUrl(request, response));
+            }
+
+            // (3b) original_uri?code=abc&state=123 or redirect_uri?code=abc&state=123
             return validateAuthorizationCode(httpContext);
         }
 
         return httpContext.doNothing();
+    }
+
+    private boolean isOnOriginalURL(HttpServletRequest request, HttpServletResponse response) {
+        Optional<String> optionalOrginalUrl =
+            HttpStorageController.getInstance(configuration, request, response)
+                                 .getAsString(ORIGINAL_REQUEST);
+
+        if (optionalOrginalUrl.isEmpty()) {
+            // If no original url, return true so we don't redirect.
+            return true;
+        }
+
+        String originalUrl = optionalOrginalUrl.get();
+
+        if (originalUrl.contains("?")) {
+            originalUrl = originalUrl.substring(0, originalUrl.indexOf('?'));
+        }
+
+        return request.getRequestURL().toString().equals(originalUrl);
+    }
+
+    private String getOriginalRedirectUrl(HttpServletRequest request, HttpServletResponse response) {
+        return getOriginalUrl(request, response) + "?" + request.getQueryString();
+    }
+
+    private String getOriginalUrl(HttpServletRequest request, HttpServletResponse response) {
+        String originalUrl =
+                HttpStorageController.getInstance(configuration, request, response)
+                                     .getAsString(ORIGINAL_REQUEST)
+                                     .get(); // checked before
+
+        if (originalUrl.contains("?")) {
+            originalUrl = originalUrl.substring(0, originalUrl.indexOf('?'));
+        }
+
+        return originalUrl;
+    }
+
+    private RequestData getRequestData(HttpServletRequest request, HttpServletResponse response) {
+        String requestJson =
+                HttpStorageController.getInstance(configuration, request, response)
+                                     .getAsString(ORIGINAL_REQUEST_DATA_JSON)
+                                     .get();
+
+        return RequestData.of(requestJson);
     }
 
     /**
@@ -275,7 +349,7 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
 
         Response tokenResponse = tokenController.getTokens(request);
         JsonObject tokensObject = readJsonObject(tokenResponse.readEntity(String.class));
-        if (tokenResponse.getStatus() == Status.OK.getStatusCode()) {
+        if (tokenResponse.getStatus() == OK.getStatusCode()) {
             // Successful Token Response
             updateContext(tokensObject);
             OpenIdCredential credential = new OpenIdCredential(tokensObject, httpContext, configuration.getTokenMinValidity());
@@ -284,13 +358,20 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
             // Register session manually (if @AutoApplySession used, this would be done by its interceptor)
             httpContext.setRegisterSession(validationResult.getCallerPrincipal().getName(), validationResult.getCallerGroups());
 
+            if (configuration.isRedirectToOriginalResource()) {
+                // Restore request manually (if @LoginToContinue used, this would be done by its interceptor)
+                httpContext.withRequest(new HttpServletRequestDelegator(request, getRequestData(request, response)));
+            }
+
             return httpContext.notifyContainerAboutLogin(validationResult);
         }
 
         // Token Request is invalid or unauthorized
-        error = tokensObject.getString(ERROR_PARAM, "Unknown Error");
-        errorDescription = tokensObject.getString(ERROR_DESCRIPTION_PARAM, "Unknown");
-        LOGGER.log(WARNING, "Error occurred in validating Authorization Code : {0} caused by {1}", new Object[]{error, errorDescription});
+        LOGGER.log(WARNING,
+            "Error occurred in validating Authorization Code : {0} caused by {1}",
+            new Object[] {
+                tokensObject.getString(ERROR_PARAM, "Unknown Error"),
+                tokensObject.getString(ERROR_DESCRIPTION_PARAM, "Unknown") });
 
         return httpContext.notifyContainerAboutLogin(INVALID_RESULT);
 

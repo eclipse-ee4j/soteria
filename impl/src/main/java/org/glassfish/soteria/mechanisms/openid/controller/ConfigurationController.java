@@ -55,6 +55,7 @@ import jakarta.security.enterprise.authentication.mechanism.http.openid.PromptTy
  *
  * @author Gaurav Gupta
  * @author Rudy De Busscher
+ * @author Arjan Tijms
  */
 @ApplicationScoped
 public class ConfigurationController implements Serializable {
@@ -220,6 +221,7 @@ public class ConfigurationController implements Serializable {
 
         boolean nonce = evalImmediate(definition.useNonceExpression(), definition.useNonce());
         boolean session = evalImmediate(definition.useSessionExpression(), definition.useSession());
+        boolean redirectToOriginalResource = evalImmediate(definition.redirectToOriginalResourceExpression(), definition.redirectToOriginalResource());
 
         int jwksConnectTimeout = evalImmediate(definition.jwksConnectTimeoutExpression(), definition.jwksConnectTimeout());
         int jwksReadTimeout = evalImmediate(definition.jwksReadTimeoutExpression(), definition.jwksReadTimeout());
@@ -262,6 +264,7 @@ public class ConfigurationController implements Serializable {
                 .setClientId(clientId)
                 .setClientSecret(clientSecret)
                 .setRedirectURI(redirectURI)
+                .setRedirectToOriginalResource(redirectToOriginalResource)
                 .setScopes(scopes)
                 .setResponseType(responseType)
                 .setResponseMode(responseMode)
