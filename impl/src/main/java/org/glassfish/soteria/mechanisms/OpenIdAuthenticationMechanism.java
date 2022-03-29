@@ -191,16 +191,9 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
             throw new AuthenticationException("Failed to register CallerPrincipalCallback.", ex);
         }
 
-        LogoutConfiguration logout = configuration.getLogoutConfiguration();
+        // 1. Check for refreshing token
         boolean accessTokenExpired = context.getAccessToken().isExpired();
         boolean identityTokenExpired = context.getIdentityToken().isExpired();
-        if (logout.isIdentityTokenExpiry()) {
-            LOGGER.log(FINE, "UserPrincipal is set, check if Identity Token is valid.");
-        }
-
-        if (logout.isAccessTokenExpiry()) {
-            LOGGER.log(FINE, "UserPrincipal is set, check if Access Token is valid.");
-        }
 
         if ((accessTokenExpired || identityTokenExpired) && configuration.isTokenAutoRefresh()) {
             if (accessTokenExpired) {
@@ -212,11 +205,22 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
             return this.reAuthenticate(httpContext);
         }
 
+        // 2. Check for logging out
+        LogoutConfiguration logout = configuration.getLogoutConfiguration();
+        if (logout.isIdentityTokenExpiry()) {
+            LOGGER.log(FINE, "UserPrincipal is set, check if Identity Token is valid.");
+        }
+
+        if (logout.isAccessTokenExpiry()) {
+            LOGGER.log(FINE, "UserPrincipal is set, check if Access Token is valid.");
+        }
+
         if ((logout.isAccessTokenExpiry() && accessTokenExpired) || (logout.isIdentityTokenExpiry() && identityTokenExpired)) {
             logout(request, response);
             return SEND_FAILURE;
         }
 
+        // 3. Ignore token expired, or token is not expired
         return SUCCESS;
     }
 
@@ -380,9 +384,9 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
     private AuthenticationStatus reAuthenticate(HttpMessageContext httpContext) throws AuthenticationException {
         HttpServletRequest request = httpContext.getRequest();
         HttpServletResponse response = httpContext.getResponse();
-        synchronized (this.getSessionLock(httpContext.getRequest())) {
-            boolean accessTokenExpired = this.context.getAccessToken().isExpired();
-            boolean identityTokenExpired = this.context.getIdentityToken().isExpired();
+        synchronized (getSessionLock(httpContext.getRequest())) {
+            boolean accessTokenExpired = context.getAccessToken().isExpired();
+            boolean identityTokenExpired = context.getIdentityToken().isExpired();
             if (accessTokenExpired || identityTokenExpired) {
 
                 if (accessTokenExpired) {
@@ -392,7 +396,7 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
                     LOGGER.fine("Identity Token is expired. Request new Identity Token with Refresh Token.");
                 }
 
-                AuthenticationStatus refreshStatus = this.context.getRefreshToken()
+                AuthenticationStatus refreshStatus = context.getRefreshToken()
                         .map(rt -> this.refreshTokens(httpContext, rt))
                         .orElse(SEND_FAILURE);
 
