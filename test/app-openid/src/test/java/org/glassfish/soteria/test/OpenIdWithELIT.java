@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -14,29 +14,27 @@
  */
 package org.glassfish.soteria.test;
 
-import com.gargoylesoftware.htmlunit.WebClient;
+import java.io.IOException;
+import java.net.URL;
+
 import org.glassfish.soteria.test.client.defaulttests.OpenIdConfig;
-import org.glassfish.soteria.test.client.defaulttests.SecuredPage;
-import org.glassfish.soteria.test.client.defaulttests.SecuredPageWithEL;
+import org.glassfish.soteria.test.client.defaulttests.SecuredServletWithEL;
 import org.jboss.arquillian.container.test.api.Deployment;
 import org.jboss.arquillian.container.test.api.OperateOnDeployment;
 import org.jboss.arquillian.container.test.api.RunAsClient;
 import org.jboss.arquillian.junit.Arquillian;
 import org.jboss.arquillian.test.api.ArquillianResource;
 import org.jboss.shrinkwrap.api.Archive;
-import org.jboss.shrinkwrap.api.spec.WebArchive;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
-import java.io.IOException;
-import java.net.URL;
+import com.gargoylesoftware.htmlunit.WebClient;
 
 /**
  *
  * @author Rudy De Busscher
  */
-
 @RunWith(Arquillian.class)
 public class OpenIdWithELIT {
 
@@ -58,8 +56,7 @@ public class OpenIdWithELIT {
 
     @Deployment(name = "openid-client", testable=false)
     public static Archive<?> createClientDeployment() {
-        WebArchive war = OpenIdTestUtil.createClientDeployment(SecuredPageWithEL.class, OpenIdConfig.class);
-        return war;
+        return OpenIdTestUtil.createClientDeployment(SecuredServletWithEL.class, OpenIdConfig.class);
     }
 
     @Test

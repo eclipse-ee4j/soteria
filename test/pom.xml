@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
+    Copyright (c) 2022, 2022 Contributors to the Eclipse Foundation.
     Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
 
     This program and the accompanying materials are made available under the
@@ -55,7 +56,11 @@
         <module>app-custom</module>
         <module>app-multiple-store</module>
         <module>app-multiple-store-backup</module>
+        
+        <!-- app-[authentication mechanism] (with build-in identity store) -->
         <module>app-openid</module>
+        <module>app-openid2</module>
+        <module>app-openid3</module>
 
         <!-- app-[identity-store]-[authentication mechanism] -->
         <module>app-mem-basic</module>
@@ -77,7 +82,7 @@
         <maven.compiler.target>11</maven.compiler.target>
 
         <!-- Test servers -->
-        <glassfish.version>6.2.1</glassfish.version>
+        <glassfish.version>7.0.0-SNAPSHOT</glassfish.version>
         
         
         <!-- Below Servers need to be updated to their Jakarta.* versions and currently don't work -->
@@ -134,12 +139,12 @@
             <dependency>
 	            <groupId>com.unboundid</groupId>
 	            <artifactId>unboundid-ldapsdk</artifactId>
-	            <version>6.0.1</version>
+	            <version>6.0.3</version>
 	        </dependency>
 	        <dependency>
 	            <groupId>com.h2database</groupId>
 	            <artifactId>h2</artifactId>
-	            <version>1.4.200</version>
+	            <version>2.1.210</version>
 	        </dependency>
         </dependencies>
     </dependencyManagement>
@@ -147,46 +152,21 @@
         <dependency>
             <groupId>jakarta.ws.rs</groupId>
             <artifactId>jakarta.ws.rs-api</artifactId>
-            <version>3.0.0</version>
+            <version>3.1.0</version>
         </dependency>
         <dependency>
             <groupId>jakarta.faces</groupId>
             <artifactId>jakarta.faces-api</artifactId>
-            <version>3.0.0</version>
+            <version>4.0.0</version>
         </dependency>
         <dependency>
             <groupId>jakarta.validation</groupId>
             <artifactId>jakarta.validation-api</artifactId>
-            <version>3.0.0</version>
+            <version>3.0.1</version>
         </dependency>
+        
         
         <!-- Test dependencies which can be used in sub-modules -->
-        
-        <!-- NOTE! Client code and Arquillian still uses javax.* namespace -->
-        <dependency>
-            <groupId>javax.annotation</groupId>
-            <artifactId>javax.annotation-api</artifactId>
-            <version>1.3.2</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>jakarta.xml.bind</groupId>
-            <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>2.3.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>org.glassfish.jaxb</groupId>
-            <artifactId>jaxb-runtime</artifactId>
-            <version>2.3.3</version>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <groupId>javax.ws.rs</groupId>
-            <artifactId>javax.ws.rs-api</artifactId>
-            <version>2.1.1</version>
-            <scope>test</scope>
-        </dependency>
     
         <dependency>
             <groupId>junit</groupId>
@@ -200,18 +180,24 @@
             <artifactId>arquillian-junit-container</artifactId>
             <scope>test</scope>
         </dependency>
+        
+         <dependency>
+            <groupId>org.jboss.arquillian.protocol</groupId>
+            <artifactId>arquillian-protocol-servlet</artifactId>
+            <scope>test</scope>
+        </dependency>
 
         <dependency>
             <groupId>net.sourceforge.htmlunit</groupId>
             <artifactId>htmlunit</artifactId>
-            <version>2.53.0</version>
+            <version>2.59.0</version>
             <scope>test</scope>
         </dependency>
 
         <dependency>
             <groupId>org.jsoup</groupId>
             <artifactId>jsoup</artifactId>
-            <version>1.14.2</version>
+            <version>1.14.3</version>
             <!--$NO-MVN-MAN-VER$-->
         </dependency>
     </dependencies>
@@ -307,9 +293,9 @@
 
         <!--
             This profile assumes a target that does not have the Soteria libraries.
-            E.g. a Java EE 7 server or Servlet container such as Tomcat or Jetty.
+            E.g. a Jakarta EE 10 Servlet container such as Tomcat or Jetty.
 
-            With this profile e.g. jakarta.security.enterprise-2.0.0.jar
+            With this profile e.g. jakarta.security.enterprise-3.0.0.jar
             will end up in WEB-INF/lib
         -->
         <profile>
@@ -337,8 +323,7 @@
         
         
         <!-- ### GlassFish ### -->
-
-
+       
         <profile>
             <id>glassfish-ci-managed</id>
 
@@ -353,9 +338,9 @@
             <dependencies>
                 <!-- The actual Arquillian connector -->
                 <dependency>
-                    <groupId>fish.payara.arquillian</groupId>
-                    <artifactId>arquillian-payara-server-managed</artifactId>
-                    <version>2.2</version>
+                    <groupId>org.omnifaces.arquillian</groupId>
+                    <artifactId>arquillian-glassfish-server-managed</artifactId>
+                    <version>1.0</version>
                     <scope>test</scope>
                 </dependency>
             </dependencies>
@@ -381,7 +366,91 @@
                                             <artifactId>glassfish</artifactId>
                                             <version>${glassfish.version}</version>
                                             <type>zip</type>
-                                            <overWrite>false</overWrite>
+                                            <overWrite>true</overWrite>
+                                            <outputDirectory>${glassfish.root}</outputDirectory>
+                                        </artifactItem>
+                                    </artifactItems>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                        <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-antrun-plugin</artifactId>
+                        <version>3.0.0</version>
+                        <executions>
+                            <execution>
+                                <id>set-suspend</id>
+                                <phase>pre-integration-test</phase>
+                                <goals>
+                                    <goal>run</goal>
+                                </goals>
+                                <configuration>
+                                    <target>
+                                        <echo level="info">Replacing in ${glassfish.root}</echo>
+                                        <replace token="8080"
+                                            value="8080"
+                                            dir="${glassfish.root}/glassfish7/glassfish/domains/domain1/config/"
+                                            summary="yes">
+                                            <include name="domain.xml" />
+                                        </replace>
+                                    </target>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-failsafe-plugin</artifactId>
+                        <configuration>
+                            <systemProperties>
+                                <glassfish.home>${glassfish.root}/glassfish7</glassfish.home>
+                            </systemProperties>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        
+        <profile>
+            <id>glassfish-ci-managed-update</id>
+
+            <properties>
+                <glassfish.root>${maven.multiModuleProjectDirectory}/target</glassfish.root>
+            </properties>
+
+            <dependencies>
+                <!-- The actual Arquillian connector -->
+                <dependency>
+                    <groupId>org.omnifaces.arquillian</groupId>
+                    <artifactId>arquillian-glassfish-server-managed</artifactId>
+                    <version>1.0</version>
+                    <scope>test</scope>
+                </dependency>
+            </dependencies>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-dependency-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>unpack</id>
+                                <phase>process-test-classes</phase>
+                                <goals>
+                                    <goal>unpack</goal>
+                                </goals>
+                                <configuration>
+                                    <outputDirectory>${glassfish.root}</outputDirectory>
+                                    <markersDirectory>${glassfish.root}/dependency-maven-plugin-markers</markersDirectory>
+                                    <artifactItems>
+                                        <artifactItem>
+                                            <groupId>org.glassfish.main.distributions</groupId>
+                                            <artifactId>glassfish</artifactId>
+                                            <version>${glassfish.version}</version>
+                                            <type>zip</type>
+                                            <overWrite>true</overWrite>
                                             <outputDirectory>${glassfish.root}</outputDirectory>
                                         </artifactItem>
                                     </artifactItems>
@@ -395,13 +464,13 @@
                                 </goals>
                                 <configuration>
                                     <artifactItems>
-                						<artifactItem>
+                                        <artifactItem>
                                             <groupId>jakarta.security.enterprise</groupId>
                                             <artifactId>jakarta.security.enterprise-api</artifactId>
                                             <version>${security-api.version}</version>
                                             <type>jar</type>
                                             <overWrite>true</overWrite>
-                                            <outputDirectory>${glassfish.root}/glassfish6/glassfish/modules</outputDirectory>
+                                            <outputDirectory>${glassfish.root}/glassfish7/glassfish/modules</outputDirectory>
                                             <destFileName>jakarta.security.enterprise-api.jar</destFileName>
                                         </artifactItem>
                                         <artifactItem>
@@ -410,16 +479,16 @@
                                             <version>${soteria.version}</version>
                                             <type>jar</type>
                                             <overWrite>true</overWrite>
-                                            <outputDirectory>${glassfish.root}/glassfish6/glassfish/modules</outputDirectory>
+                                            <outputDirectory>${glassfish.root}/glassfish7/glassfish/modules</outputDirectory>
                                             <destFileName>jakarta.security.enterprise.jar</destFileName>
                                         </artifactItem>
                                         <artifactItem>
                                             <groupId>org.glassfish.soteria</groupId>
-						                    <artifactId>soteria.spi.bean.decorator.weld</artifactId>
+                                            <artifactId>soteria.spi.bean.decorator.weld</artifactId>
                                             <version>${weld-decorator.version}</version>
                                             <type>jar</type>
                                             <overWrite>true</overWrite>
-                                            <outputDirectory>${glassfish.root}/glassfish6/glassfish/modules</outputDirectory>
+                                            <outputDirectory>${glassfish.root}/glassfish7/glassfish/modules</outputDirectory>
                                             <destFileName>soteria.spi.bean.decorator.weld.jar</destFileName>
                                         </artifactItem>
                                     </artifactItems>
@@ -429,77 +498,11 @@
                     </plugin>
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-antrun-plugin</artifactId>
-                        <version>3.0.0</version>
-                        <executions>
-                            <execution>
-                                <id>info-suspend</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target>
-                                        <echo level="info">Suspend = ${suspend}</echo>
-                                    </target>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>set-suspend</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target if="suspend">
-                                        <echo level="info">Suspending: Replacing in ${glassfish.root}</echo>
-                                        <replace token="-Djava.awt.headless=true"
-                                            value="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009"
-                                            dir="${glassfish.root}/glassfish6/glassfish/domains/domain1/config/"
-                                            summary="yes">
-                                            <include name="domain.xml" />
-                                        </replace>
-                                        <replace token="# Framework config properties."
-                                            value="org.osgi.framework.storage.clean=onFirstInit"
-                                            dir="${glassfish.root}/glassfish6/glassfish/config/" summary="yes">
-                                            <include name="osgi.properties" />
-                                        </replace>
-                                    </target>
-                                </configuration>
-                            </execution>
-                            <execution>
-                                <id>unset-suspend</id>
-                                <phase>pre-integration-test</phase>
-                                <goals>
-                                    <goal>run</goal>
-                                </goals>
-                                <configuration>
-                                    <target unless="suspend">
-                                        <echo level="info">Not suspending: Replacing in ${root}</echo>
-                                        <replace
-                                            token="-agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=9009"
-                                            value="-Djava.awt.headless=true"
-                                            dir="${glassfish.root}/glassfish6/glassfish/domains/domain1/config/"
-                                            summary="yes">
-                                            <include name="domain.xml" />
-                                        </replace>
-                                        <replace token="org.osgi.framework.storage.clean=onFirstInit"
-                                            value="# Framework config properties."
-                                            dir="${glassfish.root}/glassfish6/glassfish/config/" summary="yes">
-                                            <include name="osgi.properties" />
-                                        </replace>
-                                    </target>
-                                </configuration>
-                            </execution>
-                        </executions>
-                    </plugin>
-                    <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-failsafe-plugin</artifactId>
                         <configuration>
-                            <environmentVariables>
-                                <GLASSFISH_HOME>${glassfish.root}/glassfish6</GLASSFISH_HOME>
-                            </environmentVariables>
+                            <systemProperties>
+                                <glassfish.home>${glassfish.root}/glassfish7</glassfish.home>
+                            </systemProperties>
                         </configuration>
                     </plugin>
                 </plugins>

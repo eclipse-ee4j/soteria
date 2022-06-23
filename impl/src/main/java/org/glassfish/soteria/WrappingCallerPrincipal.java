@@ -21,14 +21,15 @@ import java.security.Principal;
 import jakarta.security.enterprise.CallerPrincipal;
 
 public class WrappingCallerPrincipal extends CallerPrincipal {
-    
+    private static final long serialVersionUID = 1L;
+
     private final Principal wrapped;
 
     public WrappingCallerPrincipal(Principal wrapped) {
         super(wrapped.getName());
         this.wrapped = wrapped;
     }
-    
+
     public Principal getWrapped() {
         return wrapped;
     }
