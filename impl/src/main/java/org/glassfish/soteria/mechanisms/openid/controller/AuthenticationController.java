@@ -124,7 +124,7 @@ public class AuthenticationController {
 
         configuration.getExtraParameters().forEach(authRequest::queryParam);
 
-        String authUrl = authRequest.toString();
+        String authUrl = authRequest.build().toString();
         LOGGER.log(FINEST, "Redirecting for authentication to {0}", authUrl);
         try {
             response.sendRedirect(authUrl);
