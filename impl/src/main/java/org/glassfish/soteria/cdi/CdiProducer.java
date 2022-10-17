@@ -40,7 +40,7 @@ public class CdiProducer<T> implements Bean<T>, PassivationCapable {
 
     private String id = this.getClass().getName();
     private String name;
-    private Class<?> beanClass = Object.class;
+    private Class<?> beanClass = CdiExtension.class;
     private Set<Type> types = singleton(Object.class);
     private Set<Annotation> qualifiers = unmodifiableSet(asSet(new DefaultAnnotationLiteral(), new AnyAnnotationLiteral()));
     private Class<? extends Annotation> scope = Dependent.class;
