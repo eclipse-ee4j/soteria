@@ -74,7 +74,6 @@ public class SamRegistrationInstaller implements ServletContainerInitializer, Se
             // and calling CDI.current() will throw an exception. It's no use to continue then.
             // TODO: Do we need to find out *why* the default module does not have CDI initialized?
             logger.log(FINEST, "CDI not available for app context id: " + Jaspic.getAppContextID(ctx), e);
-
             return;
         }
 
