@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2022 Contributors to the Eclipse Foundation
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -46,6 +47,8 @@ import jakarta.security.enterprise.identitystore.DatabaseIdentityStoreDefinition
 import jakarta.security.enterprise.identitystore.IdentityStore;
 import jakarta.security.enterprise.identitystore.IdentityStorePermission;
 import jakarta.security.enterprise.identitystore.PasswordHash;
+
+import javax.naming.NamingException;
 import javax.sql.DataSource;
 
 public class DatabaseIdentityStore implements IdentityStore {
@@ -54,7 +57,7 @@ public class DatabaseIdentityStore implements IdentityStore {
 
     private final Set<ValidationType> validationTypes;
     private final PasswordHash hashAlgorithm; // Note: effectively application scoped, no support for @PreDestroy now
-    
+
     // CDI requires a no-arg constructor to be portable
     // It's only used to create the proxy
     protected DatabaseIdentityStore() {
@@ -62,10 +65,10 @@ public class DatabaseIdentityStore implements IdentityStore {
         this.validationTypes = null;
         this.hashAlgorithm = null;
     }
-    
+
     public DatabaseIdentityStore(DatabaseIdentityStoreDefinition dataBaseIdentityStoreDefinition) {
         this.dataBaseIdentityStoreDefinition = dataBaseIdentityStoreDefinition;
-        
+
         validationTypes = unmodifiableSet(new HashSet<>(asList(dataBaseIdentityStoreDefinition.useFor())));
         hashAlgorithm = getBeanReference(dataBaseIdentityStoreDefinition.hashAlgorithm());
         hashAlgorithm.initialize(
@@ -74,7 +77,7 @@ public class DatabaseIdentityStore implements IdentityStore {
                         dataBaseIdentityStoreDefinition.hashAlgorithmParameters())
                     .flatMap(s -> toStream(evalImmediate(s, (Object)s)))
                     .collect(toMap(
-                        s -> s.substring(0, s.indexOf('=')) , 
+                        s -> s.substring(0, s.indexOf('=')) ,
                         s -> evalImmediate(s.substring(s.indexOf('=') + 1))
                     ))));
     }
@@ -93,15 +96,15 @@ public class DatabaseIdentityStore implements IdentityStore {
         DataSource dataSource = getDataSource();
 
         List<String> passwords = executeQuery(
-            dataSource, 
+            dataSource,
             dataBaseIdentityStoreDefinition.callerQuery(),
             usernamePasswordCredential.getCaller()
         );
-        
+
         if (passwords.isEmpty()) {
             return INVALID_RESULT;
         }
-        
+
         if (hashAlgorithm.verify(usernamePasswordCredential.getPassword().getValue(), passwords.get(0))) {
             Set<String> groups = emptySet();
             if (validationTypes.contains(ValidationType.PROVIDE_GROUPS)) {
@@ -113,7 +116,7 @@ public class DatabaseIdentityStore implements IdentityStore {
 
         return INVALID_RESULT;
     }
-    
+
     @Override
     public Set<String> getCallerGroups(CredentialValidationResult validationResult) {
 
@@ -159,31 +162,25 @@ public class DatabaseIdentityStore implements IdentityStore {
     public Set<ValidationType> validationTypes() {
         return validationTypes;
     }
-    
+
     @SuppressWarnings("unchecked")
     private Stream<String> toStream(Object raw) {
         if (raw instanceof String[]) {
-            return stream((String[])raw);
+            return stream((String[]) raw);
         }
         if (raw instanceof Stream<?>) {
-            return ((Stream<String>) raw).map(s -> s.toString());
+            return ((Stream<String>) raw).map(String::toString);
         }
-        
+
         return asList(raw.toString()).stream();
     }
 
     private DataSource getDataSource() {
-        DataSource dataSource = null;
         try {
-            dataSource = jndiLookup(dataBaseIdentityStoreDefinition.dataSourceLookup());
-            if (dataSource == null) {
-                throw new IdentityStoreConfigurationException("Jndi lookup failed for DataSource " + dataBaseIdentityStoreDefinition.dataSourceLookup());
-            }
-        } catch (IdentityStoreConfigurationException e) {
-            throw e;
-        } catch (Exception e) {
-            throw new IdentityStoreRuntimeException(e);
+            return jndiLookup(dataBaseIdentityStoreDefinition.dataSourceLookup());
+        } catch (NamingException e) {
+            throw new IdentityStoreRuntimeException(
+                "JNDI lookup failed for DataSource " + dataBaseIdentityStoreDefinition.dataSourceLookup(), e);
         }
-        return dataSource;
     }
 }
