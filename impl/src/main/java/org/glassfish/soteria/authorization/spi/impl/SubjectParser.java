@@ -514,7 +514,8 @@ public class SubjectParser {
                 break;
         }
 
-        if (CallerPrincipal.class.isAssignableFrom(principal.getClass())) {
+        // do not require a principal from EJBContext to be assignable from CallerPrincipal
+        if (isEjb || CallerPrincipal.class.isAssignableFrom(principal.getClass())) {
             return principal;
         }
 
