@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -61,7 +61,7 @@ public class AccessTokenImpl implements AccessToken {
         try {
             this.tokenJWT = JWTParser.parse(token);
             jwtClaimsSet = tokenJWT.getJWTClaimsSet();
-            this.claims = jwtClaimsSet.getClaims();
+            this.claims = ifPresent(jwtClaimsSet);
         } catch (ParseException ex) {
             // Access token doesn't need to be JWT at all
         }
@@ -72,7 +72,7 @@ public class AccessTokenImpl implements AccessToken {
         this.createdAt = System.currentTimeMillis();
         this.scope = Scope.parse(scopeValue);
     }
-
+    
     @Override
     public boolean isExpired() {
         boolean expired;
@@ -137,6 +137,10 @@ public class AccessTokenImpl implements AccessToken {
     @Override
     public String toString() {
         return token;
+    }
+    
+    private Map<String, Object> ifPresent(JWTClaimsSet claimsSet) {
+        return claimsSet == null ? null : claimsSet.getClaims();
     }
 
 }
