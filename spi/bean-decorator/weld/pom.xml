@@ -2,7 +2,7 @@
 
 <!--
 
-    Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation.
+    Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation.
     Copyright (c) 2015, 2020 Payara and/or its affiliates and others. 
     All rights reserved.
 
@@ -21,43 +21,43 @@
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.glassfish.soteria</groupId>
-		<artifactId>spi-bean-decorator</artifactId>
-		<version>3.0.1-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>org.glassfish.soteria</groupId>
+        <artifactId>spi-bean-decorator</artifactId>
+        <version>3.0.1-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>soteria.spi.bean.decorator.weld</artifactId>
+    <artifactId>soteria.spi.bean.decorator.weld</artifactId>
 
-	<name>Soteria SPI : Bean Decorator : Weld</name>
+    <name>Soteria SPI : Bean Decorator : Weld</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.jboss.weld</groupId>
-			<artifactId>weld-osgi-bundle</artifactId>
-			<version>5.0.1.Final</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.soteria</groupId>
-			<artifactId>jakarta.security.enterprise</artifactId>
-			<version>${project.version}</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-osgi-bundle</artifactId>
+            <version>5.1.0.Final</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.soteria</groupId>
+            <artifactId>jakarta.security.enterprise</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<!-- This plugin is reponsible for packaging artifacts as OSGi bundles. 
-				Please refer to http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html 
-				for more information about how to use this plugin. -->
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>5.1.6</version>
-				<extensions>true</extensions>
+    <build>
+        <plugins>
+            <!-- This plugin is reponsible for packaging artifacts as OSGi bundles. 
+                Please refer to http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html 
+                for more information about how to use this plugin. -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>5.1.8</version>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>bundle-manifest</id>
@@ -73,7 +73,7 @@
                         <_runee>JavaSE-11</_runee>
                     </instructions>
                 </configuration>
-			</plugin>
+            </plugin>
             
             <!-- Adds the manifest file created by the org.apache.felix:maven-bundle-plugin -->
             <plugin>
@@ -97,7 +97,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.4.0</version>
+                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <id>attach-api-javadocs</id>
@@ -113,6 +113,6 @@
                     </execution>
                 </executions>
             </plugin>
-		</plugins>
-	</build>
+        </plugins>
+    </build>
 </project>
