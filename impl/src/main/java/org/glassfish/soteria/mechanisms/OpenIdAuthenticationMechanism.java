@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -20,6 +20,7 @@ package org.glassfish.soteria.mechanisms;
 
 import static jakarta.security.enterprise.AuthenticationStatus.SEND_FAILURE;
 import static jakarta.security.enterprise.AuthenticationStatus.SUCCESS;
+import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.CODE;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.ERROR_DESCRIPTION_PARAM;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.ERROR_PARAM;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.EXPIRES_IN;
@@ -235,6 +236,16 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
         if (receivedState.isEmpty() && httpContext.isProtected() && isNull(request.getUserPrincipal())) {
             // (1) The End-User is not authenticated.
             return authenticationController.authenticateUser(request, response);
+        }
+        
+        // Precondition: request must be GET
+        if (!"GET".equalsIgnoreCase(request.getMethod())) {
+            return httpContext.doNothing();
+        }
+        
+        // Precondition: "code" request parameter must be present.
+        if (request.getParameter(CODE) == null) {
+            return httpContext.doNothing();
         }
 
         if (receivedState.isPresent()) {
