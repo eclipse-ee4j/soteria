@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -38,6 +38,7 @@ import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jwt.JWTClaimsSet;
 
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.enterprise.inject.Typed;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
 import jakarta.security.enterprise.credential.Credential;
@@ -52,6 +53,7 @@ import jakarta.security.enterprise.identitystore.IdentityStore;
  * @author Rudy De Busscher
  */
 @ApplicationScoped
+@Typed(OpenIdIdentityStore.class)
 public class OpenIdIdentityStore implements IdentityStore {
 
     private static final Logger LOGGER = Logger.getLogger(OpenIdIdentityStore.class.getName());
