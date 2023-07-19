@@ -16,6 +16,7 @@
 
 package org.glassfish.soteria.authorization.spi.impl;
 
+import org.glassfish.soteria.DefaultService;
 import org.glassfish.soteria.authorization.JACC;
 import org.glassfish.soteria.authorization.spi.CallerDetailsResolver;
 
@@ -26,7 +27,7 @@ import java.util.Set;
 import static java.util.Collections.emptyList;
 import static jakarta.security.jacc.PolicyContext.getContextID;
 
-public class ReflectionAndJaccCallerDetailsResolver implements CallerDetailsResolver {
+public class ReflectionAndJaccCallerDetailsResolver implements CallerDetailsResolver, DefaultService {
 
     @Override
     public Principal getCallerPrincipal() {
