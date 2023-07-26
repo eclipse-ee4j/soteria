@@ -65,8 +65,6 @@ public class AppSecurityContextCallerPrincipalIT extends ArquillianBase {
         boolean isContainerPricipalCorrect = containerPrincipal.contains("com.sun.enterprise.security.web.integration.WebPrincipal") ||
                 containerPrincipal.contains("weblogic.security.principal.WLSUserImpl") ||
                 containerPrincipal.contains("com.ibm.ws.security.authentication.principals.WSPrincipal") ||
-                containerPrincipal.contains("org.jboss.security.SimplePrincipal") ||
-                containerPrincipal.contains("org.jboss.security.SimpleGroup") ||
                 containerPrincipal.contains("org.apache.tomee.catalina.TomcatSecurityService$TomcatUser") ||
                 containerPrincipal.contains("jakarta.security.enterprise.CallerPrincipal") ||
                 containerPrincipal.contains(inputApplicationPrincipal);
