@@ -18,13 +18,13 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
        <groupId>org.glassfish.soteria</groupId>
        <artifactId>parent</artifactId>
-       <version>3.0.3-SNAPSHOT</version>
+       <version>4.0.0-SNAPSHOT</version>
     </parent>
 
     <artifactId>jakarta.security.enterprise</artifactId>
@@ -38,19 +38,19 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>5.1.8</version>
+                <version>5.1.9</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
                         <_noimportjava>true</_noimportjava>
-                        <_runee>JavaSE-11</_runee>
+                        <_runee>JavaSE-17</_runee>
                         <Bundle-SymbolicName>org.glassfish.jakarta.security.enterprise</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Bundle-Name>Soteria Jakarta Security Implementation ${project.version}</Bundle-Name>
-                        <Bundle-Description>Eclipse Jakarta Security Implementation (jakarta.security/3.0) ${project.version}</Bundle-Description>                      
+                        <Bundle-Description>Eclipse Jakarta Security Implementation (jakarta.security/4.0) ${project.version}</Bundle-Description>                      
                         
                         <Specification-Title>Jakarta Security</Specification-Title>
-                        <Specification-Version>3.0</Specification-Version>
+                        <Specification-Version>4.0</Specification-Version>
                         
                         <Implementation-Title>Soteria</Implementation-Title> 
                         <Implementation-Version>${project.version}</Implementation-Version>

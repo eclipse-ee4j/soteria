@@ -17,7 +17,6 @@
 package org.glassfish.soteria.authorization.spi.impl;
 
 import org.glassfish.soteria.DefaultService;
-import org.glassfish.soteria.authorization.JACC;
 import org.glassfish.soteria.authorization.spi.CallerDetailsResolver;
 
 import javax.security.auth.Subject;
@@ -27,11 +26,11 @@ import java.util.Set;
 import static java.util.Collections.emptyList;
 import static jakarta.security.jacc.PolicyContext.getContextID;
 
-public class ReflectionAndJaccCallerDetailsResolver implements CallerDetailsResolver, DefaultService {
+public class ReflectionAndAuthorizationCallerDetailsResolver implements CallerDetailsResolver, DefaultService {
 
     @Override
     public Principal getCallerPrincipal() {
-        Subject subject = JACC.getSubject();
+        Subject subject = Authorization.getSubject();
 
         if (subject == null) {
             return null;
@@ -44,7 +43,7 @@ public class ReflectionAndJaccCallerDetailsResolver implements CallerDetailsReso
 
     @Override
     public <T extends Principal> Set<T> getPrincipalsByType(Class<T> pType) {
-        Subject subject = JACC.getSubject();
+        Subject subject = Authorization.getSubject();
 
         if (subject == null) {
             // Ensure behavior exactly matches that of Subject
@@ -56,12 +55,12 @@ public class ReflectionAndJaccCallerDetailsResolver implements CallerDetailsReso
 
     @Override
     public boolean isCallerInRole(String role) {
-        return JACC.isCallerInRole(role);
+        return Authorization.isCallerInRole(role);
     }
 
     @Override
     public Set<String> getAllDeclaredCallerRoles() {
-        return JACC.getAllDeclaredCallerRoles();
+        return Authorization.getAllDeclaredCallerRoles();
     }
 
 }

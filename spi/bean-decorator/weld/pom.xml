@@ -20,13 +20,13 @@
 
 -->
 
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<parent>
 		<groupId>org.glassfish.soteria</groupId>
 		<artifactId>spi-bean-decorator</artifactId>
-		<version>3.0.3-SNAPSHOT</version>
+		<version>4.0.0-SNAPSHOT</version>
 	</parent>
 
 	<artifactId>soteria.spi.bean.decorator.weld</artifactId>
@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>org.jboss.weld</groupId>
 			<artifactId>weld-osgi-bundle</artifactId>
-			<version>5.1.0.Final</version>
+			<version>6.0.0.Alpha1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
@@ -56,7 +56,7 @@
 			<plugin>
 				<groupId>org.apache.felix</groupId>
 				<artifactId>maven-bundle-plugin</artifactId>
-				<version>5.1.8</version>
+				<version>5.1.9</version>
 				<extensions>true</extensions>
                 <executions>
                     <execution>
@@ -70,16 +70,14 @@
                 <configuration>
                     <instructions>
                         <_noimportjava>true</_noimportjava>
-                        <_runee>JavaSE-11</_runee>
+                        <_runee>JavaSE-17</_runee>
                     </instructions>
                 </configuration>
 			</plugin>
             
             <!-- Adds the manifest file created by the org.apache.felix:maven-bundle-plugin -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.2</version>
                 <configuration>
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
@@ -95,9 +93,7 @@
                  (com.sun.tools.javac.code.Symbol$CompletionFailure: class file for jakarta.enterprise.inject.spi.Bean not found) 
             -->
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.4.1</version>
                 <executions>
                     <execution>
                         <id>attach-api-javadocs</id>

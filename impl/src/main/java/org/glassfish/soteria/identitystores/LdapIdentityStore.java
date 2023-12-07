@@ -34,7 +34,6 @@ import jakarta.security.enterprise.credential.Credential;
 import jakarta.security.enterprise.credential.UsernamePasswordCredential;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;
 import jakarta.security.enterprise.identitystore.IdentityStore;
-import jakarta.security.enterprise.identitystore.IdentityStorePermission;
 import jakarta.security.enterprise.identitystore.LdapIdentityStoreDefinition;
 import java.util.*;
 
@@ -108,7 +107,7 @@ public class LdapIdentityStore implements IdentityStore {
         if (callerDn == null) {
             return INVALID_RESULT;
         }
-        
+
         LdapContext callerContext = createCallerLdapContext(callerDn, new String(usernamePasswordCredential.getPassword().getValue()));
         if (callerContext == null) {
             return INVALID_RESULT;  // either bindDn or bindPassword was invalid
@@ -130,13 +129,6 @@ public class LdapIdentityStore implements IdentityStore {
 
     @Override
     public Set<String> getCallerGroups(CredentialValidationResult validationResult) {
-
-        // Make sure caller has permission to invoke this method
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkPermission(new IdentityStorePermission("getGroups"));
-        }
-
         LdapContext searchContext = createSearchLdapContext();
         try {
             String callerDn = validationResult.getCallerDn();
@@ -151,7 +143,6 @@ public class LdapIdentityStore implements IdentityStore {
     }
 
     private Set<String> retrieveGroupsForCallerDn(LdapContext searchContext, String callerDn) {
-
         if (callerDn == null || callerDn.isEmpty()) {
             return emptySet();
         }
@@ -166,7 +157,6 @@ public class LdapIdentityStore implements IdentityStore {
     }
 
     private Set<String> retrieveGroupsBySearching(String callerDn, LdapContext searchContext) {
-
         List<SearchResult> searchResults = searchGroups(searchContext, callerDn);
 
         Set<String> groups = new HashSet<>();
