@@ -18,6 +18,7 @@ package org.glassfish.soteria;
 
 import static jakarta.security.enterprise.AuthenticationStatus.SEND_FAILURE;
 import static jakarta.security.enterprise.AuthenticationStatus.SUCCESS;
+import static org.glassfish.soteria.SoteriaServiceProviders.getServiceProvider;
 import static org.glassfish.soteria.mechanisms.jaspic.Jaspic.getLastAuthenticationStatus;
 
 import java.io.Serializable;
@@ -33,21 +34,19 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import org.glassfish.soteria.authorization.spi.CallerDetailsResolver;
 import org.glassfish.soteria.authorization.spi.ResourceAccessResolver;
-import org.glassfish.soteria.authorization.spi.impl.JaccResourceAccessResolver;
-import org.glassfish.soteria.authorization.spi.impl.ReflectionAndJaccCallerDetailsResolver;
 import org.glassfish.soteria.mechanisms.jaspic.Jaspic;
 
 public class SecurityContextImpl implements SecurityContext, Serializable {
-    
+
     private static final long serialVersionUID = 1L;
-    
+
     private CallerDetailsResolver callerDetailsResolver;
     private ResourceAccessResolver resourceAccessResolver;
 
     @PostConstruct
     public void init() {
-       callerDetailsResolver = new ReflectionAndJaccCallerDetailsResolver();
-       resourceAccessResolver = new JaccResourceAccessResolver();
+       callerDetailsResolver = getServiceProvider(CallerDetailsResolver.class);
+       resourceAccessResolver = getServiceProvider(ResourceAccessResolver.class);
     }
 
     @Override
@@ -77,15 +76,15 @@ public class SecurityContextImpl implements SecurityContext, Serializable {
 
     @Override
     public AuthenticationStatus authenticate(HttpServletRequest request, HttpServletResponse response, AuthenticationParameters parameters) {
-        
+
         try {
             if (Jaspic.authenticate(request, response, parameters)) {
-                // All servers return true when authentication actually took place 
+                // All servers return true when authentication actually took place
                 return SUCCESS;
             }
-            
+
             // GlassFish returns false when either authentication is in progress or authentication
-            // failed (or was not done at all). 
+            // failed (or was not done at all).
             // Therefore we need to rely on the status we saved as a request attribute
             return getLastAuthenticationStatus(request);
         } catch (IllegalArgumentException e) { // TODO: exception type not ideal
