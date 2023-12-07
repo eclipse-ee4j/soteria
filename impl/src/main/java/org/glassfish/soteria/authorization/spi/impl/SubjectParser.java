@@ -19,7 +19,6 @@ package org.glassfish.soteria.authorization.spi.impl;
 import static java.lang.System.getProperty;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptyList;
-import static java.util.Collections.list;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -29,7 +28,6 @@ import java.security.Principal;
 // import java.security.acl.Group;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -46,7 +44,6 @@ import org.glassfish.soteria.authorization.JACC;
 import jakarta.ejb.EJBContext;
 import jakarta.security.enterprise.CallerPrincipal;
 import jakarta.security.jacc.PolicyContext;
-import jakarta.security.jacc.PolicyContextException;
 import jakarta.servlet.http.HttpServletRequest;
 
 public class SubjectParser {
@@ -56,7 +53,6 @@ public class SubjectParser {
 
     private Map<String, List<String>> groupToRoles = new HashMap<>();
 
-    private boolean isJboss;
     private boolean isLiberty;
     private boolean oneToOneMapping;
     private boolean anyAuthenticatedUserRoleMapped = false;
@@ -123,8 +119,6 @@ public class SubjectParser {
         // AS. Sad that this is needed :(
         if (tryGlassFish(contextID, allDeclaredRoles)) {
             return;
-        } else if (tryJBoss()) {
-            return;
         } else if (tryLiberty()) {
             return;
         } else if (tryWebLogic(contextID, allDeclaredRoles)) {
@@ -145,30 +139,6 @@ public class SubjectParser {
     }
 
     public Principal getCallerPrincipalFromPrincipals(Iterable<Principal> principals) {
-
-        if (isJboss) {
-            try {
-
-                // The JACCAuthorizationManager that normally would call us in JBoss only passes
-                // either the role principals or the caller principal in, never both, and without any
-                // easy way to distinguish between them.
-                // So we're getting the principals from the Subject here. Do note that we miss the
-                // potential extra deployment roles here which may be in the principals collection we get
-                // passed in.
-                Subject subject = (Subject) PolicyContext.getContext(JACC.SUBJECT_CONTAINER_KEY);
-
-                if (subject == null) {
-                    return null;
-                }
-
-                return doGetCallerPrincipalFromPrincipals(subject.getPrincipals());
-            } catch (PolicyContextException e1) {
-                // Ignore
-            }
-
-            return null;
-        }
-
         return doGetCallerPrincipalFromPrincipals(principals);
     }
 
@@ -177,7 +147,7 @@ public class SubjectParser {
 
         List<String> groups = null;
 
-        if (isLiberty || isJboss) {
+        if (isLiberty) {
 
             try {
                 Subject subject = (Subject) PolicyContext.getContext(JACC.SUBJECT_CONTAINER_KEY);
@@ -185,29 +155,18 @@ public class SubjectParser {
                     return emptyList();
                 }
 
-                if (isLiberty) {
-                    // Liberty is the only known Jakarta EE server that doesn't put the groups in
-                    // the principals collection, but puts them in the credentials of a Subject.
-                    // This somewhat peculiar decision means a JACC provider never gets to see
-                    // groups via the principals that are passed in and must get them from
-                    // the current Subject.
+                // Liberty is the only known Jakarta EE server that doesn't put the groups in
+                // the principals collection, but puts them in the credentials of a Subject.
+                // This somewhat peculiar decision means a JACC provider never gets to see
+                // groups via the principals that are passed in and must get them from
+                // the current Subject.
 
+                @SuppressWarnings("rawtypes")
+                Set<Hashtable> tables = subject.getPrivateCredentials(Hashtable.class);
+                if (tables != null && !tables.isEmpty()) {
                     @SuppressWarnings("rawtypes")
-                    Set<Hashtable> tables = subject.getPrivateCredentials(Hashtable.class);
-                    if (tables != null && !tables.isEmpty()) {
-                        @SuppressWarnings("rawtypes")
-                        Hashtable table = tables.iterator().next();
-                        groups = (List<String>) table.get("com.ibm.wsspi.security.cred.groups");
-                    }
-                } else {
-                    // The JACCAuthorizationManager that normally would call us in JBoss only passes
-                    // either the role principals or the caller principal in, never both, and without any
-                    // easy way to distinguish between them.
-
-                    // So we're getting the principals from the Subject here. Do note that we miss the
-                    // potential extra deployment roles here which may be in the principals collection we get
-                    // passed in.
-                    groups = getGroupsFromPrincipals(subject.getPrincipals());
+                    Hashtable table = tables.iterator().next();
+                    groups = (List<String>) table.get("com.ibm.wsspi.security.cred.groups");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
@@ -240,23 +199,6 @@ public class SubjectParser {
         }
 
         return roles;
-    }
-
-    private boolean tryJBoss() {
-        try {
-            Class.forName(className("org.jboss.as.security.service.JaccService"), false, Thread.currentThread().getContextClassLoader());
-
-            // For not only establish that we're running on JBoss, ignore the
-            // role mapper for now
-            isJboss = true;
-            oneToOneMapping = true;
-
-            return true;
-        } catch (Exception e) {
-            // ignore
-        }
-
-        return false;
     }
 
     private boolean tryLiberty() {
@@ -469,7 +411,6 @@ public class SubjectParser {
      * @param principal
      * @return
      */
-    @SuppressWarnings("unchecked")
     private Principal getVendorCallerPrincipal(Principal principal, boolean isEjb) {
         switch (principal.getClass().getName()) {
             case "org.glassfish.security.common.PrincipalImpl": // GlassFish/Payara
@@ -478,26 +419,6 @@ public class SubjectParser {
                 return getAuthenticatedPrincipal(principal, "<anonymous>", isEjb);
             case "com.ibm.ws.security.authentication.principals.WSPrincipal": // Liberty
                 return getAuthenticatedPrincipal(principal, "UNAUTHENTICATED", isEjb);
-            // JBoss EAP/WildFly convention 1 - single top level principal of the below type
-            case "org.jboss.security.SimplePrincipal":
-                return getAuthenticatedPrincipal(principal, "anonymous", isEjb);
-            // JBoss EAP/WildFly convention 2 - the one and only principal in group called CallerPrincipal
-            case "org.jboss.security.SimpleGroup":
-                if (principal.getName().equals("CallerPrincipal") && principal.getClass().getName().equals("org.jboss.security.SimpleGroup")) {
-                    Enumeration<? extends Principal> groupMembers = null;
-                    try {
-                        groupMembers = (Enumeration<? extends Principal>) Class.forName(className("org.jboss.security.SimpleGroup"))
-                                .getMethod("members")
-                                .invoke(principal);
-                    } catch (Exception e) {
-
-                    }
-
-                    if (groupMembers != null && groupMembers.hasMoreElements()) {
-                        return getAuthenticatedPrincipal(groupMembers.nextElement(), "anonymous", isEjb);
-                    }
-                }
-                break;
             case "org.apache.tomee.catalina.TomcatSecurityService$TomcatUser": // TomEE
                 try {
                     Principal tomeePrincipal = (Principal) Class.forName(className("org.apache.catalina.realm.GenericPrincipal"))
@@ -530,7 +451,6 @@ public class SubjectParser {
 
     }
 
-    @SuppressWarnings("unchecked")
     public boolean principalToGroups(Principal principal, List<String> groups) {
         switch (principal.getClass().getName()) {
 
@@ -540,27 +460,6 @@ public class SubjectParser {
             case "jeus.security.resource.GroupPrincipalImpl": // JEUS
                 groups.add(principal.getName());
                 break;
-
-            case "org.jboss.security.SimpleGroup": // JBoss EAP/WildFly
-                if (principal.getName().equals("Roles") && principal.getClass().getName().equals("org.jboss.security.SimpleGroup")) {
-
-                    try {
-                        Enumeration<? extends Principal> groupMembers = (Enumeration<? extends Principal>)
-                            Class.forName(className("org.jboss.security.SimpleGroup"))
-                                 .getMethod("members")
-                                 .invoke(principal);
-
-                        for (Principal groupPrincipal : list(groupMembers)) {
-                            groups.add(groupPrincipal.getName());
-                        }
-                    } catch (Exception e) {
-
-                    }
-
-                    // Should only be one group holding the roles, so can exit the loop
-                    // early
-                    return true;
-                }
             case "org.apache.tomee.catalina.TomcatSecurityService$TomcatUser": // TomEE
                 try {
                     groups.addAll(
