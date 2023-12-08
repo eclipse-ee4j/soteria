@@ -39,8 +39,6 @@ import java.util.concurrent.ConcurrentMap;
 import javax.security.auth.Subject;
 
 import org.glassfish.soteria.authorization.EJB;
-import org.glassfish.soteria.authorization.JACC;
-
 import jakarta.ejb.EJBContext;
 import jakarta.security.enterprise.CallerPrincipal;
 import jakarta.security.jacc.PolicyContext;
@@ -150,14 +148,14 @@ public class SubjectParser {
         if (isLiberty) {
 
             try {
-                Subject subject = (Subject) PolicyContext.getContext(JACC.SUBJECT_CONTAINER_KEY);
+                Subject subject = (Subject) PolicyContext.getContext(Authorization.SUBJECT_CONTAINER_KEY);
                 if (subject == null) {
                     return emptyList();
                 }
 
                 // Liberty is the only known Jakarta EE server that doesn't put the groups in
                 // the principals collection, but puts them in the credentials of a Subject.
-                // This somewhat peculiar decision means a JACC provider never gets to see
+                // This somewhat peculiar decision means a Authorization provider never gets to see
                 // groups via the principals that are passed in and must get them from
                 // the current Subject.
 
@@ -243,7 +241,7 @@ public class SubjectParser {
                     }
 
                     if ("**".equals(role) && !groups.isEmpty()) {
-                        // JACC spec 3.2 states:
+                        // Authorization spec 3.2 states:
                         //
                         // "For the any "authenticated user role", "**", and unless an application specific mapping has
                         // been established for this role,
@@ -307,7 +305,7 @@ public class SubjectParser {
                     }
 
                     if ("**".equals(role) && !groupsOrUserNames.isEmpty()) {
-                        // JACC spec 3.2 states: [...]
+                        // Authorization spec 3.2 states: [...]
                         anyAuthenticatedUserRoleMapped = true;
                     }
                 }
@@ -338,7 +336,7 @@ public class SubjectParser {
                         groupToRoles.get(group).addAll(entry.getValue());
 
                         if (entry.getValue().contains("**")) {
-                            // JACC spec 3.2 states: [...]
+                            // Authorization spec 3.2 states: [...]
                             anyAuthenticatedUserRoleMapped = true;
                         }
                     }
@@ -381,7 +379,7 @@ public class SubjectParser {
     private Principal doGetCallerPrincipalFromPrincipals(Iterable<Principal> principals) {
         // Check for Servlet
         try {
-            return ((HttpServletRequest)JACC.getFromContext("jakarta.servlet.http.HttpServletRequest")).getUserPrincipal();
+            return ((HttpServletRequest)Authorization.getFromContext("jakarta.servlet.http.HttpServletRequest")).getUserPrincipal();
         } catch (Exception e) {
             // Not inside an HttpServletRequest
         }

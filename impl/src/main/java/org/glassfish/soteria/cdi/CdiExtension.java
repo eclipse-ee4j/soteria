@@ -21,38 +21,6 @@ import static org.glassfish.soteria.cdi.CdiUtils.addAnnotatedTypes;
 import static org.glassfish.soteria.cdi.CdiUtils.getAnnotation;
 import static org.glassfish.soteria.cdi.CdiUtils.getBeanReference;
 
-import java.lang.annotation.Annotation;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
-import java.util.logging.Level;
-import java.util.logging.Logger;
-
-import org.glassfish.soteria.SecurityContextImpl;
-import org.glassfish.soteria.SoteriaServiceProviders;
-import org.glassfish.soteria.cdi.spi.BeanDecorator;
-import org.glassfish.soteria.cdi.spi.WebXmlLoginConfig;
-import org.glassfish.soteria.identitystores.DatabaseIdentityStore;
-import org.glassfish.soteria.identitystores.EmbeddedIdentityStore;
-import org.glassfish.soteria.identitystores.LdapIdentityStore;
-import org.glassfish.soteria.identitystores.annotation.EmbeddedIdentityStoreDefinition;
-import org.glassfish.soteria.identitystores.hash.Pbkdf2PasswordHashImpl;
-import org.glassfish.soteria.mechanisms.BasicAuthenticationMechanism;
-import org.glassfish.soteria.mechanisms.CustomFormAuthenticationMechanism;
-import org.glassfish.soteria.mechanisms.FormAuthenticationMechanism;
-import org.glassfish.soteria.mechanisms.OpenIdAuthenticationMechanism;
-import org.glassfish.soteria.mechanisms.openid.OpenIdIdentityStore;
-import org.glassfish.soteria.mechanisms.openid.controller.AuthenticationController;
-import org.glassfish.soteria.mechanisms.openid.controller.ConfigurationController;
-import org.glassfish.soteria.mechanisms.openid.controller.JWTValidator;
-import org.glassfish.soteria.mechanisms.openid.controller.NonceController;
-import org.glassfish.soteria.mechanisms.openid.controller.ProviderMetadataController;
-import org.glassfish.soteria.mechanisms.openid.controller.StateController;
-import org.glassfish.soteria.mechanisms.openid.controller.TokenController;
-import org.glassfish.soteria.mechanisms.openid.controller.UserInfoController;
-import org.glassfish.soteria.mechanisms.openid.domain.OpenIdContextImpl;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.event.Observes;
@@ -75,7 +43,37 @@ import jakarta.security.enterprise.authentication.mechanism.http.RememberMe;
 import jakarta.security.enterprise.identitystore.DatabaseIdentityStoreDefinition;
 import jakarta.security.enterprise.identitystore.IdentityStore;
 import jakarta.security.enterprise.identitystore.IdentityStoreHandler;
+import jakarta.security.enterprise.identitystore.InMemoryIdentityStoreDefinition;
 import jakarta.security.enterprise.identitystore.LdapIdentityStoreDefinition;
+import java.lang.annotation.Annotation;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import org.glassfish.soteria.SecurityContextImpl;
+import org.glassfish.soteria.SoteriaServiceProviders;
+import org.glassfish.soteria.cdi.spi.BeanDecorator;
+import org.glassfish.soteria.cdi.spi.WebXmlLoginConfig;
+import org.glassfish.soteria.identitystores.DatabaseIdentityStore;
+import org.glassfish.soteria.identitystores.InMemoryIdentityStore;
+import org.glassfish.soteria.identitystores.LdapIdentityStore;
+import org.glassfish.soteria.identitystores.hash.Pbkdf2PasswordHashImpl;
+import org.glassfish.soteria.mechanisms.BasicAuthenticationMechanism;
+import org.glassfish.soteria.mechanisms.CustomFormAuthenticationMechanism;
+import org.glassfish.soteria.mechanisms.FormAuthenticationMechanism;
+import org.glassfish.soteria.mechanisms.OpenIdAuthenticationMechanism;
+import org.glassfish.soteria.mechanisms.openid.OpenIdIdentityStore;
+import org.glassfish.soteria.mechanisms.openid.controller.AuthenticationController;
+import org.glassfish.soteria.mechanisms.openid.controller.ConfigurationController;
+import org.glassfish.soteria.mechanisms.openid.controller.JWTValidator;
+import org.glassfish.soteria.mechanisms.openid.controller.NonceController;
+import org.glassfish.soteria.mechanisms.openid.controller.ProviderMetadataController;
+import org.glassfish.soteria.mechanisms.openid.controller.StateController;
+import org.glassfish.soteria.mechanisms.openid.controller.TokenController;
+import org.glassfish.soteria.mechanisms.openid.controller.UserInfoController;
+import org.glassfish.soteria.mechanisms.openid.domain.OpenIdContextImpl;
 
 public class CdiExtension implements Extension {
 
@@ -120,15 +118,15 @@ public class CdiExtension implements Extension {
         ProcessBean<T> event = eventIn; // JDK8 u60 workaround
         Class<?> beanClass = event.getBean().getBeanClass();
 
-        Optional<EmbeddedIdentityStoreDefinition> optionalEmbeddedStore = getAnnotation(beanManager, event.getAnnotated(), EmbeddedIdentityStoreDefinition.class);
-        optionalEmbeddedStore.ifPresent(embeddedIdentityStoreDefinition -> {
-            logActivatedIdentityStore(EmbeddedIdentityStore.class, beanClass);
+        Optional<InMemoryIdentityStoreDefinition> optionalInMemoryStore = getAnnotation(beanManager, event.getAnnotated(), InMemoryIdentityStoreDefinition.class);
+        optionalInMemoryStore.ifPresent(inMemoryIdentityStoreDefinition -> {
+            logActivatedIdentityStore(InMemoryIdentityStore.class, beanClass);
 
             identityStoreBeans.add(new CdiProducer<IdentityStore>()
                     .scope(ApplicationScoped.class)
-                    .types(Object.class, IdentityStore.class, EmbeddedIdentityStore.class)
-                    .addToId(EmbeddedIdentityStoreDefinition.class)
-                    .create(e -> new EmbeddedIdentityStore(embeddedIdentityStoreDefinition))
+                    .types(Object.class, IdentityStore.class, InMemoryIdentityStore.class)
+                    .addToId(InMemoryIdentityStoreDefinition.class)
+                    .create(e -> new InMemoryIdentityStore(inMemoryIdentityStoreDefinition))
             );
         });
 

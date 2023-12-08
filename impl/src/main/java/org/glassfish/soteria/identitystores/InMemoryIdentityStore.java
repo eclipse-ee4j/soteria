@@ -16,43 +16,40 @@
 
 package org.glassfish.soteria.identitystores;
 
+import static jakarta.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
+import static jakarta.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
 import static java.util.Arrays.asList;
 import static java.util.Arrays.stream;
 import static java.util.Collections.emptySet;
 import static java.util.Collections.unmodifiableSet;
 import static java.util.stream.Collectors.toMap;
-import static jakarta.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
-import static jakarta.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
-
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
 
 import jakarta.security.enterprise.CallerPrincipal;
 import jakarta.security.enterprise.credential.Credential;
 import jakarta.security.enterprise.credential.UsernamePasswordCredential;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;
 import jakarta.security.enterprise.identitystore.IdentityStore;
-import jakarta.security.enterprise.identitystore.IdentityStorePermission;
+import jakarta.security.enterprise.identitystore.InMemoryIdentityStoreDefinition;
+import jakarta.security.enterprise.identitystore.InMemoryIdentityStoreDefinition.Credentials;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import org.glassfish.soteria.identitystores.annotation.Credentials;
-import org.glassfish.soteria.identitystores.annotation.EmbeddedIdentityStoreDefinition;
+public class InMemoryIdentityStore implements IdentityStore {
 
-public class EmbeddedIdentityStore implements IdentityStore {
-
-    private final EmbeddedIdentityStoreDefinition embeddedIdentityStoreDefinition;
-    private final Map<String, Credentials> callerToCredentials;
+    private final InMemoryIdentityStoreDefinition embeddedIdentityStoreDefinition;
+    private final Map<String, InMemoryIdentityStoreDefinition.Credentials> callerToCredentials;
     private final Set<ValidationType> validationType;
 
     // CDI requires a no-arg constructor to be portable
     // It's only used to create the proxy
-    protected EmbeddedIdentityStore() {
+    protected InMemoryIdentityStore() {
         embeddedIdentityStoreDefinition = null;
         callerToCredentials = null;
         validationType = null;
     }
-    
-    public EmbeddedIdentityStore(EmbeddedIdentityStoreDefinition embeddedIdentityStoreDefinition) {
+
+    public InMemoryIdentityStore(InMemoryIdentityStoreDefinition embeddedIdentityStoreDefinition) {
 
         this.embeddedIdentityStoreDefinition = embeddedIdentityStoreDefinition;
         callerToCredentials = stream(embeddedIdentityStoreDefinition.value()).collect(toMap(
@@ -61,7 +58,7 @@ public class EmbeddedIdentityStore implements IdentityStore {
         );
         validationType = unmodifiableSet(new HashSet<>(asList(embeddedIdentityStoreDefinition.useFor())));
     }
-    
+
     @Override
     public CredentialValidationResult validate(Credential credential) {
         if (credential instanceof UsernamePasswordCredential) {
@@ -70,28 +67,22 @@ public class EmbeddedIdentityStore implements IdentityStore {
 
         return NOT_VALIDATED_RESULT;
     }
-    
+
     public CredentialValidationResult validate(UsernamePasswordCredential usernamePasswordCredential) {
         Credentials credentials = callerToCredentials.get(usernamePasswordCredential.getCaller());
 
         if (credentials != null && usernamePasswordCredential.getPassword().compareTo(credentials.password())) {
             return new CredentialValidationResult(
-                new CallerPrincipal(credentials.callerName()), 
+                new CallerPrincipal(credentials.callerName()),
                 new HashSet<>(asList(credentials.groups()))
             );
         }
 
         return INVALID_RESULT;
     }
-    
+
     @Override
     public Set<String> getCallerGroups(CredentialValidationResult validationResult) {
-
-        SecurityManager securityManager = System.getSecurityManager();
-        if (securityManager != null) {
-            securityManager.checkPermission(new IdentityStorePermission("getGroups"));
-        }
-
         Credentials credentials = callerToCredentials.get(validationResult.getCallerPrincipal().getName());
 
         return credentials != null ? new HashSet<>(asList(credentials.groups())) : emptySet();

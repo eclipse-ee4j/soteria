@@ -14,36 +14,27 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package org.glassfish.soteria.authorization;
+package org.glassfish.soteria.authorization.spi.impl;
 
-import static java.security.Policy.getPolicy;
 import static java.util.Collections.list;
 import static org.glassfish.soteria.authorization.EJB.getCurrentEJBName;
 import static org.glassfish.soteria.authorization.EJB.getEJBContext;
 
-import java.security.AccessController;
-import java.security.CodeSource;
-import java.security.Permission;
-import java.security.PermissionCollection;
-import java.security.Policy;
-import java.security.Principal;
-import java.security.PrivilegedAction;
-import java.security.PrivilegedActionException;
-import java.security.PrivilegedExceptionAction;
-import java.security.ProtectionDomain;
-import java.security.cert.Certificate;
-import java.util.HashSet;
-import java.util.Set;
-
 import jakarta.ejb.EJBContext;
-import javax.security.auth.Subject;
 import jakarta.security.jacc.EJBRoleRefPermission;
+import jakarta.security.jacc.Policy;
 import jakarta.security.jacc.PolicyContext;
 import jakarta.security.jacc.PolicyContextException;
+import jakarta.security.jacc.PolicyFactory;
 import jakarta.security.jacc.WebResourcePermission;
 import jakarta.security.jacc.WebRoleRefPermission;
+import java.security.Permission;
+import java.security.PermissionCollection;
+import java.util.HashSet;
+import java.util.Set;
+import javax.security.auth.Subject;
 
-public class JACC {
+class Authorization {
 
     public static String SUBJECT_CONTAINER_KEY = "javax.security.auth.Subject.container";
 
@@ -52,19 +43,19 @@ public class JACC {
     }
 
     public static boolean isCallerInRole(String role) {
-        
+
         Subject subject = getSubject();
-        
+
         if (hasPermission(subject, new WebRoleRefPermission("", role))) {
             return true;
         }
-        
+
         EJBContext ejbContext = getEJBContext();
-        
+
         if (ejbContext != null) {
-            
+
             // We're called from an EJB
-            
+
             // To ask for the permission, get the EJB name first.
             // Unlike the Servlet container there's no automatic mapping
             // to a global ("") name.
@@ -72,12 +63,12 @@ public class JACC {
             if (ejbName != null) {
                 return hasPermission(subject, new EJBRoleRefPermission(ejbName, role));
             }
-            
+
             // EJB name not supported for current container, fallback to going fully through
             // ejbContext
             return ejbContext.isCallerInRole(role);
         }
-        
+
         return false;
     }
 
@@ -92,30 +83,25 @@ public class JACC {
         // Resolve any potentially unresolved role permissions
         permissionCollection.implies(new WebRoleRefPermission("", "nothing"));
         permissionCollection.implies(new EJBRoleRefPermission("", "nothing"));
-        
-        // Filter just the roles from all the permissions, which may include things like 
-        // java.net.SocketPermission, java.io.FilePermission, and obtain the actual role names.
+
+        // Filter just the roles from all the permissions, and obtain the actual role names.
         return filterRoles(permissionCollection);
 
     }
 
     public static boolean hasPermission(Subject subject, Permission permission) {
-        return getPolicyPrivileged().implies(fromSubject(subject), permission);
+        return getPolicy().implies(permission, subject);
     }
 
     public static PermissionCollection getPermissionCollection(Subject subject) {
         // This may not be portable. According to the javadoc, "Applications are discouraged from
         // calling this method since this operation may not be supported by all policy implementations.
         // Applications should rely on the implies method to perform policy checks."
-        return getPolicyPrivileged().getPermissions(fromSubject(subject));
+        return getPolicy().getPermissionCollection(subject);
     }
 
-    private static Policy getPolicyPrivileged() {
-        return (Policy) AccessController.doPrivileged(new PrivilegedAction<Policy>() {
-            public Policy run() {
-                return getPolicy();
-            }
-        });
+    private static Policy getPolicy() {
+        return PolicyFactory.getPolicyFactory().getPolicy();
     }
 
     public static Set<String> filterRoles(PermissionCollection permissionCollection) {
@@ -126,7 +112,7 @@ public class JACC {
 
                 // Note that the WebRoleRefPermission is given for every Servlet in the application, even when
                 // no role refs are used anywhere. This will also include Servlets like the default servlet and the
-                // implicit JSP servlet. So if there are 2 application roles, and 3 application servlets, then 
+                // implicit JSP servlet. So if there are 2 application roles, and 3 application servlets, then
                 // at least 6 WebRoleRefPermission elements will be present in the collection.
                 if (!roles.contains(role) && isCallerInRole(role)) {
                     roles.add(role);
@@ -137,34 +123,17 @@ public class JACC {
         return roles;
     }
 
-    public static ProtectionDomain fromSubject(Subject subject) {
-        Principal[] principals = subject != null ?  subject.getPrincipals().toArray(new Principal[subject.getPrincipals().size()]) : new Principal[] {};
-        
-        return new ProtectionDomain(
-                new CodeSource(null, (Certificate[]) null),
-                null, null,
-                principals
-        );
-    }
-
     @SuppressWarnings("unchecked")
     public static <T> T getFromContext(String contextName) {
         try {
-            T ctx = AccessController.doPrivileged(new PrivilegedExceptionAction<T>() {
-                public T run() throws PolicyContextException {
-                    return (T) PolicyContext.getContext(contextName);
-                }
-            });
-            return ctx;
-        } catch (PrivilegedActionException e) {
+            return (T) PolicyContext.getContext(contextName);
+        } catch (PolicyContextException e) {
             throw new IllegalStateException(e.getCause());
         }
     }
-    
+
     public static boolean isRolePermission(Permission permission) {
         return permission instanceof WebRoleRefPermission || permission instanceof EJBRoleRefPermission;
     }
-    
-  
 
 }
