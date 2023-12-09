@@ -23,7 +23,7 @@
     <parent>
         <groupId>org.glassfish.soteria.test</groupId>
         <artifactId>parent</artifactId>
-        <version>4.0.0-SNAPSHOT</version>
+        <version>4.0.0-M1</version>
     </parent>
 
     <artifactId>app-ldap</artifactId>
@@ -37,7 +37,7 @@
         <dependency>
             <groupId>org.glassfish.soteria.test</groupId>
             <artifactId>common</artifactId>
-            <version>4.0.0-SNAPSHOT</version>
+            <version>4.0.0-M1</version>
         </dependency>
         
         <dependency>
