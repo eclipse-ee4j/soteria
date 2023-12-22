@@ -66,6 +66,7 @@
                             !org.apache.tomee.catalina,!org.apache.tomee.catalina,!weblogic.security.jacc.simpleprovider,
                             !weblogic.security.jacc,!org.glassfish.deployment.common,!org.glassfish.internal.api,
                             !org.jboss.as.security.service,!org.apache.geronimo.security.jacc.mappingprovider,
+                            !org.apache.catalina.realm,
                             *
                         </Import-Package>
                     </instructions>
