@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
@@ -37,6 +38,7 @@ import jakarta.security.enterprise.authentication.mechanism.http.BasicAuthentica
 import jakarta.security.enterprise.authentication.mechanism.http.CustomFormAuthenticationMechanismDefinition;
 import jakarta.security.enterprise.authentication.mechanism.http.FormAuthenticationMechanismDefinition;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
+import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanismHandler;
 import jakarta.security.enterprise.authentication.mechanism.http.LoginToContinue;
 import jakarta.security.enterprise.authentication.mechanism.http.OpenIdAuthenticationMechanismDefinition;
 import jakarta.security.enterprise.authentication.mechanism.http.RememberMe;
@@ -62,6 +64,7 @@ import org.glassfish.soteria.identitystores.LdapIdentityStore;
 import org.glassfish.soteria.identitystores.hash.Pbkdf2PasswordHashImpl;
 import org.glassfish.soteria.mechanisms.BasicAuthenticationMechanism;
 import org.glassfish.soteria.mechanisms.CustomFormAuthenticationMechanism;
+import org.glassfish.soteria.mechanisms.DefaultHttpAuthenticationMechanismHandler;
 import org.glassfish.soteria.mechanisms.FormAuthenticationMechanism;
 import org.glassfish.soteria.mechanisms.OpenIdAuthenticationMechanism;
 import org.glassfish.soteria.mechanisms.openid.OpenIdIdentityStore;
@@ -79,11 +82,8 @@ public class CdiExtension implements Extension {
 
     private static final Logger LOGGER = Logger.getLogger(CdiExtension.class.getName());
 
-    // Note: for now use the highlander rule: "there can be only one" for
-    // authentication mechanisms.
-    // This could be extended later to support multiple
     private List<Bean<IdentityStore>> identityStoreBeans = new ArrayList<>();
-    private Bean<HttpAuthenticationMechanism> authenticationMechanismBean;
+    private List<Bean<HttpAuthenticationMechanism>> authenticationMechanismBeans = new ArrayList<>();
     private List<Bean<?>> extraBeans = new ArrayList<>();
 
     private boolean httpAuthenticationMechanismFound;
@@ -162,20 +162,20 @@ public class CdiExtension implements Extension {
         optionalBasicMechanism.ifPresent(basicAuthenticationMechanismDefinition -> {
             logActivatedAuthenticationMechanism(BasicAuthenticationMechanismDefinition.class, beanClass);
 
-            authenticationMechanismBean = new CdiProducer<HttpAuthenticationMechanism>()
+            authenticationMechanismBeans.add(new CdiProducer<HttpAuthenticationMechanism>()
                     .scope(ApplicationScoped.class)
                     .types(Object.class, HttpAuthenticationMechanism.class, BasicAuthenticationMechanism.class)
                     .addToId(BasicAuthenticationMechanismDefinition.class)
                     .create(e -> new BasicAuthenticationMechanism(
                         BasicAuthenticationMechanismDefinitionAnnotationLiteral.eval(
-                            basicAuthenticationMechanismDefinition)));
+                            basicAuthenticationMechanismDefinition))));
         });
 
         Optional<FormAuthenticationMechanismDefinition> optionalFormMechanism = getAnnotation(beanManager, event.getAnnotated(), FormAuthenticationMechanismDefinition.class);
         optionalFormMechanism.ifPresent(formAuthenticationMechanismDefinition -> {
             logActivatedAuthenticationMechanism(FormAuthenticationMechanismDefinition.class, beanClass);
 
-            authenticationMechanismBean = new CdiProducer<HttpAuthenticationMechanism>()
+            authenticationMechanismBeans.add(new CdiProducer<HttpAuthenticationMechanism>()
                     .scope(ApplicationScoped.class)
                     .types(Object.class, HttpAuthenticationMechanism.class)
                     .addToId(FormAuthenticationMechanismDefinition.class)
@@ -186,14 +186,14 @@ public class CdiExtension implements Extension {
                             LoginToContinueAnnotationLiteral.eval(formAuthenticationMechanismDefinition.loginToContinue()));
 
                         return authMethod;
-                    });
+                    }));
         });
 
         Optional<CustomFormAuthenticationMechanismDefinition> optionalCustomFormMechanism = getAnnotation(beanManager, event.getAnnotated(), CustomFormAuthenticationMechanismDefinition.class);
         optionalCustomFormMechanism.ifPresent(customFormAuthenticationMechanismDefinition -> {
             logActivatedAuthenticationMechanism(CustomFormAuthenticationMechanismDefinition.class, beanClass);
 
-            authenticationMechanismBean = new CdiProducer<HttpAuthenticationMechanism>()
+            authenticationMechanismBeans.add(new CdiProducer<HttpAuthenticationMechanism>()
                     .scope(ApplicationScoped.class)
                     .types(Object.class, HttpAuthenticationMechanism.class)
                     .addToId(CustomFormAuthenticationMechanismDefinition.class)
@@ -204,7 +204,7 @@ public class CdiExtension implements Extension {
                             LoginToContinueAnnotationLiteral.eval(customFormAuthenticationMechanismDefinition.loginToContinue()));
 
                         return authMethod;
-                    });
+                    }));
         });
 
         Optional<OpenIdAuthenticationMechanismDefinition> opentionalOpenIdMechanism = getAnnotation(beanManager, event.getAnnotated(), OpenIdAuthenticationMechanismDefinition.class);
@@ -213,11 +213,11 @@ public class CdiExtension implements Extension {
 
             validateOpenIdParametersFormat(definition);
 
-            authenticationMechanismBean = new CdiProducer<HttpAuthenticationMechanism>()
+            authenticationMechanismBeans.add(new CdiProducer<HttpAuthenticationMechanism>()
                     .scope(ApplicationScoped.class)
                     .types(HttpAuthenticationMechanism.class)
                     .addToId(OpenIdAuthenticationMechanism.class)
-                    .create(e -> getBeanReference(OpenIdAuthenticationMechanism.class));
+                    .create(e -> getBeanReference(OpenIdAuthenticationMechanism.class)));
 
             identityStoreBeans.add(new CdiProducer<IdentityStore>()
                     .scope(ApplicationScoped.class)
@@ -249,27 +249,26 @@ public class CdiExtension implements Extension {
        BeanDecorator decorator = SoteriaServiceProviders.getServiceProvider(BeanDecorator.class);
        WebXmlLoginConfig loginConfig = SoteriaServiceProviders.getServiceProvider(WebXmlLoginConfig.class);
 
-        if (!identityStoreBeans.isEmpty()) {
-            for (Bean<IdentityStore> identityStoreBean : identityStoreBeans) {
-                afterBeanDiscovery.addBean(
-                    decorator.decorateBean(identityStoreBean, IdentityStore.class, beanManager));
-            }
-        }
+       if (!identityStoreBeans.isEmpty()) {
+           for (Bean<IdentityStore> identityStoreBean : identityStoreBeans) {
+               afterBeanDiscovery.addBean(decorator.decorateBean(identityStoreBean, IdentityStore.class, beanManager));
+           }
+       }
 
-        if (authenticationMechanismBean == null && loginConfig.getAuthMethod() != null) {
+        if (authenticationMechanismBeans.isEmpty() && loginConfig.getAuthMethod() != null) {
 
             if ("basic".equalsIgnoreCase(loginConfig.getAuthMethod())) {
-                authenticationMechanismBean = new CdiProducer<HttpAuthenticationMechanism>()
+                authenticationMechanismBeans.add(new CdiProducer<HttpAuthenticationMechanism>()
                     .scope(ApplicationScoped.class)
                     .types(Object.class, HttpAuthenticationMechanism.class, BasicAuthenticationMechanism.class)
                     .addToId(BasicAuthenticationMechanismDefinition.class)
                     .create(e ->
                         new BasicAuthenticationMechanism(
-                            new BasicAuthenticationMechanismDefinitionAnnotationLiteral(loginConfig.getRealmName())));
+                            new BasicAuthenticationMechanismDefinitionAnnotationLiteral(loginConfig.getRealmName()))));
 
                 httpAuthenticationMechanismFound = true;
             } else if ("form".equalsIgnoreCase(loginConfig.getAuthMethod())) {
-                authenticationMechanismBean = new CdiProducer<HttpAuthenticationMechanism>()
+                authenticationMechanismBeans.add(new CdiProducer<HttpAuthenticationMechanism>()
                         .scope(ApplicationScoped.class)
                         .types(Object.class, HttpAuthenticationMechanism.class)
                         .addToId(FormAuthenticationMechanismDefinition.class)
@@ -284,14 +283,15 @@ public class CdiExtension implements Extension {
                                 );
 
                             return authMethod;
-                        });
+                        }));
                 httpAuthenticationMechanismFound = true;
             }
         }
 
-        if (authenticationMechanismBean != null) {
-            afterBeanDiscovery.addBean(
-                decorator.decorateBean(authenticationMechanismBean, HttpAuthenticationMechanism.class, beanManager));
+        if (!authenticationMechanismBeans.isEmpty()) {
+            for (Bean<HttpAuthenticationMechanism> authenticationMechanismBean : authenticationMechanismBeans) {
+                afterBeanDiscovery.addBean(decorator.decorateBean(authenticationMechanismBean, HttpAuthenticationMechanism.class, beanManager));
+            }
         }
 
         for (Bean<?> bean : extraBeans) {
@@ -324,6 +324,20 @@ public class CdiExtension implements Extension {
                     }),
                 IdentityStoreHandler.class,
                 beanManager));
+
+        afterBeanDiscovery.addBean(
+                decorator.decorateBean(
+                    new CdiProducer<HttpAuthenticationMechanismHandler>()
+                        .scope(ApplicationScoped.class)
+                        .types(Object.class, HttpAuthenticationMechanismHandler.class)
+                        .addToId(IdentityStoreHandler.class)
+                        .create(e -> {
+                            DefaultHttpAuthenticationMechanismHandler defaultHttpAuthenticationMechanismHandler = new DefaultHttpAuthenticationMechanismHandler();
+                            defaultHttpAuthenticationMechanismHandler.init();
+                            return defaultHttpAuthenticationMechanismHandler;
+                        }),
+                    HttpAuthenticationMechanismHandler.class,
+                    beanManager));
     }
 
     public boolean isHttpAuthenticationMechanismFound() {

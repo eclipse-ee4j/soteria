@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -16,24 +17,20 @@
 
 package org.glassfish.soteria.cdi;
 
-import jakarta.security.enterprise.CallerPrincipal;
+import static jakarta.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
+import static jakarta.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
+import static jakarta.security.enterprise.identitystore.CredentialValidationResult.Status.INVALID;
+import static jakarta.security.enterprise.identitystore.CredentialValidationResult.Status.VALID;
+import static jakarta.security.enterprise.identitystore.IdentityStore.ValidationType.PROVIDE_GROUPS;
+import static jakarta.security.enterprise.identitystore.IdentityStore.ValidationType.VALIDATE;
+import static java.util.Comparator.comparing;
+import static java.util.stream.Collectors.toList;
+import static org.glassfish.soteria.cdi.CdiUtils.getBeanReferencesByType;
+
 import jakarta.security.enterprise.credential.Credential;
 import jakarta.security.enterprise.identitystore.CredentialValidationResult;
 import jakarta.security.enterprise.identitystore.IdentityStore;
 import jakarta.security.enterprise.identitystore.IdentityStoreHandler;
-
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toList;
-import static jakarta.security.enterprise.identitystore.CredentialValidationResult.INVALID_RESULT;
-import static jakarta.security.enterprise.identitystore.CredentialValidationResult.NOT_VALIDATED_RESULT;
-import static jakarta.security.enterprise.identitystore.CredentialValidationResult.Status.VALID;
-import static jakarta.security.enterprise.identitystore.CredentialValidationResult.Status.INVALID;
-import static jakarta.security.enterprise.identitystore.IdentityStore.ValidationType.PROVIDE_GROUPS;
-import static jakarta.security.enterprise.identitystore.IdentityStore.ValidationType.VALIDATE;
-import static org.glassfish.soteria.cdi.CdiUtils.getBeanReferencesByType;
-
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -86,9 +83,8 @@ public class DefaultIdentityStoreHandler implements IdentityStoreHandler {
             if (isGotAnInvalidResult) {
                 return INVALID_RESULT;
             }
-            else {
-                return NOT_VALIDATED_RESULT;
-            }
+
+            return NOT_VALIDATED_RESULT;
         }
 
         Set<String> groups = new HashSet<>();
@@ -101,15 +97,9 @@ public class DefaultIdentityStoreHandler implements IdentityStoreHandler {
 
         // Ask all stores that were configured for group providing only to get the groups for the
         // authenticated caller
-        CredentialValidationResult finalResult = validationResult; // compiler didn't like validationResult in the enclosed scope
-        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-            public Void run() {
-                for (IdentityStore authorizationIdentityStore : authorizationIdentityStores) {
-                    groups.addAll(authorizationIdentityStore.getCallerGroups(finalResult));
-                }
-                return null;
-            }
-        });
+        for (IdentityStore authorizationIdentityStore : authorizationIdentityStores) {
+            groups.addAll(authorizationIdentityStore.getCallerGroups(validationResult));
+        }
 
         return new CredentialValidationResult(
                 validationResult.getIdentityStoreId(),

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -34,6 +35,7 @@ import jakarta.security.auth.message.module.ServerAuthModule;
 import jakarta.security.enterprise.AuthenticationException;
 import jakarta.security.enterprise.AuthenticationStatus;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
+import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanismHandler;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -52,11 +54,11 @@ public class HttpBridgeServerAuthModule implements ServerAuthModule {
         private CallbackHandler handler;
         private final Class<?>[] supportedMessageTypes = new Class[] { HttpServletRequest.class, HttpServletResponse.class };
         private final CDIPerRequestInitializer cdiPerRequestInitializer;
-        
+
         public HttpBridgeServerAuthModule(CDIPerRequestInitializer cdiPerRequestInitializer) {
             this.cdiPerRequestInitializer = cdiPerRequestInitializer;
         }
-        
+
         @Override
         public void initialize(MessagePolicy requestPolicy, MessagePolicy responsePolicy, CallbackHandler handler, @SuppressWarnings("rawtypes") Map options) throws AuthException {
             this.handler = handler;
@@ -74,21 +76,20 @@ public class HttpBridgeServerAuthModule implements ServerAuthModule {
 
         @Override
         public AuthStatus validateRequest(MessageInfo messageInfo, Subject clientSubject, Subject serviceSubject) throws AuthException {
-            
             HttpMessageContext msgContext = new HttpMessageContextImpl(handler, messageInfo, clientSubject);
-            
+
             if (cdiPerRequestInitializer != null) {
                 cdiPerRequestInitializer.init(msgContext.getRequest());
             }
-            
+
             AuthenticationStatus status = NOT_DONE;
             setLastAuthenticationStatus(msgContext.getRequest(), status);
-                
+
             try {
-                status = CdiUtils.getBeanReference(HttpAuthenticationMechanism.class)
+                status = CdiUtils.getBeanReference(HttpAuthenticationMechanismHandler.class)
                             .validateRequest(
-                                msgContext.getRequest(), 
-                                msgContext.getResponse(), 
+                                msgContext.getRequest(),
+                                msgContext.getResponse(),
                                 msgContext);
             } catch (AuthenticationException e) {
                 // In case of an explicit AuthException, status will
@@ -97,9 +98,9 @@ public class HttpBridgeServerAuthModule implements ServerAuthModule {
                 setLastAuthenticationStatus(msgContext.getRequest(), SEND_FAILURE);
                 throw (AuthException) new AuthException("Authentication failure in HttpAuthenticationMechanism").initCause(e);
             }
-            
+
             setLastAuthenticationStatus(msgContext.getRequest(), status);
-            
+
             return fromAuthenticationStatus(status);
         }
 
@@ -110,8 +111,8 @@ public class HttpBridgeServerAuthModule implements ServerAuthModule {
             try {
                 AuthenticationStatus status = CdiUtils.getBeanReference(HttpAuthenticationMechanism.class)
                                                  .secureResponse(
-                                                     msgContext.getRequest(), 
-                                                     msgContext.getResponse(), 
+                                                     msgContext.getRequest(),
+                                                     msgContext.getResponse(),
                                                      msgContext);
                 AuthStatus authStatus = fromAuthenticationStatus(status);
                 if (authStatus == AuthStatus.SUCCESS) {
@@ -135,7 +136,7 @@ public class HttpBridgeServerAuthModule implements ServerAuthModule {
         @Override
         public void cleanSubject(MessageInfo messageInfo, Subject subject) throws AuthException {
             HttpMessageContext msgContext = new HttpMessageContextImpl(handler, messageInfo, subject);
-            
+
             CdiUtils.getBeanReference(HttpAuthenticationMechanism.class)
                .cleanSubject(msgContext.getRequest(), msgContext.getResponse(), msgContext);
         }
