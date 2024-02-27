@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2022 Contributors to the Eclipse Foundation
+ * Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -176,6 +176,12 @@ public class CdiUtils {
         }
 
         return result;
+    }
+
+    public static <T> T getBeanReferenceByType(Class<T> type, boolean optional) {
+        BeanManager beanManager =  getBeanManager();
+
+        return getContextualReference(type, beanManager, getBeanDefinitions(type, optional, beanManager));
     }
 
     public static ELProcessor getELProcessor(ELProcessor elProcessor) {

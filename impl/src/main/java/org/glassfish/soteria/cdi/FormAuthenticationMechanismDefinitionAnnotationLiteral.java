@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -23,20 +24,26 @@ import jakarta.security.enterprise.authentication.mechanism.http.LoginToContinue
 
 /**
  * An annotation literal for <code>@FormAuthenticationMechanismDefinition</code>.
- * 
+ *
  */
 @SuppressWarnings("all")
 public class FormAuthenticationMechanismDefinitionAnnotationLiteral extends AnnotationLiteral<FormAuthenticationMechanismDefinition> implements FormAuthenticationMechanismDefinition {
     private static final long serialVersionUID = 1L;
-    
+
     private final LoginToContinue loginToContinue;
-    
+    private Class<?>[] qualifiers;
+
     public FormAuthenticationMechanismDefinitionAnnotationLiteral(LoginToContinue loginToContinue) {
         this.loginToContinue = loginToContinue;
     }
-    
+
     @Override
     public LoginToContinue loginToContinue() {
         return loginToContinue;
+    }
+
+    @Override
+    public Class<?>[] qualifiers() {
+        return qualifiers;
     }
 }
