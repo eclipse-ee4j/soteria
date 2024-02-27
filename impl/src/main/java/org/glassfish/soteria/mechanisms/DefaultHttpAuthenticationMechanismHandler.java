@@ -15,7 +15,7 @@
  */
 package org.glassfish.soteria.mechanisms;
 
-import static org.glassfish.soteria.cdi.CdiUtils.getBeanReferencesByType;
+import static org.glassfish.soteria.cdi.CdiUtils.getBeanReferenceByType;
 
 import jakarta.security.enterprise.AuthenticationException;
 import jakarta.security.enterprise.AuthenticationStatus;
@@ -24,20 +24,13 @@ import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticat
 import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
 
 public class DefaultHttpAuthenticationMechanismHandler implements HttpAuthenticationMechanismHandler {
 
     private HttpAuthenticationMechanism httpAuthenticationMechanism;
 
     public void init() {
-        List<HttpAuthenticationMechanism> mechanisms = getBeanReferencesByType(HttpAuthenticationMechanism.class, false);
-        if (mechanisms.size() > 1) {
-            throw new IllegalStateException("");
-        }
-
-        httpAuthenticationMechanism = mechanisms.get(0);
-
+        httpAuthenticationMechanism = getBeanReferenceByType(HttpAuthenticationMechanism.class, false);
     }
 
     @Override

@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -24,35 +25,36 @@ import jakarta.security.enterprise.authentication.mechanism.http.BasicAuthentica
 
 /**
  * An annotation literal for <code>@BasicAuthenticationMechanismDefinition</code>.
- * 
+ *
  */
 @SuppressWarnings("all")
 public class BasicAuthenticationMechanismDefinitionAnnotationLiteral extends AnnotationLiteral<BasicAuthenticationMechanismDefinition> implements BasicAuthenticationMechanismDefinition {
-    
+
     private static final long serialVersionUID = 1L;
 
     private final String realmName;
-    
+    private Class<?>[] qualifiers;
+
     private boolean hasDeferredExpressions;
 
     public BasicAuthenticationMechanismDefinitionAnnotationLiteral(String realmName) {
         this.realmName = realmName;
     }
-    
+
     public static BasicAuthenticationMechanismDefinition eval(BasicAuthenticationMechanismDefinition in) {
         if (!hasAnyELExpression(in)) {
             return in;
         }
-        
+
         BasicAuthenticationMechanismDefinitionAnnotationLiteral out =
             new BasicAuthenticationMechanismDefinitionAnnotationLiteral(
                     evalImmediate(in.realmName()));
-        
+
         out.setHasDeferredExpressions(hasAnyELExpression(out));
-        
+
         return out;
     }
-    
+
     public static boolean hasAnyELExpression(BasicAuthenticationMechanismDefinition in) {
         return AnnotationELPProcessor.hasAnyELExpression(
                 in.realmName());
@@ -62,7 +64,13 @@ public class BasicAuthenticationMechanismDefinitionAnnotationLiteral extends Ann
     public String realmName() {
         return hasDeferredExpressions? evalELExpression(realmName) : realmName;
     }
-    
+
+    @Override
+    public Class<?>[] qualifiers() {
+        // TODO Auto-generated method stub
+        return null;
+    }
+
     public boolean isHasDeferredExpressions() {
         return hasDeferredExpressions;
     }
@@ -70,7 +78,7 @@ public class BasicAuthenticationMechanismDefinitionAnnotationLiteral extends Ann
     public void setHasDeferredExpressions(boolean hasDeferredExpressions) {
         this.hasDeferredExpressions = hasDeferredExpressions;
     }
-    
 
-    
+
+
 }

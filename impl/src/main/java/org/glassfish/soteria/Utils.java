@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -24,8 +25,13 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.Serializable;
 import java.io.UnsupportedEncodingException;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
+import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
+import java.lang.reflect.Proxy;
 import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.ByteBuffer;
@@ -63,14 +69,14 @@ import jakarta.xml.bind.DatatypeConverter;
  *
  */
 public final class Utils {
-    
+
     public final static Method validateRequestMethod = getMethod(
         HttpAuthenticationMechanism.class,
         "validateRequest",
         HttpServletRequest.class, HttpServletResponse.class, HttpMessageContext.class);
-        
+
     public final static Method cleanSubjectMethod = getMethod(
-        HttpAuthenticationMechanism.class, 
+        HttpAuthenticationMechanism.class,
         "cleanSubject",
         HttpServletRequest.class, HttpServletResponse.class, HttpMessageContext.class);
 
@@ -135,7 +141,7 @@ public final class Utils {
 
 		return false;
 	}
-	
+
 	@SuppressWarnings("unchecked")
     public static <T> T getParam(InvocationContext invocationContext, int param) {
 	    return (T) invocationContext.getParameters()[param];
@@ -153,20 +159,20 @@ public final class Utils {
 			throw new IllegalStateException(e);
 		}
 	}
-	
+
 	public static ELProcessor getELProcessor(String name, Object bean) {
 	    ELProcessor elProcessor = new ELProcessor();
         elProcessor.defineBean(name, bean);
         return elProcessor;
 	}
-	
+
 	public static ELProcessor getELProcessor(String name1, Object bean1, String name2, Object bean2) {
         ELProcessor elProcessor = new ELProcessor();
         elProcessor.defineBean(name1, bean1);
         elProcessor.defineBean(name2, bean2);
         return elProcessor;
     }
-	
+
     public static ELProcessor getELProcessor(String name1, Object bean1, String name2, Object bean2, String name3, Object bean3) {
         ELProcessor elProcessor = new ELProcessor();
         elProcessor.defineBean(name1, bean1);
@@ -174,15 +180,15 @@ public final class Utils {
         elProcessor.defineBean(name3, bean3);
         return elProcessor;
     }
-	
+
     public static CallerPrincipal toCallerPrincipal(Principal principal) {
         if (principal instanceof CallerPrincipal) {
             return (CallerPrincipal) principal;
         }
-        
+
         return new WrappingCallerPrincipal(principal);
     }
-    
+
 	public static void redirect(HttpServletRequest request, HttpServletResponse response, String location) {
 		try {
 			if (isFacesAjaxRequest(request)) {
@@ -200,15 +206,15 @@ public final class Utils {
 			throw new IllegalStateException(e);
 		}
 	}
-	
+
 	private static final Set<String> FACES_AJAX_HEADERS = unmodifiableSet("partial/ajax", "partial/process");
 	private static final String FACES_AJAX_REDIRECT_XML = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
 		+ "<partial-response><redirect url=\"%s\"></redirect></partial-response>";
-	
+
 	public static boolean isFacesAjaxRequest(HttpServletRequest request) {
 		return FACES_AJAX_HEADERS.contains(request.getHeader("Faces-Request"));
 	}
-	
+
 	@SuppressWarnings("unchecked")
 	public static <E> Set<E> unmodifiableSet(Object... values) {
 		Set<E> set = new HashSet<>();
@@ -322,12 +328,12 @@ public final class Utils {
 	public static String getSingleParameterFromQueryString(String queryString, String paramName) {
 		if (!isEmpty(queryString)) {
 			Map<String, List<String>> requestParameters = toParameterMap(queryString);
-	
+
 			if (!isEmpty(requestParameters.get(paramName))) {
 				return requestParameters.get(paramName).get(0);
 			}
 		}
-	
+
 		return null;
 	}
 
@@ -414,14 +420,14 @@ public final class Utils {
 		stream(input, output);
 		return output.toByteArray();
 	}
-	
+
    public static boolean isImplementationOf(Method implementationMethod, Method interfaceMethod) {
         return
             interfaceMethod.getDeclaringClass().isAssignableFrom(implementationMethod.getDeclaringClass()) &&
             interfaceMethod.getName().equals(implementationMethod.getName()) &&
             Arrays.equals(interfaceMethod.getParameterTypes(), implementationMethod.getParameterTypes());
     }
-    
+
    public static Method getMethod(Class<?> base, String name, Class<?>... parameterTypes) {
         try {
             // Method literals in Java would be nice
@@ -430,5 +436,67 @@ public final class Utils {
             throw new IllegalStateException(e);
         }
     }
-	
+
+   @SafeVarargs
+   public static Annotation[] createAnnotationInstances(Class<?>... types) {
+       Annotation[] instances = (Annotation[]) Array.newInstance(Annotation.class, types.length);
+
+       for (int i = 0; i < types.length; i++) {
+           instances[i] = createAnnotationInstance(types[i]);
+       }
+
+       return instances;
+   }
+
+   public static Annotation createAnnotationInstance(Class<?> type) {
+       return (Annotation)
+           Proxy.newProxyInstance(
+                   type.getClassLoader(),
+                   new Class[] { type },
+                   new AnnotationInvocationHandler(type));
+   }
+
+   static class AnnotationInvocationHandler implements InvocationHandler, Serializable {
+
+       private static final long serialVersionUID = 1L;
+
+       private final Class<?> type;
+
+       AnnotationInvocationHandler(Class<?> type) {
+           this.type = type;
+       }
+
+       @Override
+       public boolean equals(Object other) {
+           return type.isInstance(other);
+       }
+
+       @Override
+       public int hashCode() {
+           return type.hashCode();
+       }
+
+       @Override
+       public String toString() {
+           return "@" + type.getName();
+       }
+
+       @Override
+       public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+           switch (method.getName()) {
+               case "annotationType":
+                   return type;
+               case "equals":
+                   return args.length > 0 && equals(args[0]);
+               case "hashCode":
+                   return hashCode();
+               case "toString":
+                   return toString();
+               default:
+                   return null;
+           }
+       }
+
+   }
+
 }

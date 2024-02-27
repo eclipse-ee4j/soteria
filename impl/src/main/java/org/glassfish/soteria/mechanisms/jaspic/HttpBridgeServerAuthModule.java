@@ -22,10 +22,6 @@ import static jakarta.security.enterprise.AuthenticationStatus.SEND_FAILURE;
 import static org.glassfish.soteria.mechanisms.jaspic.Jaspic.fromAuthenticationStatus;
 import static org.glassfish.soteria.mechanisms.jaspic.Jaspic.setLastAuthenticationStatus;
 
-import java.util.Map;
-
-import javax.security.auth.Subject;
-import javax.security.auth.callback.CallbackHandler;
 import jakarta.security.auth.message.AuthException;
 import jakarta.security.auth.message.AuthStatus;
 import jakarta.security.auth.message.MessageInfo;
@@ -34,12 +30,13 @@ import jakarta.security.auth.message.config.ServerAuthContext;
 import jakarta.security.auth.message.module.ServerAuthModule;
 import jakarta.security.enterprise.AuthenticationException;
 import jakarta.security.enterprise.AuthenticationStatus;
-import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanismHandler;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-
+import java.util.Map;
+import javax.security.auth.Subject;
+import javax.security.auth.callback.CallbackHandler;
 import org.glassfish.soteria.cdi.CdiUtils;
 import org.glassfish.soteria.cdi.spi.CDIPerRequestInitializer;
 import org.glassfish.soteria.mechanisms.HttpMessageContextImpl;
@@ -109,7 +106,7 @@ public class HttpBridgeServerAuthModule implements ServerAuthModule {
             HttpMessageContext msgContext = new HttpMessageContextImpl(handler, messageInfo, null);
 
             try {
-                AuthenticationStatus status = CdiUtils.getBeanReference(HttpAuthenticationMechanism.class)
+                AuthenticationStatus status = CdiUtils.getBeanReference(HttpAuthenticationMechanismHandler.class)
                                                  .secureResponse(
                                                      msgContext.getRequest(),
                                                      msgContext.getResponse(),
@@ -137,7 +134,7 @@ public class HttpBridgeServerAuthModule implements ServerAuthModule {
         public void cleanSubject(MessageInfo messageInfo, Subject subject) throws AuthException {
             HttpMessageContext msgContext = new HttpMessageContextImpl(handler, messageInfo, subject);
 
-            CdiUtils.getBeanReference(HttpAuthenticationMechanism.class)
+            CdiUtils.getBeanReference(HttpAuthenticationMechanismHandler.class)
                .cleanSubject(msgContext.getRequest(), msgContext.getResponse(), msgContext);
         }
 
