@@ -84,6 +84,7 @@ public class RememberMeInterceptor implements Serializable {
                     getParam(invocationContext, 0),
                     getParam(invocationContext, 1),
                     getParam(invocationContext, 2));
+            return null;
         }
 
         return invocationContext.proceed();
