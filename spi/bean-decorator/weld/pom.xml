@@ -2,7 +2,7 @@
 
 <!--
 
-    Copyright (c) 2021, 2023 Contributors to the Eclipse Foundation.
+    Copyright (c) 2021, 2024 Contributors to the Eclipse Foundation.
     Copyright (c) 2015, 2020 Payara and/or its affiliates and others. 
     All rights reserved.
 
@@ -37,7 +37,7 @@
 		<dependency>
 			<groupId>org.jboss.weld</groupId>
 			<artifactId>weld-osgi-bundle</artifactId>
-			<version>6.0.0.Alpha1</version>
+			<version>6.0.0.Beta1</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
