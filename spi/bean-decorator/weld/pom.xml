@@ -42,7 +42,7 @@
 		</dependency>
 		<dependency>
 			<groupId>org.glassfish.soteria</groupId>
-			<artifactId>jakarta.security.enterprise</artifactId>
+			<artifactId>soteria</artifactId>
 			<version>${project.version}</version>
 			<scope>provided</scope>
 		</dependency>
