@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021 Contributors to the Eclipse Foundation
+ * Copyright (c) 2021, 2024 Contributors to the Eclipse Foundation
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,14 +18,8 @@
 
 package org.glassfish.soteria.mechanisms.openid.controller;
 
-import static com.nimbusds.jose.jwk.source.RemoteJWKSet.DEFAULT_HTTP_SIZE_LIMIT;
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.isNull;
-
-import java.text.ParseException;
-import java.util.concurrent.ConcurrentHashMap;
-
-import org.glassfish.soteria.mechanisms.openid.domain.OpenIdConfiguration;
 
 import com.nimbusds.jose.Algorithm;
 import com.nimbusds.jose.JOSEException;
@@ -34,7 +28,7 @@ import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.JWSHeader;
 import com.nimbusds.jose.jwk.source.ImmutableSecret;
 import com.nimbusds.jose.jwk.source.JWKSource;
-import com.nimbusds.jose.jwk.source.RemoteJWKSet;
+import com.nimbusds.jose.jwk.source.JWKSourceBuilder;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jose.proc.JWEKeySelector;
 import com.nimbusds.jose.proc.JWSKeySelector;
@@ -49,18 +43,19 @@ import com.nimbusds.jwt.SignedJWT;
 import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import com.nimbusds.jwt.proc.DefaultJWTProcessor;
 import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
-
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
+import java.text.ParseException;
+import java.util.concurrent.ConcurrentHashMap;
+import org.glassfish.soteria.mechanisms.openid.domain.OpenIdConfiguration;
 
 @ApplicationScoped
 public class JWTValidator {
     @Inject
     private OpenIdConfiguration configuration;
 
-    private ConcurrentHashMap<CacheKey, JWSKeySelector> jwsCache = new ConcurrentHashMap<>();
-    private ConcurrentHashMap<CacheKey, JWEKeySelector> jweCache = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<CacheKey, JWSKeySelector<?>> jwsCache = new ConcurrentHashMap<>();
 
 
     public JWTClaimsSet validateBearerToken(JWT token, JWTClaimsSetVerifier jwtVerifier) {
@@ -94,6 +89,7 @@ public class JWTValidator {
 
                 ConfigurableJWTProcessor jwtProcessor = new DefaultJWTProcessor();
                 jwtProcessor.setJWSKeySelector(getJWSKeySelector(alg));
+
                 // Only JWS supported, not JWE
                 jwtProcessor.setJWTClaimsSetVerifier(jwtVerifier);
                 claimsSet = jwtProcessor.process(encryptedToken, null);
@@ -139,9 +135,10 @@ public class JWTValidator {
             ResourceRetriever jwkSetRetriever = new DefaultResourceRetriever(
                     configuration.getJwksConnectTimeout(),
                     configuration.getJwksReadTimeout(),
-                    DEFAULT_HTTP_SIZE_LIMIT
+                    50 * 1024
             );
-            jwkSource = new RemoteJWKSet<>(configuration.getProviderMetadata().getJwksURL(), jwkSetRetriever);
+            jwkSource = JWKSourceBuilder.create(configuration.getProviderMetadata().getJwksURL(), jwkSetRetriever)
+                                        .build();
         } else if (JWSAlgorithm.Family.HMAC_SHA.contains(jWSAlgorithm)) {
             byte[] clientSecret = new String(configuration.getClientSecret()).getBytes(UTF_8);
             if (isNull(clientSecret)) {  // FIXME
