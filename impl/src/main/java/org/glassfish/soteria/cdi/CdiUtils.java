@@ -37,6 +37,7 @@ import jakarta.enterprise.inject.spi.Annotated;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.BeforeBeanDiscovery;
+import jakarta.enterprise.inject.spi.el.ELAwareBeanManager;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
@@ -112,7 +113,7 @@ public class CdiUtils {
      * @return non-null {@link BeanManager}
      * @throws IllegalStateException if it wasn't possible to find the CDI BeanManager.
      */
-    public static BeanManager getBeanManager() throws IllegalStateException {
+    public static ELAwareBeanManager getBeanManager() throws IllegalStateException {
         try {
             return jndiLookup("java:comp/BeanManager","java:comp/env/BeanManager");
         } catch (NamingException e) {

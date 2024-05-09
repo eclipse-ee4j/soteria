@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2024 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -20,9 +21,7 @@ import static java.lang.Boolean.TRUE;
 import static org.glassfish.soteria.Utils.isEmpty;
 
 import java.io.IOException;
-import java.security.AccessController;
 import java.security.Principal;
-import java.security.PrivilegedAction;
 import java.util.Set;
 
 import javax.security.auth.Subject;
@@ -117,13 +116,7 @@ public final class Jaspic {
 
 	public static void cleanSubject(Subject subject) {
 	    if (subject != null) {
-	        AccessController.doPrivileged(new PrivilegedAction<Void>() {
-	            @Override
-                public Void run() {
-	                subject.getPrincipals().clear();
-	                return null;
-	            }
-	        });
+	        subject.getPrincipals().clear();
 	    }
 	}
 
@@ -135,7 +128,6 @@ public final class Jaspic {
 		return Boolean.valueOf((String) messageInfo.getMap().get(IS_MANDATORY));
 	}
 
-	@SuppressWarnings("unchecked")
 	public static void setRegisterSession(MessageInfo messageInfo, String username, Set<String> roles) {
 		messageInfo.getMap().put("jakarta.servlet.http.registerSession", TRUE.toString());
 
