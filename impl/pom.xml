@@ -217,7 +217,7 @@
                     <instructions>
                         <_noimportjava>true</_noimportjava>
                         <_runee>JavaSE-17</_runee>
-                        <Bundle-SymbolicName>org.glassfish.jakarta.security.enterprise</Bundle-SymbolicName>
+                        <Bundle-SymbolicName>org.glassfish.soteria</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Bundle-Name>Soteria Jakarta Security Implementation ${project.version}</Bundle-Name>
                         <Bundle-Description>Eclipse Jakarta Security Implementation (jakarta.security/4.0) ${project.version}</Bundle-Description>                      
