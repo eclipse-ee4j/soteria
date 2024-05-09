@@ -35,3 +35,5 @@ nb-configuration.xml
 # mac
 .DS_Store
 
+**/.flattened-pom.xml
+
