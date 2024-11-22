@@ -21,43 +21,43 @@
 -->
 
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+    <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>org.glassfish.soteria</groupId>
-		<artifactId>spi-bean-decorator</artifactId>
-		<version>4.0.0-SNAPSHOT</version>
-	</parent>
+    <parent>
+        <groupId>org.glassfish.soteria</groupId>
+        <artifactId>spi-bean-decorator</artifactId>
+        <version>4.0.0-SNAPSHOT</version>
+    </parent>
 
-	<artifactId>soteria.spi.bean.decorator.weld</artifactId>
+    <artifactId>soteria.spi.bean.decorator.weld</artifactId>
 
-	<name>Soteria SPI : Bean Decorator : Weld</name>
+    <name>Soteria SPI : Bean Decorator : Weld</name>
 
-	<dependencies>
-		<dependency>
-			<groupId>org.jboss.weld</groupId>
-			<artifactId>weld-osgi-bundle</artifactId>
-			<version>6.0.0.Beta1</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.glassfish.soteria</groupId>
-			<artifactId>soteria</artifactId>
-			<version>${project.version}</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
+    <dependencies>
+        <dependency>
+            <groupId>org.jboss.weld</groupId>
+            <artifactId>weld-osgi-bundle</artifactId>
+            <version>6.0.0.Beta1</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.glassfish.soteria</groupId>
+            <artifactId>soteria</artifactId>
+            <version>${project.version}</version>
+            <scope>provided</scope>
+        </dependency>
+    </dependencies>
 
-	<build>
-		<plugins>
-			<!-- This plugin is reponsible for packaging artifacts as OSGi bundles. 
-				Please refer to http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html 
-				for more information about how to use this plugin. -->
-			<plugin>
-				<groupId>org.apache.felix</groupId>
-				<artifactId>maven-bundle-plugin</artifactId>
-				<version>5.1.9</version>
-				<extensions>true</extensions>
+    <build>
+        <plugins>
+            <!-- This plugin is reponsible for packaging artifacts as OSGi bundles. 
+            Please refer to http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html 
+            for more information about how to use this plugin. -->
+            <plugin>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>maven-bundle-plugin</artifactId>
+                <version>5.1.9</version>
+                <extensions>true</extensions>
                 <executions>
                     <execution>
                         <id>bundle-manifest</id>
@@ -73,7 +73,7 @@
                         <_runee>JavaSE-17</_runee>
                     </instructions>
                 </configuration>
-			</plugin>
+            </plugin>
             
             <!-- Adds the manifest file created by the org.apache.felix:maven-bundle-plugin -->
             <plugin>
@@ -81,9 +81,6 @@
                 <configuration>
                     <archive>
                         <manifestFile>${project.build.outputDirectory}/META-INF/MANIFEST.MF</manifestFile>
-                        <manifestEntries>
-                            <Automatic-Module-Name>org.glassfish.soteria.spi.bean.decorator.weld.weld</Automatic-Module-Name>
-                        </manifestEntries>
                     </archive>
                 </configuration>
             </plugin>
@@ -109,6 +106,6 @@
                     </execution>
                 </executions>
             </plugin>
-		</plugins>
-	</build>
+        </plugins>
+    </build>
 </project>
