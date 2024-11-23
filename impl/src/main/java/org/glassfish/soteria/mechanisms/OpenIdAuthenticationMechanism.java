@@ -474,7 +474,7 @@ public class OpenIdAuthenticationMechanism implements HttpAuthenticationMechanis
                 logoutURI.queryParam(POST_LOGOUT_REDIRECT_URI, logout.buildRedirectURI(request));
             }
 
-            redirect(response, logoutURI.toString());
+            redirect(response, logoutURI.build().toString());
         } else if (!isEmpty(logout.getRedirectURI())) {
             redirect(response, logout.buildRedirectURI(request));
         } else {
