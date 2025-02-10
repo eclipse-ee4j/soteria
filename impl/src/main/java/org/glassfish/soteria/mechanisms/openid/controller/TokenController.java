@@ -20,6 +20,7 @@ package org.glassfish.soteria.mechanisms.openid.controller;
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static java.util.Collections.emptyMap;
 
+import java.io.StringReader;
 import java.util.Map;
 
 import org.glassfish.soteria.mechanisms.openid.domain.AccessTokenImpl;
@@ -32,6 +33,9 @@ import com.nimbusds.jwt.JWTClaimsSet;
 
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
+import jakarta.json.Json;
+import jakarta.json.JsonObject;
+import jakarta.json.JsonReader;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
 import jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant;
 import jakarta.security.enterprise.identitystore.openid.IdentityToken;
@@ -68,10 +72,10 @@ public class TokenController {
      * Provider responds with an ID Token and an Access Token.
      *
      * @param request
-     * @return a JSON object representation of OpenID Connect token response
-     * from the Token endpoint.
+     * @return a {@code TokenResponse} object containing the status code and a JSON object
+     * representation of the OpenID Connect token response from the Token endpoint.
      */
-    public Response getTokens(HttpServletRequest request) {
+    public TokensResponse getTokens(HttpServletRequest request) {
         /*
          * one-time authorization code that RP exchange for an Access / Id token
          */
@@ -94,11 +98,17 @@ public class TokenController {
                 .param(OpenIdConstant.REDIRECT_URI, configuration.buildRedirectURI(request));
 
         //  ID Token and Access Token Request
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target(configuration.getProviderMetadata().getTokenEndpoint());
-        return target.request()
+        try (Client client = ClientBuilder.newClient()) {
+            WebTarget target = client.target(configuration.getProviderMetadata().getTokenEndpoint());
+            try (Response response =  target.request()
                 .accept(APPLICATION_JSON)
-                .post(Entity.form(form));
+                .post(Entity.form(form))) {
+
+                JsonObject tokensObject = readJsonObject(response.readEntity(String.class));
+
+                return new TokensResponse(response.getStatus(), tokensObject);
+            }
+        }
     }
 
     /**
@@ -175,10 +185,10 @@ public class TokenController {
      * responds with a new (updated) Access Token and Refreshs Token.
      *
      * @param refreshToken Refresh Token received from previous token request.
-     * @return a JSON object representation of OpenID Connect token response
-     * from the Token endpoint.
+     * @return a {@code TokenResponse} object containing the status code and a JSON object
+     * representation of the OpenID Connect token response from the Token endpoint.
      */
-    public Response refreshTokens(RefreshToken refreshToken) {
+    public TokensResponse refreshTokens(RefreshToken refreshToken) {
         Form form = new Form()
                 .param(OpenIdConstant.CLIENT_ID, configuration.getClientId())
                 .param(OpenIdConstant.CLIENT_SECRET, new String(configuration.getClientSecret()))
@@ -186,11 +196,44 @@ public class TokenController {
                 .param(OpenIdConstant.REFRESH_TOKEN, refreshToken.getToken());
 
         // Access Token and RefreshToken Request
-        Client client = ClientBuilder.newClient();
+        try (Client client = ClientBuilder.newClient()) {
         WebTarget target = client.target(configuration.getProviderMetadata().getTokenEndpoint());
-        return target.request()
+            try (Response response =  target.request()
                 .accept(APPLICATION_JSON)
-                .post(Entity.form(form));
+                .post(Entity.form(form))) {
+
+                JsonObject tokensObject = readJsonObject(response.readEntity(String.class));
+
+                return new TokensResponse(response.getStatus(), tokensObject);
+
+            }
+        }
+    }
+
+    private JsonObject readJsonObject(String tokensBody) {
+        try (JsonReader reader = Json.createReader(new StringReader(tokensBody))) {
+            return reader.readObject();
+        }
+    }
+
+    public static class TokensResponse {
+        private final int status;
+        private final JsonObject tokensObject;
+
+        TokensResponse(int status, JsonObject tokensObject) {
+            super();
+            this.status = status;
+            this.tokensObject = tokensObject;
+        }
+
+        public int getStatus() {
+            return status;
+        }
+
+        public JsonObject getTokensObject() {
+            return tokensObject;
+        }
+
     }
 
 }
