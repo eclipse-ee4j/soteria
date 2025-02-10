@@ -76,25 +76,25 @@ public class ProviderMetadataController {
                 }
 
                 // Call
-                Client client = ClientBuilder.newClient();
-                WebTarget target = client.target(providerURI);
-                Response response = target.request()
+                try (Client client = ClientBuilder.newClient()) {
+                    WebTarget target = client.target(providerURI);
+                    try (Response response = target.request()
                         .accept(APPLICATION_JSON)
-                        .get();
+                        .get()) {
 
-                if (response.getStatus() == Status.OK.getStatusCode()) {
-                    // Get back the result of the REST request
-                    String responseBody = response.readEntity(String.class);
-                    try (JsonReader reader = Json.createReader(new StringReader(responseBody))) {
-                        JsonObject responseObject = reader.readObject();
-                        providerDocuments.put(providerURI, responseObject);
+                        if (response.getStatus() == Status.OK.getStatusCode()) {
+                            // Get back the result of the REST request
+                            String responseBody = response.readEntity(String.class);
+                            try (JsonReader reader = Json.createReader(new StringReader(responseBody))) {
+                                JsonObject responseObject = reader.readObject();
+                                providerDocuments.put(providerURI, responseObject);
+                            }
+                        } else {
+                            throw new IllegalStateException(String.format(
+                                    "Unable to retrieve OpenID Provider's [%s] configuration document, HTTP respons code : [%s] ",
+                                    providerURI, response.getStatus()));
+                        }
                     }
-                } else {
-                    throw new IllegalStateException(String.format(
-                            "Unable to retrieve OpenID Provider's [%s] configuration document, HTTP respons code : [%s] ",
-                            providerURI,
-                            response.getStatus()
-                    ));
                 }
             }
         }
