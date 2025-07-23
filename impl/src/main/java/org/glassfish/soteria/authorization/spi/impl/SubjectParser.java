@@ -411,7 +411,7 @@ public class SubjectParser {
      */
     private Principal getVendorCallerPrincipal(Principal principal, boolean isEjb) {
         switch (principal.getClass().getName()) {
-            case "org.glassfish.security.common.PrincipalImpl": // GlassFish/Payara
+            case "org.glassfish.security.common.UserNameAndPassword": // GlassFish/Payara
                 return getAuthenticatedPrincipal(principal, "ANONYMOUS", isEjb);
             case "weblogic.security.principal.WLSUserImpl": // WebLogic
                 return getAuthenticatedPrincipal(principal, "<anonymous>", isEjb);
