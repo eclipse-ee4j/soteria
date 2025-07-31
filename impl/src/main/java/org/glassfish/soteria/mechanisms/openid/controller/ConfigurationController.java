@@ -212,7 +212,17 @@ public class ConfigurationController implements Serializable {
         prompt = evalImmediate(definition.promptExpression(), prompt);
 
         Map<String, String> extraParameters = new HashMap<>();
-        for (String extraParameter : definition.extraParameters()) {
+        String defaultPamatersExpressionValue = null;
+        defaultPamatersExpressionValue = evalImmediate(definition.extraParametersExpression(), defaultPamatersExpressionValue);
+        final String[] extraParametersArray;
+
+        if (defaultPamatersExpressionValue != null && !defaultPamatersExpressionValue.isEmpty()) {
+            extraParametersArray = defaultPamatersExpressionValue.split(",");
+        } else {
+            extraParametersArray = definition.extraParameters();
+        }
+
+        for (String extraParameter : extraParametersArray) {
             String[] parts = extraParameter.split("=");
             String key = parts[0];
             String value = parts[1];
