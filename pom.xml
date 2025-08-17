@@ -32,6 +32,7 @@
     <version>4.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
 
+	<name>Soteria Parent</name>
     <description>Compatible Implementation for Jakarta Security API</description>
     <inceptionYear>2015</inceptionYear>
     <licenses>
