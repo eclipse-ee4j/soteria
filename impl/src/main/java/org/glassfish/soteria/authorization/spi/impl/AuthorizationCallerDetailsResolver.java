@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2025 Contributors to the Eclipse Foundation.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -13,7 +13,6 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-
 package org.glassfish.soteria.authorization.spi.impl;
 
 import java.security.Principal;
@@ -21,24 +20,14 @@ import java.util.Set;
 
 import javax.security.auth.Subject;
 
+import org.glassfish.soteria.DefaultService;
 import org.glassfish.soteria.authorization.spi.CallerDetailsResolver;
 
-import static jakarta.security.jacc.PolicyContext.getContextID;
-import static java.util.Collections.emptyList;
-
-public class ReflectionAndAuthorizationCallerDetailsResolver implements CallerDetailsResolver {
+public class AuthorizationCallerDetailsResolver implements CallerDetailsResolver, DefaultService {
 
     @Override
     public Principal getCallerPrincipal() {
-        Subject subject = Authorization.getSubject();
-
-        if (subject == null) {
-            return null;
-        }
-
-        SubjectParser subjectParser = new SubjectParser(getContextID(), emptyList());
-
-        return subjectParser.getCallerPrincipalFromPrincipals(subject.getPrincipals());
+        return Authorization.getCallerPrincipal();
     }
 
     @Override

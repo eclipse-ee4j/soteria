@@ -16,9 +16,10 @@
 
 package org.glassfish.soteria.authorization.spi.impl;
 
-import static java.lang.System.getProperty;
-import static java.util.Arrays.asList;
-import static java.util.Collections.emptyList;
+import jakarta.ejb.EJBContext;
+import jakarta.security.enterprise.CallerPrincipal;
+import jakarta.security.jacc.PolicyContext;
+import jakarta.servlet.http.HttpServletRequest;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.InvocationTargetException;
@@ -39,11 +40,16 @@ import java.util.concurrent.ConcurrentMap;
 import javax.security.auth.Subject;
 
 import org.glassfish.soteria.authorization.EJB;
-import jakarta.ejb.EJBContext;
-import jakarta.security.enterprise.CallerPrincipal;
-import jakarta.security.jacc.PolicyContext;
-import jakarta.servlet.http.HttpServletRequest;
 
+import static jakarta.security.jacc.PolicyContext.SUBJECT;
+import static java.lang.System.getProperty;
+import static java.util.Arrays.asList;
+import static java.util.Collections.emptyList;
+
+
+// Most of the code in this class is either for older servers that don't exist anymore
+// or for servers that have their own implementation of Jakarta Security.
+// It's therefor barely useful anymore.
 public class SubjectParser {
 
     private static Object geronimoPolicyConfigurationFactoryInstance;
@@ -148,7 +154,7 @@ public class SubjectParser {
         if (isLiberty) {
 
             try {
-                Subject subject = (Subject) PolicyContext.getContext(Authorization.SUBJECT_CONTAINER_KEY);
+                Subject subject = (Subject) PolicyContext.getContext(SUBJECT);
                 if (subject == null) {
                     return emptyList();
                 }
