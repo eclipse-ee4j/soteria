@@ -16,34 +16,47 @@
 
 package org.glassfish.soteria.authorization.spi.impl;
 
-import static java.util.Collections.list;
-import static org.glassfish.soteria.authorization.EJB.getCurrentEJBName;
-import static org.glassfish.soteria.authorization.EJB.getEJBContext;
-
 import jakarta.ejb.EJBContext;
 import jakarta.security.jacc.EJBRoleRefPermission;
 import jakarta.security.jacc.Policy;
 import jakarta.security.jacc.PolicyContext;
-import jakarta.security.jacc.PolicyContextException;
 import jakarta.security.jacc.PolicyFactory;
+import jakarta.security.jacc.PrincipalMapper;
 import jakarta.security.jacc.WebResourcePermission;
 import jakarta.security.jacc.WebRoleRefPermission;
+
 import java.security.Permission;
 import java.security.PermissionCollection;
+import java.security.Principal;
 import java.util.HashSet;
 import java.util.Set;
+
 import javax.security.auth.Subject;
+
+import static jakarta.security.jacc.PolicyContext.PRINCIPAL_MAPPER;
+import static jakarta.security.jacc.PolicyContext.SUBJECT;
+import static java.util.Collections.list;
+import static org.glassfish.soteria.authorization.EJB.getCurrentEJBName;
+import static org.glassfish.soteria.authorization.EJB.getEJBContext;
 
 class Authorization {
 
-    public static String SUBJECT_CONTAINER_KEY = "javax.security.auth.Subject.container";
-
     public static Subject getSubject() {
-        return getFromContext(SUBJECT_CONTAINER_KEY);
+        return getFromContext(SUBJECT);
+    }
+
+    public static Principal getCallerPrincipal() {
+        Subject subject = getSubject();
+        if (subject == null) {
+            return null;
+        }
+
+        PrincipalMapper mapper = getFromContext(PRINCIPAL_MAPPER);
+
+        return mapper.getCallerPrincipal(subject);
     }
 
     public static boolean isCallerInRole(String role) {
-
         Subject subject = getSubject();
 
         if (hasPermission(subject, new WebRoleRefPermission("", role))) {
@@ -51,25 +64,28 @@ class Authorization {
         }
 
         EJBContext ejbContext = getEJBContext();
-
-        if (ejbContext != null) {
-
-            // We're called from an EJB
-
-            // To ask for the permission, get the EJB name first.
-            // Unlike the Servlet container there's no automatic mapping
-            // to a global ("") name.
-            String ejbName = getCurrentEJBName(ejbContext);
-            if (ejbName != null) {
-                return hasPermission(subject, new EJBRoleRefPermission(ejbName, role));
-            }
-
-            // EJB name not supported for current container, fallback to going fully through
-            // ejbContext
-            return ejbContext.isCallerInRole(role);
+        if (ejbContext == null) {
+            return false;
         }
 
-        return false;
+        // We're called from an EJB
+
+        // To ask for the permission, get the EJB name first.
+        // Unlike the Servlet container there's no automatic mapping
+        // to a global ("") name.
+        String ejbName = getCurrentEJBName(ejbContext);
+        if (ejbName != null) {
+            return hasPermission(subject, new EJBRoleRefPermission(ejbName, role));
+        }
+
+        // EJB name not supported for current container, fallback to going fully through
+        // ejbContext.
+        //
+        // Note; When backed by Jakarta Authorization this should result result into
+        //       a check for EJBRoleRefPermission(beanName, role) as well, with
+        //       mostly the difference with the code above being that the bean name is stored
+        //       in the EJB context internally.
+        return ejbContext.isCallerInRole(role);
     }
 
     public static boolean hasAccessToWebResource(String resource, String... methods) {
@@ -123,13 +139,8 @@ class Authorization {
         return roles;
     }
 
-    @SuppressWarnings("unchecked")
     public static <T> T getFromContext(String contextName) {
-        try {
-            return (T) PolicyContext.getContext(contextName);
-        } catch (PolicyContextException e) {
-            throw new IllegalStateException(e.getCause());
-        }
+        return PolicyContext.get(contextName);
     }
 
     public static boolean isRolePermission(Permission permission) {
