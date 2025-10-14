@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-	Copyright (c) 2021, 2024 Contributors to the Eclipse Foundation.
+    Copyright (c) 2021, 2025 Contributors to the Eclipse Foundation.
     Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
 
     This program and the accompanying materials are made available under the
@@ -32,7 +32,7 @@
     <version>4.0.2-SNAPSHOT</version>
     <packaging>pom</packaging>
 
-	<name>Soteria Parent</name>
+    <name>Soteria Parent</name>
     <description>Compatible Implementation for Jakarta Security API</description>
     <inceptionYear>2015</inceptionYear>
     <licenses>
@@ -70,6 +70,36 @@
         <url>https://github.com/eclipse-ee4j/soteria</url>
         <tag>HEAD</tag>
     </scm>
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/eclipse-ee4j/soteria/issues</url>
+    </issueManagement>
+
+    <!-- TODO: Can be removed after it would be removed from parent too -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <name>Disabled Sonatype Nexus</name>
+            <url>http://localhost</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <name>Disabled Sonatype Nexus</name>
+            <url>http://localhost</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </distributionManagement>
 
     <properties>
         <api_dependency_version>4.0.0</api_dependency_version>
@@ -78,6 +108,11 @@
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <maven.compiler.release>17</maven.compiler.release>
+
+        <!-- Do not autopublish by default -->
+        <release.autopublish>false</release.autopublish>
+        <!-- By default block until everything is really published -->
+        <release.waitUntil>published</release.waitUntil>
     </properties>
 
     <dependencies>
@@ -86,7 +121,7 @@
             <artifactId>jakarta.security.enterprise-api</artifactId>
             <version>4.0.0</version>
         </dependency>
-        
+
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
@@ -189,16 +224,43 @@
                         </execution>
                     </executions>
                 </plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-war-plugin</artifactId>
-						<version>3.4.0</version>
-					</plugin>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-compiler-plugin</artifactId>
-						<version>3.14.0</version>
-					</plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-war-plugin</artifactId>
+                    <version>3.4.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>3.14.0</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>1.7.0</version>
+                    <configuration>
+                        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>injected-nexus-deploy</id>
+                            <phase>none</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.9.0</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <autoPublish>${release.autopublish}</autoPublish>
+                        <centralSnapshotsUrl>https://central.sonatype.com/repository/maven-snapshots</centralSnapshotsUrl>
+                        <deploymentName>Eclipse Soteria ${project.version}</deploymentName>
+                        <publishingServerId>central</publishingServerId>
+                        <waitUntil>${release.waitUntil}</waitUntil>
+                    </configuration>
+                </plugin>
             </plugins>
         </pluginManagement>
         <plugins>
@@ -276,7 +338,7 @@
             <build>
                 <pluginManagement>
                     <plugins>
-                        <!-- This plugin's configuration is used to store Eclipse m2e settings only. It has no influence 
+                        <!-- This plugin's configuration is used to store Eclipse m2e settings only. It has no influence
                             on the Maven build itself. -->
                         <plugin>
                             <groupId>org.eclipse.m2e</groupId>
@@ -333,21 +395,26 @@
                 </pluginManagement>
             </build>
         </profile>
-        
+
         <profile>
             <id>central-release</id>
             <build>
                 <plugins>
                     <plugin>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
                         <groupId>org.sonatype.central</groupId>
                         <artifactId>central-publishing-maven-plugin</artifactId>
-                        <version>0.8.0</version>
-                        <extensions>true</extensions>
-                        <configuration>
-                            <publishingServerId>central</publishingServerId>
-                            <autoPublish>false</autoPublish>
-                            <!-- waitUntil>published</waitUntil -->
-                        </configuration>
                     </plugin>
                 </plugins>
             </build>
