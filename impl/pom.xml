@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2022, 2024 Contributors to the Eclipse Foundation.
+    Copyright (c) 2022, 2025 Contributors to the Eclipse Foundation.
     Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
 
     This program and the accompanying materials are made available under the
@@ -65,12 +65,47 @@
         <url>https://github.com/eclipse-ee4j/soteria</url>
         <tag>HEAD</tag>
     </scm>
-    
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/eclipse-ee4j/soteria/issues</url>
+    </issueManagement>
+
+    <!-- TODO: Can be removed after it would be removed from parent too -->
+    <distributionManagement>
+        <snapshotRepository>
+            <id>ossrh</id>
+            <name>Disabled Sonatype Nexus</name>
+            <url>http://localhost</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </snapshotRepository>
+        <repository>
+            <id>ossrh</id>
+            <name>Disabled Sonatype Nexus</name>
+            <url>http://localhost</url>
+            <releases>
+                <enabled>false</enabled>
+            </releases>
+            <snapshots>
+                <enabled>false</enabled>
+            </snapshots>
+        </repository>
+    </distributionManagement>
+
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
         <maven.compiler.release>17</maven.compiler.release>
+
+        <!-- Do not autopublish by default -->
+        <release.autopublish>false</release.autopublish>
+        <!-- By default block until everything is really published -->
+        <release.waitUntil>published</release.waitUntil>
     </properties>
 
     <dependencies>
@@ -80,7 +115,7 @@
             <version>4.0.0</version>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>jakarta.authentication</groupId>
             <artifactId>jakarta.authentication-api</artifactId>
@@ -93,7 +128,7 @@
             <version>3.0.0</version>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
@@ -130,7 +165,7 @@
             <version>4.1.0</version>
             <scope>provided</scope>
         </dependency>
-        
+
          <dependency>
             <groupId>jakarta.el</groupId>
             <artifactId>jakarta.el-api</artifactId>
@@ -143,7 +178,6 @@
             <version>3.0.0</version>
             <scope>provided</scope>
         </dependency>
-        
         <dependency>
             <groupId>jakarta.json</groupId>
             <artifactId>jakarta.json-api</artifactId>
@@ -166,10 +200,10 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>10.0.2</version>
+            <version>10.4.2</version>
             <scope>provided</scope>
         </dependency>
-        
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -186,6 +220,37 @@
     </pluginRepositories>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.sonatype.plugins</groupId>
+                    <artifactId>nexus-staging-maven-plugin</artifactId>
+                    <version>1.7.0</version>
+                    <configuration>
+                        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
+                    </configuration>
+                    <executions>
+                        <execution>
+                            <id>injected-nexus-deploy</id>
+                            <phase>none</phase>
+                        </execution>
+                    </executions>
+                </plugin>
+                <plugin>
+                    <groupId>org.sonatype.central</groupId>
+                    <artifactId>central-publishing-maven-plugin</artifactId>
+                    <version>0.9.0</version>
+                    <extensions>true</extensions>
+                    <configuration>
+                        <autoPublish>${release.autopublish}</autoPublish>
+                        <centralSnapshotsUrl>https://central.sonatype.com/repository/maven-snapshots</centralSnapshotsUrl>
+                        <deploymentName>Eclipse Soteria ${project.version}</deploymentName>
+                        <publishingServerId>central</publishingServerId>
+                        <waitUntil>${release.waitUntil}</waitUntil>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
         <plugins>
             <!-- Sets minimal Maven version to 3.8.6 -->
             <plugin>
@@ -220,18 +285,18 @@
                         <Bundle-SymbolicName>org.glassfish.soteria</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Bundle-Name>Soteria Jakarta Security Implementation ${project.version}</Bundle-Name>
-                        <Bundle-Description>Eclipse Jakarta Security Implementation (jakarta.security/4.0) ${project.version}</Bundle-Description>                      
-                        
+                        <Bundle-Description>Eclipse Jakarta Security Implementation (jakarta.security/4.0) ${project.version}</Bundle-Description>
+
                         <Specification-Title>Jakarta Security</Specification-Title>
                         <Specification-Version>4.0</Specification-Version>
-                        
-                        <Implementation-Title>Soteria</Implementation-Title> 
+
+                        <Implementation-Title>Soteria</Implementation-Title>
                         <Implementation-Version>${project.version}</Implementation-Version>
-                        <Implementation-Vendor>Eclipse</Implementation-Vendor> 
+                        <Implementation-Vendor>Eclipse</Implementation-Vendor>
                         <Implementation-Vendor-Id>org.glassfish</Implementation-Vendor-Id>
-                        
+
                         <Extension-Name>jakarta.security.enterprise</Extension-Name>
-                        
+
                         <Export-Package>
                             org.glassfish.soteria.*
                         </Export-Package>
@@ -355,4 +420,29 @@ Use is subject to <a href="http://www.eclipse.org/legal/epl-2.0" target="_top">l
             </plugin>
         </plugins>
     </build>
+    <profiles>
+        <profile>
+            <id>central-release</id>
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
