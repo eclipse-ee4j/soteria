@@ -22,15 +22,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <parent>
-        <groupId>org.eclipse.ee4j</groupId>
-        <artifactId>project</artifactId>
-        <version>1.0.9</version>
-        <relativePath/>
+       <groupId>org.glassfish.soteria</groupId>
+       <artifactId>parent</artifactId>
+       <version>4.0.2-SNAPSHOT</version>
     </parent>
 
-    <groupId>org.glassfish.soteria</groupId>
     <artifactId>soteria</artifactId>
-    <version>4.0.2-SNAPSHOT</version>
 
     <name>Soteria ${project.version}</name>
     <description>Compatible Implementation for Jakarta Security API</description>
@@ -69,7 +66,6 @@
         <system>GitHub</system>
         <url>https://github.com/eclipse-ee4j/soteria/issues</url>
     </issueManagement>
-
     <!-- TODO: Can be removed after it would be removed from parent too -->
     <distributionManagement>
         <snapshotRepository>
@@ -368,7 +364,7 @@
                             </groups>
                             <bottom><![CDATA[
 Comments to: <a href="mailto:soteria-dev@eclipse.org">soteria-dev@eclipse.org</a>.<br>
-Copyright &#169; 2018, 2024 Eclipse Foundation. All rights reserved.<br>
+Copyright &#169; 2018, 2025 Eclipse Foundation. All rights reserved.<br>
 Use is subject to <a href="http://www.eclipse.org/legal/epl-2.0" target="_top">license terms</a>.]]>
                             </bottom>
                         </configuration>
@@ -420,6 +416,7 @@ Use is subject to <a href="http://www.eclipse.org/legal/epl-2.0" target="_top">l
             </plugin>
         </plugins>
     </build>
+
     <profiles>
         <profile>
             <id>central-release</id>

@@ -33,7 +33,7 @@
 
     <name>Soteria SPI : Bean Decorator : Weld</name>
 
-	<dependencies>
+    <dependencies>
 		<dependency>
 			<groupId>org.jboss.weld</groupId>
 			<artifactId>weld-osgi-bundle</artifactId>
@@ -48,7 +48,7 @@
 		</dependency>
 	</dependencies>
 
-	<build>
+    <build>
 		<plugins>
 			<!-- This plugin is reponsible for packaging artifacts as OSGi bundles. 
 				Please refer to http://felix.apache.org/site/apache-felix-maven-bundle-plugin-bnd.html 
