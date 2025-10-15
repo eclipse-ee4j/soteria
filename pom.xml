@@ -75,7 +75,6 @@
         <system>GitHub</system>
         <url>https://github.com/eclipse-ee4j/soteria/issues</url>
     </issueManagement>
-
     <!-- TODO: Can be removed after it would be removed from parent too -->
     <distributionManagement>
         <snapshotRepository>
