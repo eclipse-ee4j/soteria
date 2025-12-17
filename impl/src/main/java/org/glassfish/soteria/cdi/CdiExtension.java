@@ -18,24 +18,21 @@
 
 package org.glassfish.soteria.cdi;
 
-import static java.util.stream.Collectors.joining;
-import static org.glassfish.soteria.cdi.CdiUtils.addAnnotatedTypes;
-import static org.glassfish.soteria.cdi.CdiUtils.getAnnotation;
-import static org.glassfish.soteria.cdi.CdiUtils.getBeanReference;
-
+import jakarta.annotation.security.RolesAllowed;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.context.Dependent;
 import jakarta.enterprise.event.Observes;
-import jakarta.enterprise.inject.Any;
-import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.spi.AfterBeanDiscovery;
 import jakarta.enterprise.inject.spi.Annotated;
+import jakarta.enterprise.inject.spi.AnnotatedType;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
 import jakarta.enterprise.inject.spi.BeforeBeanDiscovery;
 import jakarta.enterprise.inject.spi.DefinitionException;
 import jakarta.enterprise.inject.spi.Extension;
 import jakarta.enterprise.inject.spi.ProcessBean;
+import jakarta.enterprise.inject.spi.ProcessManagedBean;
+import jakarta.enterprise.inject.spi.ProcessSessionBean;
 import jakarta.security.enterprise.authentication.mechanism.http.AutoApplySession;
 import jakarta.security.enterprise.authentication.mechanism.http.BasicAuthenticationMechanismDefinition;
 import jakarta.security.enterprise.authentication.mechanism.http.CustomFormAuthenticationMechanismDefinition;
@@ -50,18 +47,21 @@ import jakarta.security.enterprise.identitystore.IdentityStore;
 import jakarta.security.enterprise.identitystore.IdentityStoreHandler;
 import jakarta.security.enterprise.identitystore.InMemoryIdentityStoreDefinition;
 import jakarta.security.enterprise.identitystore.LdapIdentityStoreDefinition;
+
 import java.lang.annotation.Annotation;
-import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
+import java.util.stream.Stream;
+
 import org.glassfish.soteria.SecurityContextImpl;
 import org.glassfish.soteria.SoteriaServiceProviders;
-import org.glassfish.soteria.Utils;
 import org.glassfish.soteria.cdi.spi.BeanDecorator;
 import org.glassfish.soteria.cdi.spi.WebXmlLoginConfig;
 import org.glassfish.soteria.identitystores.DatabaseIdentityStore;
@@ -84,6 +84,13 @@ import org.glassfish.soteria.mechanisms.openid.controller.TokenController;
 import org.glassfish.soteria.mechanisms.openid.controller.UserInfoController;
 import org.glassfish.soteria.mechanisms.openid.domain.OpenIdContextImpl;
 
+import static java.util.Collections.addAll;
+import static java.util.stream.Collectors.joining;
+import static org.glassfish.soteria.cdi.CdiUtils.addAnnotatedTypes;
+import static org.glassfish.soteria.cdi.CdiUtils.createQualifierAnnotationInstances;
+import static org.glassfish.soteria.cdi.CdiUtils.getAnnotation;
+import static org.glassfish.soteria.cdi.CdiUtils.getBeanReference;
+
 public class CdiExtension implements Extension {
 
     private static final Logger LOGGER = Logger.getLogger(CdiExtension.class.getName());
@@ -91,6 +98,7 @@ public class CdiExtension implements Extension {
     private List<Bean<IdentityStore>> identityStoreBeans = new ArrayList<>();
     private List<Bean<HttpAuthenticationMechanism>> authenticationMechanismBeans = new ArrayList<>();
     private List<Bean<?>> extraBeans = new ArrayList<>();
+    private Set<String> rolesFromRolesAllowed = new HashSet<>();
 
     private boolean httpAuthenticationMechanismFound;
 
@@ -218,7 +226,7 @@ public class CdiExtension implements Extension {
             authenticationMechanismBeans.add(new CdiProducer<HttpAuthenticationMechanism>()
                     .scope(ApplicationScoped.class)
                     .types(HttpAuthenticationMechanism.class)
-                    .qualifiers(createAnnotationInstances(definition.qualifiers()))
+                    .qualifiers(createQualifierAnnotationInstances(definition.qualifiers()))
                     .addToId(OpenIdAuthenticationMechanism.class)
                     .create(e -> getBeanReference(OpenIdAuthenticationMechanism.class)));
 
@@ -253,7 +261,7 @@ public class CdiExtension implements Extension {
         authenticationMechanismBeans.add(new CdiProducer<HttpAuthenticationMechanism>()
                 .scope(ApplicationScoped.class)
                 .types(Object.class, HttpAuthenticationMechanism.class, BasicAuthenticationMechanism.class)
-                .qualifiers(createAnnotationInstances(basicAuthenticationMechanismDefinition.qualifiers()))
+                .qualifiers(createQualifierAnnotationInstances(basicAuthenticationMechanismDefinition.qualifiers()))
                 .addToId(BasicAuthenticationMechanismDefinition.class + toString(basicAuthenticationMechanismDefinition.qualifiers()))
                 .create(e -> new BasicAuthenticationMechanism(
                     BasicAuthenticationMechanismDefinitionAnnotationLiteral.eval(
@@ -273,7 +281,7 @@ public class CdiExtension implements Extension {
         authenticationMechanismBeans.add(new CdiProducer<HttpAuthenticationMechanism>()
                 .scope(ApplicationScoped.class)
                 .types(Object.class, HttpAuthenticationMechanism.class)
-                .qualifiers(createAnnotationInstances(formAuthenticationMechanismDefinition.qualifiers()))
+                .qualifiers(createQualifierAnnotationInstances(formAuthenticationMechanismDefinition.qualifiers()))
                 .addToId(FormAuthenticationMechanismDefinition.class)
                 .create(e -> {
                     FormAuthenticationMechanism authMethod = CdiUtils.getBeanReference(FormAuthenticationMechanism.class);
@@ -291,7 +299,7 @@ public class CdiExtension implements Extension {
         authenticationMechanismBeans.add(new CdiProducer<HttpAuthenticationMechanism>()
                 .scope(ApplicationScoped.class)
                 .types(Object.class, HttpAuthenticationMechanism.class)
-                .qualifiers(createAnnotationInstances(customFormAuthenticationMechanismDefinition.qualifiers()))
+                .qualifiers(createQualifierAnnotationInstances(customFormAuthenticationMechanismDefinition.qualifiers()))
                 .addToId(CustomFormAuthenticationMechanismDefinition.class)
                 .create(e -> {
                     CustomFormAuthenticationMechanism authMethod = CdiUtils.getBeanReference(CustomFormAuthenticationMechanism.class);
@@ -305,6 +313,31 @@ public class CdiExtension implements Extension {
 
     private void createOpenIdAuthenticationMechanismBean(OpenIdAuthenticationMechanismDefinition openIdAuthenticationMechanismDefinition, Class<?> beanClass) {
 
+    }
+
+    /**
+     * Collects all roles referenced via {@code @RolesAllowed} so they can be declared later.
+     */
+    public <X> void processManagedBean(@Observes ProcessManagedBean<X> in, BeanManager beanManager) {
+        // JDK 8u60 quirk workaround (keep a local)
+        final ProcessManagedBean<X> processManagedBean = in;
+
+        // Session beans are handled elsewhere
+        if (processManagedBean instanceof ProcessSessionBean<?>) {
+            return;
+        }
+
+        AnnotatedType<?> annotatedBeanClass = processManagedBean.getAnnotatedBeanClass();
+
+        // Aggregate bean class + its methods, then pull roles via stream
+        Stream.concat(
+                Stream.of(annotatedBeanClass),
+                annotatedBeanClass.getMethods()
+                                  .stream())
+              .map(rolesAllowed -> rolesAllowed.getAnnotation(RolesAllowed.class))
+              .filter(Objects::nonNull)
+              .map(RolesAllowed::value)
+              .forEach(role -> addAll(rolesFromRolesAllowed, role));
     }
 
 
@@ -408,38 +441,8 @@ public class CdiExtension implements Extension {
         return httpAuthenticationMechanismFound;
     }
 
-    private Annotation[] createAnnotationInstances(Class<?>... types) {
-        Annotation[] instances = null;
-
-        if (types.length == 0) {
-            instances = (Annotation[]) Array.newInstance(Annotation.class, 2);
-            instances[0] = Default.Literal.INSTANCE;
-            instances[1] = Any.Literal.INSTANCE;
-
-            return instances;
-        }
-
-        instances = Utils.createAnnotationInstances(types);
-
-        if (!containsAny(types)) {
-            Annotation[] instancesNew = (Annotation[]) Array.newInstance(Annotation.class, types.length + 1);
-            System.arraycopy(instances, 0, instancesNew, 0, instances.length);
-            instances = instancesNew;
-
-            instances[types.length] = Any.Literal.INSTANCE;
-        }
-
-        return instances;
-    }
-
-    private boolean containsAny(Class<?>... types) {
-        for (Class<?> type : types) {
-            if (type.equals(Any.class)) {
-                return true;
-            }
-        }
-
-        return false;
+    public Set<String> getRolesFromRolesAllowed() {
+        return rolesFromRolesAllowed;
     }
 
     private void logActivatedIdentityStore(Class<?> identityStoreClass, Class<?> beanClass) {
