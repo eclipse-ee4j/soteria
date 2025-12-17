@@ -104,6 +104,11 @@ public class SamRegistrationInstaller implements ServletContainerInitializer, Se
             ctx.addListener(this);
         }
 
+        // Use servlet api for now. If possible use native security API later
+        if (!cdiExtension.getRolesFromRolesAllowed().isEmpty()) {
+            ctx.declareRoles(cdiExtension.getRolesFromRolesAllowed().toArray(new String[0]));
+        }
+
     }
 
     @Override

@@ -23,6 +23,7 @@ import static java.util.Optional.empty;
 import static org.glassfish.soteria.Utils.isEmpty;
 
 import java.lang.annotation.Annotation;
+import java.lang.reflect.Array;
 import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -33,6 +34,8 @@ import java.util.Queue;
 import java.util.Set;
 
 import jakarta.el.ELProcessor;
+import jakarta.enterprise.inject.Any;
+import jakarta.enterprise.inject.Default;
 import jakarta.enterprise.inject.spi.Annotated;
 import jakarta.enterprise.inject.spi.Bean;
 import jakarta.enterprise.inject.spi.BeanManager;
@@ -40,6 +43,8 @@ import jakarta.enterprise.inject.spi.BeforeBeanDiscovery;
 import jakarta.enterprise.inject.spi.el.ELAwareBeanManager;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
+
+import org.glassfish.soteria.Utils;
 
 public class CdiUtils {
 
@@ -183,6 +188,40 @@ public class CdiUtils {
         BeanManager beanManager =  getBeanManager();
 
         return getContextualReference(type, beanManager, getBeanDefinitions(type, optional, beanManager));
+    }
+
+    public static Annotation[] createQualifierAnnotationInstances(Class<?>... types) {
+        Annotation[] instances = null;
+
+        if (types.length == 0) {
+            instances = (Annotation[]) Array.newInstance(Annotation.class, 2);
+            instances[0] = Default.Literal.INSTANCE;
+            instances[1] = Any.Literal.INSTANCE;
+
+            return instances;
+        }
+
+        instances = Utils.createAnnotationInstances(types);
+
+        if (!containsTheAnyQualifier(types)) {
+            Annotation[] instancesNew = (Annotation[]) Array.newInstance(Annotation.class, types.length + 1);
+            System.arraycopy(instances, 0, instancesNew, 0, instances.length);
+            instances = instancesNew;
+
+            instances[types.length] = Any.Literal.INSTANCE;
+        }
+
+        return instances;
+    }
+
+    public static boolean containsTheAnyQualifier(Class<?>... types) {
+        for (Class<?> type : types) {
+            if (type.equals(Any.class)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public static ELProcessor getELProcessor(ELProcessor elProcessor) {
