@@ -74,37 +74,39 @@ public class UserInfoController {
         LOGGER.finest("Sending the request to the userinfo endpoint");
         JsonObject userInfo;
 
-        Client client = ClientBuilder.newClient();
-        WebTarget target = client.target(configuration.getProviderMetadata().getUserinfoEndpoint());
-        Response response = target.request()
+        try (Client client = ClientBuilder.newClient()) {
+            WebTarget target = client.target(configuration.getProviderMetadata().getUserinfoEndpoint());
+            try (Response response = target.request()
                 .accept(APPLICATION_JSON)
                 .header(AUTHORIZATION_HEADER, BEARER_TYPE + accessToken)
                 // 5.5.  Requesting Claims using the "claims" Request Parameter ??
-                .get();
+                .get()) {
 
-        String responseBody = response.readEntity(String.class);
+                String responseBody = response.readEntity(String.class);
 
-        String contentType = response.getHeaderString(CONTENT_TYPE);
-        if (response.getStatus() == Status.OK.getStatusCode()) {
-            if (nonNull(contentType) && contentType.contains(APPLICATION_JSON)) {
-                // Successful UserInfo Response
-                try (JsonReader reader = Json.createReader(new StringReader(responseBody))) {
-                    userInfo = reader.readObject();
+                String contentType = response.getHeaderString(CONTENT_TYPE);
+                if (response.getStatus() == Status.OK.getStatusCode()) {
+                    if (nonNull(contentType) && contentType.contains(APPLICATION_JSON)) {
+                        // Successful UserInfo Response
+                        try (JsonReader reader = Json.createReader(new StringReader(responseBody))) {
+                            userInfo = reader.readObject();
+                        }
+                    } else if (nonNull(contentType) && contentType.contains(APPLICATION_JWT)) {
+                        throw new UnsupportedOperationException("application/jwt content-type not supported for userinfo endpoint");
+                        //If the UserInfo Response is signed and/or encrypted, then the Claims are returned in a JWT and the content-type MUST be application/jwt. The response MAY be encrypted without also being signed. If both signing and encryption are requested, the response MUST be signed then encrypted, with the result being a Nested JWT, ??
+                        //If signed, the UserInfo Response SHOULD contain the Claims iss (issuer) and aud (audience) as members. The iss value SHOULD be the OP's Issuer Identifier URL. The aud value SHOULD be or include the RP's Client ID value.
+                    } else {
+                        throw new IllegalStateException("Invalid response received from userinfo endpoint with content-type : " + contentType);
+                    }
+                } else {
+                    // UserInfo Error Response
+                    JsonObject responseObject = Json.createReader(new StringReader(responseBody)).readObject();
+                    String error = responseObject.getString(OpenIdConstant.ERROR_PARAM, "Unknown Error");
+                    String errorDescription = responseObject.getString(ERROR_DESCRIPTION_PARAM, "Unknown");
+                    LOGGER.log(WARNING, "Error occurred in fetching user info: {0} caused by {1}", new Object[]{error, errorDescription});
+                    throw new IllegalStateException("Error occurred in fetching user info");
                 }
-            } else if (nonNull(contentType) && contentType.contains(APPLICATION_JWT)) {
-                throw new UnsupportedOperationException("application/jwt content-type not supported for userinfo endpoint");
-                //If the UserInfo Response is signed and/or encrypted, then the Claims are returned in a JWT and the content-type MUST be application/jwt. The response MAY be encrypted without also being signed. If both signing and encryption are requested, the response MUST be signed then encrypted, with the result being a Nested JWT, ??
-                //If signed, the UserInfo Response SHOULD contain the Claims iss (issuer) and aud (audience) as members. The iss value SHOULD be the OP's Issuer Identifier URL. The aud value SHOULD be or include the RP's Client ID value.
-            } else {
-                throw new IllegalStateException("Invalid response received from userinfo endpoint with content-type : " + contentType);
             }
-        } else {
-            // UserInfo Error Response
-            JsonObject responseObject = Json.createReader(new StringReader(responseBody)).readObject();
-            String error = responseObject.getString(OpenIdConstant.ERROR_PARAM, "Unknown Error");
-            String errorDescription = responseObject.getString(ERROR_DESCRIPTION_PARAM, "Unknown");
-            LOGGER.log(WARNING, "Error occurred in fetching user info: {0} caused by {1}", new Object[]{error, errorDescription});
-            throw new IllegalStateException("Error occurred in fetching user info");
         }
 
         validateUserInfoClaims(userInfo);
