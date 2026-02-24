@@ -102,8 +102,6 @@
     </distributionManagement>
 
     <properties>
-        <api_dependency_version>4.0.0</api_dependency_version>
-
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
 
@@ -120,7 +118,7 @@
         <dependency>
             <groupId>jakarta.security.enterprise</groupId>
             <artifactId>jakarta.security.enterprise-api</artifactId>
-            <version>4.0.0</version>
+            <version>5.0.0-SNAPSHOT</version>
         </dependency>
 
         <dependency>

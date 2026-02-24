@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
 
-    Copyright (c) 2022, 2025 Contributors to the Eclipse Foundation.
+    Copyright (c) 2022, 2026 Contributors to the Eclipse Foundation.
     Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
 
     This program and the accompanying materials are made available under the
@@ -108,7 +108,7 @@
         <dependency>
             <groupId>jakarta.security.enterprise</groupId>
             <artifactId>jakarta.security.enterprise-api</artifactId>
-            <version>4.0.0</version>
+            <version>5.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 
@@ -196,7 +196,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>10.6</version>
+            <version>10.7</version>
             <scope>provided</scope>
         </dependency>
 
@@ -235,7 +235,7 @@
                 <plugin>
                     <groupId>org.sonatype.central</groupId>
                     <artifactId>central-publishing-maven-plugin</artifactId>
-                    <version>0.9.0</version>
+                    <version>0.10.0</version>
                     <extensions>true</extensions>
                     <configuration>
                         <autoPublish>${release.autopublish}</autoPublish>
@@ -248,7 +248,7 @@
             </plugins>
         </pluginManagement>
         <plugins>
-            <!-- Sets minimal Maven version to 3.8.6 -->
+            <!-- Sets minimal Maven version to 3.9.6 -->
             <plugin>
                 <artifactId>maven-enforcer-plugin</artifactId>
                 <executions>
@@ -260,7 +260,7 @@
                         <configuration>
                             <rules>
                                 <requireMavenVersion>
-                                    <version>3.8.6</version>
+                                    <version>3.9.6</version>
                                 </requireMavenVersion>
                             </rules>
                         </configuration>
@@ -281,10 +281,10 @@
                         <Bundle-SymbolicName>org.glassfish.soteria</Bundle-SymbolicName>
                         <Bundle-Version>${project.version}</Bundle-Version>
                         <Bundle-Name>Soteria Jakarta Security Implementation ${project.version}</Bundle-Name>
-                        <Bundle-Description>Eclipse Jakarta Security Implementation (jakarta.security/4.0) ${project.version}</Bundle-Description>
+                        <Bundle-Description>Eclipse Jakarta Security Implementation (jakarta.security/5.0) ${project.version}</Bundle-Description>
 
                         <Specification-Title>Jakarta Security</Specification-Title>
-                        <Specification-Version>4.0</Specification-Version>
+                        <Specification-Version>5.0</Specification-Version>
 
                         <Implementation-Title>Soteria</Implementation-Title>
                         <Implementation-Version>${project.version}</Implementation-Version>
@@ -364,7 +364,7 @@
                             </groups>
                             <bottom><![CDATA[
 Comments to: <a href="mailto:soteria-dev@eclipse.org">soteria-dev@eclipse.org</a>.<br>
-Copyright &#169; 2018, 2025 Eclipse Foundation. All rights reserved.<br>
+Copyright &#169; 2018, 2026 Eclipse Foundation. All rights reserved.<br>
 Use is subject to <a href="http://www.eclipse.org/legal/epl-2.0" target="_top">license terms</a>.]]>
                             </bottom>
                         </configuration>
