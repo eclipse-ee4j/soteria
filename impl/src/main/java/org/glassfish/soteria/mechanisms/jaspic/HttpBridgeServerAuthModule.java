@@ -22,6 +22,7 @@ import static jakarta.security.enterprise.AuthenticationStatus.SEND_FAILURE;
 import static org.glassfish.soteria.mechanisms.jaspic.Jaspic.fromAuthenticationStatus;
 import static org.glassfish.soteria.mechanisms.jaspic.Jaspic.setLastAuthenticationStatus;
 
+import jakarta.enterprise.inject.Default;
 import jakarta.security.auth.message.AuthException;
 import jakarta.security.auth.message.AuthStatus;
 import jakarta.security.auth.message.MessageInfo;
@@ -83,7 +84,7 @@ public class HttpBridgeServerAuthModule implements ServerAuthModule {
             setLastAuthenticationStatus(msgContext.getRequest(), status);
 
             try {
-                status = CdiUtils.getBeanReference(HttpAuthenticationMechanismHandler.class)
+                status = CdiUtils.getBeanReference(HttpAuthenticationMechanismHandler.class, Default.Literal.INSTANCE)
                             .validateRequest(
                                 msgContext.getRequest(),
                                 msgContext.getResponse(),
