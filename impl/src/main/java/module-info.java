@@ -1,4 +1,5 @@
 /*
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 2018, 2020 Payara Foundation and/or its affiliates and others.
  * All rights reserved.
  *
@@ -31,7 +32,10 @@ module org.glassfish.soteria {
     exports org.glassfish.soteria.mechanisms.openid;
     exports org.glassfish.soteria.mechanisms.openid.controller;
     exports org.glassfish.soteria.mechanisms.openid.domain;
+    exports org.glassfish.soteria.rest;
     exports org.glassfish.soteria.servlet;
+
+    provides jakarta.ws.rs.container.DynamicFeature with org.glassfish.soteria.rest.RestAccessControlFeature;
 
     opens org.glassfish.soteria;
     opens org.glassfish.soteria.authorization;
@@ -48,7 +52,7 @@ module org.glassfish.soteria {
     opens org.glassfish.soteria.mechanisms.openid.controller;
     opens org.glassfish.soteria.mechanisms.openid.domain;
     opens org.glassfish.soteria.servlet;
-    
+
     requires static com.nimbusds.jose.jwt;
     requires jakarta.annotation;
     requires static jakarta.ejb;
