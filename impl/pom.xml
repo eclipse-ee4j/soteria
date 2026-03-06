@@ -108,7 +108,7 @@
         <dependency>
             <groupId>jakarta.security.enterprise</groupId>
             <artifactId>jakarta.security.enterprise-api</artifactId>
-            <version>5.0.0-SNAPSHOT</version>
+            <version>5.0.0-M1</version>
             <scope>provided</scope>
         </dependency>
 
