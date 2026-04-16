@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -13,21 +13,20 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-package org.glassfish.soteria.identitystores;
+package org.glassfish.soteria;
 
-public class IdentityStoreRuntimeException extends IdentityStoreException {
+import jakarta.security.enterprise.credential.Credential;
 
-  private static final long serialVersionUID = 1L;
+public class TokenCredential implements Credential {
 
-  public IdentityStoreRuntimeException(String message, Throwable cause) {
-    super(message,cause);
-  }
+    public final String token;
 
-  public IdentityStoreRuntimeException(Throwable cause) {
-    super(cause);
-  }
+    public TokenCredential(String signedJWT) {
+        this.token = signedJWT;
+    }
 
-  public IdentityStoreRuntimeException(String message) {
-    super(message);
-  }
+    public String getSignedJWT() {
+        return token;
+    }
+
 }

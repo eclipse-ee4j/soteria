@@ -13,10 +13,11 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-
 package org.glassfish.soteria.identitystores;
 
 public class IdentityStoreConfigurationException extends IdentityStoreException {
+
+  private static final long serialVersionUID = 1L;
 
   public IdentityStoreConfigurationException(String message, Throwable cause) {
     super(message,cause);

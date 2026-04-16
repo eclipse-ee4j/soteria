@@ -34,6 +34,9 @@ module org.glassfish.soteria {
     exports org.glassfish.soteria.mechanisms.openid.domain;
     exports org.glassfish.soteria.rest;
     exports org.glassfish.soteria.servlet;
+    exports org.glassfish.soteria.identitystores.jwt;
+    exports org.glassfish.soteria.identitystores.jwt.keystore;
+    exports org.glassfish.soteria.identitystores.jwt.token;
 
     provides jakarta.ws.rs.container.DynamicFeature with org.glassfish.soteria.rest.RestAccessControlFeature;
 
