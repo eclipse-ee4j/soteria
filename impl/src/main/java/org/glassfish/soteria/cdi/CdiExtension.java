@@ -1,6 +1,6 @@
 /*
  * Copyright (c) 2024 Contributors to the Eclipse Foundation.
- * Copyright (c) 2015, 2020 Oracle and/or its affiliates and others.
+ * Copyright (c) 2015, 2026 Oracle and/or its affiliates and others.
  * All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -427,7 +427,7 @@ public class CdiExtension implements Extension {
                     new CdiProducer<HttpAuthenticationMechanismHandler>()
                         .scope(ApplicationScoped.class)
                         .types(Object.class, HttpAuthenticationMechanismHandler.class)
-                        .addToId(IdentityStoreHandler.class)
+                        .addToId(HttpAuthenticationMechanismHandler.class)
                         .create(e -> {
                             DefaultHttpAuthenticationMechanismHandler defaultHttpAuthenticationMechanismHandler = new DefaultHttpAuthenticationMechanismHandler();
                             defaultHttpAuthenticationMechanismHandler.init();
