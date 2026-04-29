@@ -61,12 +61,12 @@ module org.glassfish.soteria {
     requires static jakarta.ejb;
     requires transitive jakarta.cdi;
     requires jakarta.cdi.el;
-    requires jakarta.el;
+    requires transitive jakarta.el;
     requires jakarta.inject;
     requires transitive jakarta.interceptor;
     requires transitive jakarta.security;
     requires jakarta.security.jacc;
-    requires static jakarta.ws.rs;
+    requires transitive static jakarta.ws.rs;
     requires jakarta.xml.bind;
     requires java.logging;
     requires java.naming;

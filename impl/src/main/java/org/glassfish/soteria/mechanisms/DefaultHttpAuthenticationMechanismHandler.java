@@ -15,6 +15,7 @@
  */
 package org.glassfish.soteria.mechanisms;
 
+import jakarta.enterprise.inject.Any;
 import jakarta.enterprise.inject.Default;
 import jakarta.security.enterprise.AuthenticationException;
 import jakarta.security.enterprise.AuthenticationStatus;
@@ -33,6 +34,12 @@ public class DefaultHttpAuthenticationMechanismHandler implements HttpAuthentica
     public void init() {
         httpAuthenticationMechanism =
             getBeanReference(HttpAuthenticationMechanism.class, Default.Literal.INSTANCE);
+
+        if (httpAuthenticationMechanism == null) {
+            httpAuthenticationMechanism =
+                getBeanReference(HttpAuthenticationMechanism.class, Any.Literal.INSTANCE);
+        }
+
     }
 
     @Override

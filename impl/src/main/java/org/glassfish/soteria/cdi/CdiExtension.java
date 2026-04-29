@@ -1,7 +1,6 @@
 /*
  * Copyright (c) 2024 Contributors to the Eclipse Foundation.
- * Copyright (c) 2015, 2026 Oracle and/or its affiliates and others.
- * All rights reserved.
+ * Copyright (c) 2015, 2026 Oracle and/or its affiliates and others. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -39,6 +38,7 @@ import jakarta.security.enterprise.authentication.mechanism.http.CustomFormAuthe
 import jakarta.security.enterprise.authentication.mechanism.http.FormAuthenticationMechanismDefinition;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
 import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanismHandler;
+import jakarta.security.enterprise.authentication.mechanism.http.JwtAuthenticationMechanismDefinition;
 import jakarta.security.enterprise.authentication.mechanism.http.LoginToContinue;
 import jakarta.security.enterprise.authentication.mechanism.http.OpenIdAuthenticationMechanismDefinition;
 import jakarta.security.enterprise.authentication.mechanism.http.RememberMe;
@@ -49,6 +49,7 @@ import jakarta.security.enterprise.identitystore.InMemoryIdentityStoreDefinition
 import jakarta.security.enterprise.identitystore.LdapIdentityStoreDefinition;
 
 import java.lang.annotation.Annotation;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -66,12 +67,15 @@ import org.glassfish.soteria.cdi.spi.BeanDecorator;
 import org.glassfish.soteria.cdi.spi.WebXmlLoginConfig;
 import org.glassfish.soteria.identitystores.DatabaseIdentityStore;
 import org.glassfish.soteria.identitystores.InMemoryIdentityStore;
+import org.glassfish.soteria.identitystores.JWTIdentityStore;
 import org.glassfish.soteria.identitystores.LdapIdentityStore;
 import org.glassfish.soteria.identitystores.hash.Pbkdf2PasswordHashImpl;
+import org.glassfish.soteria.identitystores.jwt.JWTConfiguration;
 import org.glassfish.soteria.mechanisms.BasicAuthenticationMechanism;
 import org.glassfish.soteria.mechanisms.CustomFormAuthenticationMechanism;
 import org.glassfish.soteria.mechanisms.DefaultHttpAuthenticationMechanismHandler;
 import org.glassfish.soteria.mechanisms.FormAuthenticationMechanism;
+import org.glassfish.soteria.mechanisms.JWTAuthenticationMechanism;
 import org.glassfish.soteria.mechanisms.OpenIdAuthenticationMechanism;
 import org.glassfish.soteria.mechanisms.openid.OpenIdIdentityStore;
 import org.glassfish.soteria.mechanisms.openid.controller.AuthenticationController;
@@ -132,6 +136,13 @@ public class CdiExtension implements Extension {
         ProcessBean<T> event = eventIn; // JDK8 u60 workaround
         Class<?> beanClass = event.getBean().getBeanClass();
 
+
+
+        //   I D E N T I T Y    S T O R E S
+
+
+        // InMemoryIdentityStoreDefinition
+
         Optional<InMemoryIdentityStoreDefinition> optionalInMemoryStore = getAnnotation(beanManager, event.getAnnotated(), InMemoryIdentityStoreDefinition.class);
         optionalInMemoryStore.ifPresent(inMemoryIdentityStoreDefinition -> {
             logActivatedIdentityStore(InMemoryIdentityStore.class, beanClass);
@@ -143,6 +154,9 @@ public class CdiExtension implements Extension {
                     .create(e -> new InMemoryIdentityStore(inMemoryIdentityStoreDefinition))
             );
         });
+
+
+        // DatabaseIdentityStoreDefinition
 
         Optional<DatabaseIdentityStoreDefinition> optionalDBStore = getAnnotation(beanManager, event.getAnnotated(), DatabaseIdentityStoreDefinition.class);
         optionalDBStore.ifPresent(dataBaseIdentityStoreDefinition -> {
@@ -158,6 +172,9 @@ public class CdiExtension implements Extension {
             );
         });
 
+
+        // LdapIdentityStoreDefinition
+
         Optional<LdapIdentityStoreDefinition> optionalLdapStore = getAnnotation(beanManager, event.getAnnotated(), LdapIdentityStoreDefinition.class);
         optionalLdapStore.ifPresent(ldapIdentityStoreDefinition -> {
             logActivatedIdentityStore(LdapIdentityStoreDefinition.class, beanClass);
@@ -171,6 +188,10 @@ public class CdiExtension implements Extension {
                             ldapIdentityStoreDefinition)))
             );
         });
+
+
+
+        //   A U T H E N T I C A T I O N     M E C H A N I S M S
 
 
         // BasicAuthenticationMechanism
@@ -206,16 +227,34 @@ public class CdiExtension implements Extension {
         // CustomFormAuthenticationMechanism
 
         getAnnotation(beanManager, event.getAnnotated(), CustomFormAuthenticationMechanismDefinition.List.class)
-        .ifPresent(list -> {
-            for (var customFormAuthenticationMechanismDefinition : list.value()) {
-                createCustomFormAuthenticationMechanismBean(customFormAuthenticationMechanismDefinition, beanClass);
-            }
+            .ifPresent(list -> {
+                for (var customFormAuthenticationMechanismDefinition : list.value()) {
+                    createCustomFormAuthenticationMechanismBean(customFormAuthenticationMechanismDefinition, beanClass);
+                }
         });
 
         getAnnotation(beanManager, event.getAnnotated(), CustomFormAuthenticationMechanismDefinition.class)
             .ifPresent(customFormAuthenticationMechanismDefinition -> {
                 createCustomFormAuthenticationMechanismBean(customFormAuthenticationMechanismDefinition, beanClass);
         });
+
+
+        // JwtAuthenticationMechanism
+
+        getAnnotation(beanManager, event.getAnnotated(), JwtAuthenticationMechanismDefinition.List.class)
+            .ifPresent(list -> {
+                for (var jwtAuthenticationMechanismDefinition : list.value()) {
+                    createJwtFormAuthenticationMechanismBean(jwtAuthenticationMechanismDefinition, beanClass);
+                }
+        });
+
+        getAnnotation(beanManager, event.getAnnotated(), JwtAuthenticationMechanismDefinition.class)
+            .ifPresent(jwtAuthenticationMechanismDefinition -> {
+                createJwtFormAuthenticationMechanismBean(jwtAuthenticationMechanismDefinition, beanClass);
+        });
+
+
+        // OpenIdAuthenticationMechanism
 
         Optional<OpenIdAuthenticationMechanismDefinition> opentionalOpenIdMechanism = getAnnotation(beanManager, event.getAnnotated(), OpenIdAuthenticationMechanismDefinition.class);
         opentionalOpenIdMechanism.ifPresent(definition -> {
@@ -311,8 +350,57 @@ public class CdiExtension implements Extension {
                 }));
     }
 
+    private void createJwtFormAuthenticationMechanismBean(JwtAuthenticationMechanismDefinition jwtAuthenticationMechanismDefinition, Class<?> beanClass) {
+        logActivatedAuthenticationMechanism(JwtAuthenticationMechanismDefinition.class, beanClass);
+
+        // TODO: truly support multiple JWT configs
+
+        var config = getJWTConfiguration(jwtAuthenticationMechanismDefinition);
+
+        authenticationMechanismBeans.add(new CdiProducer<HttpAuthenticationMechanism>()
+                .scope(ApplicationScoped.class)
+                .types(Object.class, HttpAuthenticationMechanism.class)
+                .qualifiers(createQualifierAnnotationInstances(jwtAuthenticationMechanismDefinition.qualifiers()))
+                .addToId(JwtAuthenticationMechanismDefinition.class)
+                .create(e -> new JWTAuthenticationMechanism(config)));
+
+
+        identityStoreBeans.add(new CdiProducer<IdentityStore>()
+                .scope(ApplicationScoped.class)
+                .types(IdentityStore.class)
+                .addToId(OpenIdIdentityStore.class)
+                .create(e -> new JWTIdentityStore(config))
+        );
+
+    }
+
     private void createOpenIdAuthenticationMechanismBean(OpenIdAuthenticationMechanismDefinition openIdAuthenticationMechanismDefinition, Class<?> beanClass) {
 
+    }
+
+    private JWTConfiguration getJWTConfiguration(JwtAuthenticationMechanismDefinition mechanismDefinition) {
+        // TODO: NO EXPRESSION LANGUAGE YET
+        return new JWTConfiguration(
+                // Authentication mechanism
+                mechanismDefinition.configJwtTokenHeader(),
+                mechanismDefinition.configJwtTokenCookie(),
+
+                // Identity store
+                mechanismDefinition.acceptedIssuer(),
+                Arrays.asList(mechanismDefinition.allowedAudience()),
+                mechanismDefinition.publicKey(),
+                mechanismDefinition.publicKeyLocation(),
+                mechanismDefinition.decryptKeyLocation(),
+                mechanismDefinition.keyAlgorithm(),
+
+                mechanismDefinition.tokenAge(),
+                mechanismDefinition.clockSkew(),
+                Duration.ofSeconds(mechanismDefinition.keyCacheTTL()),
+
+                mechanismDefinition.enableNamespace(),
+                mechanismDefinition.customNamespace(),
+                mechanismDefinition.disableTypeVerification(),
+                false);
     }
 
     /**

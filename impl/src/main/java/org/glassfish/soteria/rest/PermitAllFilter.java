@@ -16,38 +16,32 @@
 package org.glassfish.soteria.rest;
 
 import jakarta.annotation.Priority;
-import jakarta.enterprise.inject.spi.CDI;
-import jakarta.security.enterprise.SecurityContext;
-import jakarta.security.enterprise.authentication.mechanism.http.AuthenticationParameters;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.Priorities;
 import jakarta.ws.rs.container.ContainerRequestContext;
 import jakarta.ws.rs.container.ContainerRequestFilter;
 
 import java.io.IOException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
- * Permits all roles to access resource, but still ensures authentication is triggered
+ * Permits all roles to access resource
  */
 @Priority(Priorities.AUTHORIZATION)
 public class PermitAllFilter implements ContainerRequestFilter {
 
-    private final SecurityContext security;
+    private static Logger LOGGER = Logger.getLogger(PermitAllFilter.class.getName());
 
     private final HttpServletRequest httpRequest;
-    private final HttpServletResponse httpResponse;
 
-    public PermitAllFilter(HttpServletRequest req, HttpServletResponse resp) {
-        this.httpRequest = req;
-        this.httpResponse = resp;
-        this.security = CDI.current().select(SecurityContext.class).get();
+    public PermitAllFilter(HttpServletRequest httpRequest) {
+        this.httpRequest = httpRequest;
     }
 
     @Override
     public void filter(ContainerRequestContext ctx) throws IOException {
-        // Still trigger auth so principal gets populated for injection
-        security.authenticate(httpRequest, httpResponse, AuthenticationParameters.withParams());
+        LOGGER.log(Level.FINER, () -> "Granting access because permit all to " + httpRequest.getRequestURI());
     }
 
 }

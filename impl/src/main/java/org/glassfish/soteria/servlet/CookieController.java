@@ -60,6 +60,7 @@ public class CookieController implements HttpStorageController {
     }
 
     @Override
+    @SuppressWarnings("unchecked")
     public Optional<Cookie> get(String name) {
         if (request.getCookies() != null) {
             for (Cookie cookie : request.getCookies()) {

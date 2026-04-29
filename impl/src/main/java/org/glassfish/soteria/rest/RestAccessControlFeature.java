@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2025 Contributors to the Eclipse Foundation.
+ * Copyright (c) 2026 Contributors to the Eclipse Foundation.
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License v. 2.0, which is available at
@@ -18,20 +18,29 @@ package org.glassfish.soteria.rest;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
+import jakarta.security.jacc.WebResourcePermission;
+import jakarta.servlet.ServletConfig;
+import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.ws.rs.container.DynamicFeature;
 import jakarta.ws.rs.container.ResourceInfo;
+import jakarta.ws.rs.core.Application;
 import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.FeatureContext;
 import jakarta.ws.rs.ext.Provider;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
+import java.util.List;
 
-/**
- * Registers request filters for Jakarta REST based on common annotation security annotations.
- */
+import static org.glassfish.soteria.rest.ResourceInfoUrlPatternHelper.findMethodAnnotation;
+import static org.glassfish.soteria.rest.ResourceInfoUrlPatternHelper.httpMethod;
+import static org.glassfish.soteria.rest.ResourceInfoUrlPatternHelper.toStagedUrlPatternName;
+import static org.glassfish.soteria.rest.RestPermissions.addExcluded;
+import static org.glassfish.soteria.rest.RestPermissions.addToRole;
+import static org.glassfish.soteria.rest.RestPermissions.addUnchecked;
+import static org.glassfish.soteria.rest.RestServletMappingResolver.resolveServletMappings;
+
 @Provider
 public class RestAccessControlFeature implements DynamicFeature {
 
@@ -41,39 +50,181 @@ public class RestAccessControlFeature implements DynamicFeature {
     @Context
     private HttpServletResponse httpResponse;
 
+    @Context
+    private Application application;
+
+    @Context
+    private ServletConfig servletConfig;
+
+    @Context
+    private ServletContext servletContext;
+
     @Override
-    public void configure(ResourceInfo info, FeatureContext ctx) {
-        final Method method = info.getResourceMethod();
-
-        // ---- Method-level rules take precedence
-
-
-        if (isAnnotatedWith(method, DenyAll.class)) {
-            ctx.register(new DenyAllFilter());
+    public void configure(ResourceInfo info, FeatureContext context) {
+        Method method = info.getResourceMethod();
+        if (method == null) {
             return;
         }
 
-        if (isAnnotatedWith(method, PermitAll.class)) {
-            ctx.register(new PermitAllFilter(httpRequest, httpResponse));
+        AccessRule accessRule = resolveAccessRule(info, method);
+        if (accessRule == null) {
             return;
         }
 
-        RolesAllowed methodRoles = method.getAnnotation(RolesAllowed.class);
+        registerFilter(context, accessRule);
+
+        String httpMethod = httpMethod(info);
+        if (httpMethod == null) {
+            // Sub-resource locator or otherwise no HTTP method designator.
+            return;
+        }
+
+        stagePermissions(info, httpMethod, accessRule);
+    }
+
+    private AccessRule resolveAccessRule(ResourceInfo info, Method method) {
+        Class<?> resourceClass = info.getResourceClass();
+
+        // ### Check Method-level first
+
+        if (findMethodAnnotation(method, resourceClass, DenyAll.class).isPresent()) {
+            return AccessRule.denyAll();
+        }
+
+        if (findMethodAnnotation(method, resourceClass, PermitAll.class).isPresent()) {
+            return AccessRule.permitAll();
+        }
+
+        RolesAllowed methodRoles =
+            findMethodAnnotation(method, resourceClass, RolesAllowed.class).orElse(null);
+
         if (methodRoles != null) {
-            ctx.register(new RolesAllowedFilter(httpRequest, httpResponse, methodRoles.value()));
-            return;
+            return AccessRule.rolesAllowed(methodRoles.value());
         }
 
 
-        // ---- Fallback to class-level @RolesAllowed
+        // ### Check Class-level second. Deliberately direct only.
 
-        RolesAllowed classRoles = info.getResourceClass().getAnnotation(RolesAllowed.class);
+        if (resourceClass.getDeclaredAnnotation(DenyAll.class) != null) {
+            return AccessRule.denyAll();
+        }
+
+        if (resourceClass.getDeclaredAnnotation(PermitAll.class) != null) {
+            return AccessRule.permitAll();
+        }
+
+        RolesAllowed classRoles = resourceClass.getDeclaredAnnotation(RolesAllowed.class);
         if (classRoles != null) {
-            ctx.register(new RolesAllowedFilter(httpRequest, httpResponse, classRoles.value()));
+            return AccessRule.rolesAllowed(classRoles.value());
+        }
+
+        return null;
+    }
+
+    private void registerFilter(FeatureContext context, AccessRule accessRule) {
+        switch (accessRule.type()) {
+            case DENY_ALL:
+                context.register(new DenyAllFilter());
+                break;
+
+            case PERMIT_ALL:
+                context.register(new PermitAllFilter(
+                    httpRequest));
+                break;
+
+            case ROLES_ALLOWED:
+                context.register(new RolesAllowedFilter(
+                    httpRequest,
+                    httpResponse,
+                    accessRule.roles()));
+                break;
+
+            default:
+                throw new IllegalStateException("Unknown access rule type: " + accessRule.type());
         }
     }
 
-    private static boolean isAnnotatedWith(Method method, Class<?> annotationType) {
-        return method.isAnnotationPresent(annotationType.asSubclass(Annotation.class));
+    private void stagePermissions(ResourceInfo info, String httpMethod, AccessRule accessRule) {
+        List<String> servletMappings = resolveServletMappings(application, servletConfig, servletContext);
+
+        if (servletMappings.isEmpty()) {
+            stagePermissionForMapping(
+                info,
+                null,
+                httpMethod,
+                accessRule);
+        } else {
+            for (String servletMapping : servletMappings) {
+                stagePermissionForMapping(
+                    info,
+                    servletMapping,
+                    httpMethod,
+                    accessRule);
+            }
+        }
+    }
+
+    private void stagePermissionForMapping(ResourceInfo info, String servletMapping, String httpMethod, AccessRule accessRule) {
+        String stagedUrlPatternName = toStagedUrlPatternName(
+            application,
+            servletMapping,
+            info);
+
+        for (String stagedHttpMethod : httpMethodsForStaging(httpMethod)) {
+            WebResourcePermission permission = new WebResourcePermission(stagedUrlPatternName, stagedHttpMethod);
+
+            switch (accessRule.type()) {
+                case DENY_ALL:
+                    addExcluded(servletContext, permission);
+                    break;
+
+                case PERMIT_ALL:
+                    addUnchecked(servletContext, permission);
+                    break;
+
+                case ROLES_ALLOWED:
+                    for (String role : accessRule.roles()) {
+                        addToRole(servletContext, role, permission);
+                    }
+                    break;
+
+                default:
+                    throw new IllegalStateException("Unknown access rule type: " + accessRule.type());
+                }
+        }
+    }
+
+    /**
+     * Phase-1 policy: stage exactly the HTTP method reported by Jakarta REST.
+     *
+     * If you later decide to model implicit HEAD for GET at the JACC pre-dispatch
+     * layer, this is the place to expand GET to GET + HEAD, ideally with awareness
+     * of whether an explicit @HEAD method exists for the same path.
+     */
+    private static List<String> httpMethodsForStaging(String httpMethod) {
+        return List.of(httpMethod);
+    }
+
+    private enum AccessRuleType {
+        DENY_ALL,
+        PERMIT_ALL,
+        ROLES_ALLOWED
+    }
+
+    private record AccessRule(
+            AccessRuleType type,
+            String[] roles) {
+
+        static AccessRule denyAll() {
+            return new AccessRule(AccessRuleType.DENY_ALL, new String[0]);
+        }
+
+        static AccessRule permitAll() {
+            return new AccessRule(AccessRuleType.PERMIT_ALL, new String[0]);
+        }
+
+        static AccessRule rolesAllowed(String[] roles) {
+            return new AccessRule(AccessRuleType.ROLES_ALLOWED, roles.clone());
+        }
     }
 }

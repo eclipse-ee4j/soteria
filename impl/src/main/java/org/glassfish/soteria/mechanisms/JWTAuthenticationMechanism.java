@@ -32,6 +32,7 @@ import org.glassfish.soteria.TokenCredential;
 import org.glassfish.soteria.identitystores.jwt.JWTConfiguration;
 
 import static jakarta.security.enterprise.identitystore.CredentialValidationResult.Status.VALID;
+import static java.lang.String.format;
 import static org.glassfish.soteria.identitystores.jwt.JWTConfiguration.CONFIG_TOKEN_HEADER_AUTHORIZATION;
 
 /**
@@ -54,6 +55,11 @@ public class JWTAuthenticationMechanism implements HttpAuthenticationMechanism {
     public AuthenticationStatus validateRequest(HttpServletRequest request, HttpServletResponse response, HttpMessageContext httpMessageContext) throws AuthenticationException {
         TokenCredential credential = getCredential(request);
         if (credential == null) {
+            if (httpMessageContext.isProtected()) {
+                response.setHeader("WWW-Authenticate", format("Bearer realm=\"%s\"", getRealmName(httpMessageContext)));
+                return httpMessageContext.responseUnauthorized();
+            }
+
             return httpMessageContext.doNothing();
         }
 
@@ -100,5 +106,15 @@ public class JWTAuthenticationMechanism implements HttpAuthenticationMechanism {
         }
 
         return null;
+    }
+
+    private String getRealmName(HttpMessageContext httpMessageContext) {
+        String realm =  httpMessageContext.getRequest().getServletContext().getContextPath();
+
+        if (realm == null || realm.isBlank() || "/".equals(realm)) {
+            realm = "application";
+        }
+
+        return realm;
     }
 }

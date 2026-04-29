@@ -56,13 +56,12 @@ public class JwtTokenParser {
     private static String exp = "exp";
     private static String iat = "iat";
     private static String iss = "iss";
-    private static String jti = "jti";
     private static String preferred_username = "preferred_username";
     private static String raw_token = "raw_token";
     private static String sub = "sub";
     private static String upn = "upn";
 
-    private static final List<String> REQUIRED_CLAIMS = List.of(iss, sub, exp, iat, jti);
+    private static final List<String> REQUIRED_CLAIMS = List.of(iss, exp, iat);
 
     private final boolean enableNamespacedClaims;
     private final String customNamespace;
