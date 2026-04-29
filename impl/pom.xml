@@ -66,6 +66,7 @@
         <system>GitHub</system>
         <url>https://github.com/eclipse-ee4j/soteria/issues</url>
     </issueManagement>
+
     <!-- TODO: Can be removed after it would be removed from parent too -->
     <distributionManagement>
         <snapshotRepository>
@@ -108,7 +109,7 @@
         <dependency>
             <groupId>jakarta.security.enterprise</groupId>
             <artifactId>jakarta.security.enterprise-api</artifactId>
-            <version>5.0.0-M1</version>
+            <version>5.0.0-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
 

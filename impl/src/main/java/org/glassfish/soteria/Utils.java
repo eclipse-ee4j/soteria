@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2024 Contributors to the Eclipse Foundation.
+ * Copyright (c) 2024, 2026 Contributors to the Eclipse Foundation.
  * Copyright (c) 2015, 2020 Oracle and/or its affiliates. All rights reserved.
  *
  * This program and the accompanying materials are made available under the
@@ -17,8 +17,14 @@
 
 package org.glassfish.soteria;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
-import static java.util.regex.Pattern.quote;
+import jakarta.el.ELProcessor;
+import jakarta.interceptor.InvocationContext;
+import jakarta.security.enterprise.CallerPrincipal;
+import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
+import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.xml.bind.DatatypeConverter;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -38,6 +44,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
 import java.nio.channels.WritableByteChannel;
+import java.security.Permissions;
 import java.security.Principal;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -53,14 +60,8 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
-import jakarta.el.ELProcessor;
-import jakarta.interceptor.InvocationContext;
-import jakarta.security.enterprise.CallerPrincipal;
-import jakarta.security.enterprise.authentication.mechanism.http.HttpAuthenticationMechanism;
-import jakarta.security.enterprise.authentication.mechanism.http.HttpMessageContext;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import jakarta.xml.bind.DatatypeConverter;
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.util.regex.Pattern.quote;
 
 /**
  * An assortment of various utility methods.
@@ -123,6 +124,21 @@ public final class Utils {
 	public static boolean isEmpty(Collection<?> collection) {
 		return collection == null || collection.isEmpty();
 	}
+
+	/**
+     * Returns <code>true</code> if the given map is null or is empty.
+     *
+     * @param map The map to be checked on emptiness.
+     * @return <code>true</code> if the given map is null or is empty.
+     */
+    public static boolean isEmpty(Map<?, ?> map) {
+        return map == null || map.isEmpty();
+    }
+
+    public static boolean isEmpty(Permissions permissions) {
+        return permissions == null || !permissions.elements().hasMoreElements();
+    }
+
 
 	/**
 	 * Returns <code>true</code> if the given object equals one of the given objects.

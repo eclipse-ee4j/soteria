@@ -29,10 +29,10 @@ public record JWTConfiguration(
     String publicKeyLocation,
     String decryptKeyLocation,
     String keyAlgorithm,
+
     long tokenAge,
     long clockSkew,
     Duration keyCacheTTL,
-
 
     boolean enabledNamespace,
     String customNamespace,
