@@ -118,7 +118,7 @@
         <dependency>
             <groupId>jakarta.security.enterprise</groupId>
             <artifactId>jakarta.security.enterprise-api</artifactId>
-            <version>5.0.0-M1</version>
+            <version>5.0.0-M2</version>
         </dependency>
 
         <dependency>
@@ -172,7 +172,7 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>4.0.4</version>
+            <version>4.0.5</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -185,7 +185,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>10.6</version>
+            <version>10.9</version>
         </dependency>
 
         <dependency>
@@ -230,21 +230,7 @@
                 <plugin>
                     <groupId>org.apache.maven.plugins</groupId>
                     <artifactId>maven-compiler-plugin</artifactId>
-                    <version>3.14.1</version>
-                </plugin>
-                <plugin>
-                    <groupId>org.sonatype.plugins</groupId>
-                    <artifactId>nexus-staging-maven-plugin</artifactId>
-                    <version>1.7.0</version>
-                    <configuration>
-                        <skipNexusStagingDeployMojo>true</skipNexusStagingDeployMojo>
-                    </configuration>
-                    <executions>
-                        <execution>
-                            <id>injected-nexus-deploy</id>
-                            <phase>none</phase>
-                        </execution>
-                    </executions>
+                    <version>3.15.0</version>
                 </plugin>
                 <plugin>
                     <groupId>org.sonatype.central</groupId>
