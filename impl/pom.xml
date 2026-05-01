@@ -109,7 +109,7 @@
         <dependency>
             <groupId>jakarta.security.enterprise</groupId>
             <artifactId>jakarta.security.enterprise-api</artifactId>
-            <version>5.0.0-SNAPSHOT</version>
+            <version>5.0.0-M2</version>
             <scope>provided</scope>
         </dependency>
 
@@ -190,14 +190,14 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>4.0.4</version>
+            <version>4.0.5</version>
             <scope>provided</scope>
         </dependency>
 
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>10.7</version>
+            <version>10.9</version>
             <scope>provided</scope>
         </dependency>
 
@@ -273,7 +273,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>6.0.0</version>
+                <version>6.0.2</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
