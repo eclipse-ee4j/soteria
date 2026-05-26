@@ -1,0 +1,23 @@
+version: 2
+updates:
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "daily"
+    groups:
+      actions-dependencies:
+        patterns:
+          - "*"
+
+  - package-ecosystem: "maven"
+    schedule:
+      interval: "daily"
+    groups:
+      maven-plugins:
+        patterns:
+          - "*:*-plugin"
+      dependencies:
+        patterns:
+          - "*"
+        exclude-patterns:
+          - "*:*-plugin"
