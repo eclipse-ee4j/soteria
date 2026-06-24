@@ -124,7 +124,7 @@
         <dependency>
             <groupId>jakarta.servlet</groupId>
             <artifactId>jakarta.servlet-api</artifactId>
-            <version>6.2.0-M1</version>
+            <version>6.2.0-M2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -136,13 +136,13 @@
         <dependency>
             <groupId>jakarta.el</groupId>
             <artifactId>jakarta.el-api</artifactId>
-            <version>6.1.0-M1</version>
+            <version>6.1.0-M2</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
-            <groupId>jakarta.enterprise</groupId>
-            <artifactId>jakarta.enterprise.cdi-api</artifactId>
-            <version>5.0.0-M1</version>
+            <groupId>jakarta.cdi</groupId>
+            <artifactId>jakarta.cdi-api</artifactId>
+            <version>5.0.0.Beta1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -172,7 +172,7 @@
         <dependency>
             <groupId>jakarta.xml.bind</groupId>
             <artifactId>jakarta.xml.bind-api</artifactId>
-            <version>4.0.5</version>
+            <version>4.1.0-M1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -185,7 +185,7 @@
         <dependency>
             <groupId>com.nimbusds</groupId>
             <artifactId>nimbus-jose-jwt</artifactId>
-            <version>10.9</version>
+            <version>10.9.1</version>
         </dependency>
 
         <dependency>
@@ -235,7 +235,7 @@
                 <plugin>
                     <groupId>org.sonatype.central</groupId>
                     <artifactId>central-publishing-maven-plugin</artifactId>
-                    <version>0.10.0</version>
+                    <version>0.11.0</version>
                     <extensions>true</extensions>
                     <configuration>
                         <autoPublish>${release.autopublish}</autoPublish>
