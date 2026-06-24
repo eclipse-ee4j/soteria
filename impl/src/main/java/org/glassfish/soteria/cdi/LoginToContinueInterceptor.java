@@ -18,13 +18,13 @@ package org.glassfish.soteria.cdi;
 
 import static java.lang.Boolean.TRUE;
 import static jakarta.interceptor.Interceptor.Priority.PLATFORM_BEFORE;
-import static org.glassfish.soteria.Utils.getBaseURL;
-import static org.glassfish.soteria.Utils.getParam;
-import static org.glassfish.soteria.Utils.isEmpty;
-import static org.glassfish.soteria.Utils.isImplementationOf;
-import static org.glassfish.soteria.Utils.notNull;
-import static org.glassfish.soteria.Utils.validateRequestMethod;
 import static org.glassfish.soteria.cdi.CdiUtils.getAnnotation;
+import static org.glassfish.soteria.utils.Utils.getBaseURL;
+import static org.glassfish.soteria.utils.Utils.getParam;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
+import static org.glassfish.soteria.utils.Utils.isImplementationOf;
+import static org.glassfish.soteria.utils.Utils.notNull;
+import static org.glassfish.soteria.utils.Utils.validateRequestMethod;
 
 import java.io.Serializable;
 import java.lang.annotation.Annotation;

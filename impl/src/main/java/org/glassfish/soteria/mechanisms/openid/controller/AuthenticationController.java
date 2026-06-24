@@ -28,8 +28,8 @@ import static jakarta.security.enterprise.authentication.mechanism.http.openid.O
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.RESPONSE_TYPE;
 import static jakarta.security.enterprise.authentication.mechanism.http.openid.OpenIdConstant.SCOPE;
 import static java.util.logging.Level.FINEST;
-import static org.glassfish.soteria.Utils.isEmpty;
 import static org.glassfish.soteria.mechanisms.OpenIdAuthenticationMechanism.ORIGINAL_REQUEST_DATA_JSON;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 
 import java.io.IOException;
 import java.util.logging.Logger;

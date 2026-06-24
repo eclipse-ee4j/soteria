@@ -19,7 +19,7 @@ package org.glassfish.soteria.mechanisms.openid.domain;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.Objects.isNull;
-import static org.glassfish.soteria.Utils.isEmpty;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 
 import java.io.Serializable;
 import java.security.SecureRandom;

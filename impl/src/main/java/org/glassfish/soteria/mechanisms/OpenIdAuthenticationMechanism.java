@@ -38,8 +38,8 @@ import static java.util.Objects.nonNull;
 import static java.util.logging.Level.FINE;
 import static java.util.logging.Level.INFO;
 import static java.util.logging.Level.WARNING;
-import static org.glassfish.soteria.Utils.isEmpty;
-import static org.glassfish.soteria.Utils.isOneOf;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
+import static org.glassfish.soteria.utils.Utils.isOneOf;
 
 import java.io.IOException;
 import java.io.Serializable;

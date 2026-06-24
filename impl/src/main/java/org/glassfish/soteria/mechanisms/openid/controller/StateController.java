@@ -22,10 +22,11 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.glassfish.soteria.Utils;
+
 import org.glassfish.soteria.mechanisms.openid.OpenIdState;
 import org.glassfish.soteria.mechanisms.openid.domain.OpenIdConfiguration;
 import org.glassfish.soteria.servlet.HttpStorageController;
+import org.glassfish.soteria.utils.Utils;
 
 import java.util.Optional;
 

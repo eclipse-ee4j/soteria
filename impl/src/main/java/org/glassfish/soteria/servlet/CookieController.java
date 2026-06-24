@@ -21,7 +21,7 @@ import static java.util.Objects.nonNull;
 
 import java.util.Optional;
 
-import org.glassfish.soteria.Utils;
+import org.glassfish.soteria.utils.Utils;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;

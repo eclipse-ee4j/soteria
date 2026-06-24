@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-package org.glassfish.soteria.rest;
+package org.glassfish.soteria.rest.filters;
 
 import jakarta.annotation.Priority;
 import jakarta.enterprise.inject.spi.CDI;
@@ -35,7 +35,7 @@ import java.util.Arrays;
 import static jakarta.security.enterprise.AuthenticationStatus.NOT_DONE;
 import static jakarta.security.enterprise.AuthenticationStatus.SEND_FAILURE;
 import static jakarta.security.enterprise.AuthenticationStatus.SUCCESS;
-import static org.glassfish.soteria.Utils.isOneOf;
+import static org.glassfish.soteria.utils.Utils.isOneOf;
 
 /**
  * Enforces access to Jakarta REST resources based on allowed roles (or permits all).

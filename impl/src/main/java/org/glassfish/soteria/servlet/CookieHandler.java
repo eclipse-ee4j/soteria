@@ -20,7 +20,7 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
-import org.glassfish.soteria.Utils;
+import org.glassfish.soteria.utils.Utils;
 
 
 public class CookieHandler {

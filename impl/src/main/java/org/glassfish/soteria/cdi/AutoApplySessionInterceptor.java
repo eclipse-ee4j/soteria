@@ -19,8 +19,8 @@ package org.glassfish.soteria.cdi;
 import static jakarta.interceptor.Interceptor.Priority.PLATFORM_BEFORE;
 import static jakarta.security.enterprise.AuthenticationStatus.SUCCESS;
 import static java.lang.Boolean.TRUE;
-import static org.glassfish.soteria.Utils.isImplementationOf;
-import static org.glassfish.soteria.Utils.validateRequestMethod;
+import static org.glassfish.soteria.utils.Utils.isImplementationOf;
+import static org.glassfish.soteria.utils.Utils.validateRequestMethod;
 
 import java.io.Serializable;
 import java.security.Principal;

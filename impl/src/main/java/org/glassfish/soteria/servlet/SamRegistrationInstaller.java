@@ -18,7 +18,7 @@ package org.glassfish.soteria.servlet;
 
 import static java.util.logging.Level.FINEST;
 import static java.util.logging.Level.INFO;
-import static org.glassfish.soteria.Utils.isEmpty;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 
 import java.util.Set;
 import java.util.logging.Logger;

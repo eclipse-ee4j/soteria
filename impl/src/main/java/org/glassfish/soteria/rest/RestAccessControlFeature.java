@@ -15,10 +15,6 @@
  */
 package org.glassfish.soteria.rest;
 
-import jakarta.annotation.security.DenyAll;
-import jakarta.annotation.security.PermitAll;
-import jakarta.annotation.security.RolesAllowed;
-import jakarta.security.jacc.WebResourcePermission;
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
 import jakarta.servlet.http.HttpServletRequest;
@@ -30,16 +26,19 @@ import jakarta.ws.rs.core.Context;
 import jakarta.ws.rs.core.FeatureContext;
 import jakarta.ws.rs.ext.Provider;
 
-import java.lang.reflect.Method;
 import java.util.List;
 
-import static org.glassfish.soteria.rest.ResourceInfoUrlPatternHelper.findMethodAnnotation;
-import static org.glassfish.soteria.rest.ResourceInfoUrlPatternHelper.httpMethod;
-import static org.glassfish.soteria.rest.ResourceInfoUrlPatternHelper.toStagedUrlPatternName;
-import static org.glassfish.soteria.rest.RestPermissions.addExcluded;
-import static org.glassfish.soteria.rest.RestPermissions.addToRole;
-import static org.glassfish.soteria.rest.RestPermissions.addUnchecked;
-import static org.glassfish.soteria.rest.RestServletMappingResolver.resolveServletMappings;
+import org.glassfish.soteria.rest.RestConstraintsStore.RestConstraint;
+import org.glassfish.soteria.rest.filters.DenyAllFilter;
+import org.glassfish.soteria.rest.filters.PermitAllFilter;
+import org.glassfish.soteria.rest.filters.RolesAllowedFilter;
+import org.glassfish.soteria.rest.introspection.ResourceSecurityConstraintResolver.SecurityConstraint;
+
+import static org.glassfish.soteria.rest.introspection.ResourceHttpMethodResolver.resolveHttpMethodForResource;
+import static org.glassfish.soteria.rest.introspection.ResourcePathResolver.getRESTApplicationBasePath;
+import static org.glassfish.soteria.rest.introspection.ResourcePathResolver.resolveFullPathForResource;
+import static org.glassfish.soteria.rest.introspection.ResourceSecurityConstraintResolver.resolveSecurityConstraintForResource;
+import static org.glassfish.soteria.rest.introspection.RestServletMappingResolver.resolveServletMappingsForREST;
 
 @Provider
 public class RestAccessControlFeature implements DynamicFeature {
@@ -60,68 +59,30 @@ public class RestAccessControlFeature implements DynamicFeature {
     private ServletContext servletContext;
 
     @Override
-    public void configure(ResourceInfo info, FeatureContext context) {
-        Method method = info.getResourceMethod();
-        if (method == null) {
+    public void configure(ResourceInfo resourceInfo, FeatureContext context) {
+        // Check whether the REST resource is protected by a
+        // DENY, PERMIT or ROLES security constraint
+        SecurityConstraint securityConstraint = resolveSecurityConstraintForResource(resourceInfo);
+        if (securityConstraint == null) {
             return;
         }
 
-        AccessRule accessRule = resolveAccessRule(info, method);
-        if (accessRule == null) {
-            return;
-        }
+        // Register the filters that protect our REST resources
+        // according to the DENY, PERMIT and ROLES security constraints.
+        registerAccessControlFilters(context, securityConstraint);
 
-        registerFilter(context, accessRule);
-
-        String httpMethod = httpMethod(info);
+        String httpMethod = resolveHttpMethodForResource(resourceInfo);
         if (httpMethod == null) {
             // Sub-resource locator or otherwise no HTTP method designator.
             return;
         }
 
-        stagePermissions(info, httpMethod, accessRule);
+        storeConstraints(resourceInfo, httpMethod, securityConstraint);
     }
 
-    private AccessRule resolveAccessRule(ResourceInfo info, Method method) {
-        Class<?> resourceClass = info.getResourceClass();
-
-        // ### Check Method-level first
-
-        if (findMethodAnnotation(method, resourceClass, DenyAll.class).isPresent()) {
-            return AccessRule.denyAll();
-        }
-
-        if (findMethodAnnotation(method, resourceClass, PermitAll.class).isPresent()) {
-            return AccessRule.permitAll();
-        }
-
-        RolesAllowed methodRoles =
-            findMethodAnnotation(method, resourceClass, RolesAllowed.class).orElse(null);
-
-        if (methodRoles != null) {
-            return AccessRule.rolesAllowed(methodRoles.value());
-        }
 
 
-        // ### Check Class-level second. Deliberately direct only.
-
-        if (resourceClass.getDeclaredAnnotation(DenyAll.class) != null) {
-            return AccessRule.denyAll();
-        }
-
-        if (resourceClass.getDeclaredAnnotation(PermitAll.class) != null) {
-            return AccessRule.permitAll();
-        }
-
-        RolesAllowed classRoles = resourceClass.getDeclaredAnnotation(RolesAllowed.class);
-        if (classRoles != null) {
-            return AccessRule.rolesAllowed(classRoles.value());
-        }
-
-        return null;
-    }
-
-    private void registerFilter(FeatureContext context, AccessRule accessRule) {
+    private void registerAccessControlFilters(FeatureContext context, SecurityConstraint accessRule) {
         switch (accessRule.type()) {
             case DENY_ALL:
                 context.register(new DenyAllFilter());
@@ -144,18 +105,18 @@ public class RestAccessControlFeature implements DynamicFeature {
         }
     }
 
-    private void stagePermissions(ResourceInfo info, String httpMethod, AccessRule accessRule) {
-        List<String> servletMappings = resolveServletMappings(application, servletConfig, servletContext);
+    private void storeConstraints(ResourceInfo info, String httpMethod, SecurityConstraint accessRule) {
+        List<String> servletMappings = resolveServletMappingsForREST(application, servletConfig, servletContext);
 
         if (servletMappings.isEmpty()) {
-            stagePermissionForMapping(
+            storeConstraints(
                 info,
                 null,
                 httpMethod,
                 accessRule);
         } else {
             for (String servletMapping : servletMappings) {
-                stagePermissionForMapping(
+                storeConstraints(
                     info,
                     servletMapping,
                     httpMethod,
@@ -164,40 +125,24 @@ public class RestAccessControlFeature implements DynamicFeature {
         }
     }
 
-    private void stagePermissionForMapping(ResourceInfo info, String servletMapping, String httpMethod, AccessRule accessRule) {
-        String stagedUrlPatternName = toStagedUrlPatternName(
-            application,
-            servletMapping,
-            info);
+    private void storeConstraints(ResourceInfo resourceInfo, String servletMapping, String httpMethod, SecurityConstraint securityConstraint) {
+        String applicationBasePath = getRESTApplicationBasePath(application, servletMapping);
 
-        for (String stagedHttpMethod : httpMethodsForStaging(httpMethod)) {
-            WebResourcePermission permission = new WebResourcePermission(stagedUrlPatternName, stagedHttpMethod);
-
-            switch (accessRule.type()) {
-                case DENY_ALL:
-                    addExcluded(servletContext, permission);
-                    break;
-
-                case PERMIT_ALL:
-                    addUnchecked(servletContext, permission);
-                    break;
-
-                case ROLES_ALLOWED:
-                    for (String role : accessRule.roles()) {
-                        addToRole(servletContext, role, permission);
-                    }
-                    break;
-
-                default:
-                    throw new IllegalStateException("Unknown access rule type: " + accessRule.type());
-                }
+        for (String method : httpMethodsForStaging(httpMethod)) {
+            RestConstraintsStore.addConstraint(
+                    servletContext,
+                    applicationBasePath,
+                    new RestConstraint(
+                            resolveFullPathForResource(applicationBasePath, resourceInfo),
+                            method,
+                            securityConstraint));
         }
     }
 
     /**
-     * Phase-1 policy: stage exactly the HTTP method reported by Jakarta REST.
+     * Phase-1 constraint model: store exactly the HTTP method reported by Jakarta REST.
      *
-     * If you later decide to model implicit HEAD for GET at the JACC pre-dispatch
+     * If we later decide to model implicit HEAD for GET at the Jakarta Authorization pre-dispatch
      * layer, this is the place to expand GET to GET + HEAD, ideally with awareness
      * of whether an explicit @HEAD method exists for the same path.
      */
@@ -205,26 +150,5 @@ public class RestAccessControlFeature implements DynamicFeature {
         return List.of(httpMethod);
     }
 
-    private enum AccessRuleType {
-        DENY_ALL,
-        PERMIT_ALL,
-        ROLES_ALLOWED
-    }
 
-    private record AccessRule(
-            AccessRuleType type,
-            String[] roles) {
-
-        static AccessRule denyAll() {
-            return new AccessRule(AccessRuleType.DENY_ALL, new String[0]);
-        }
-
-        static AccessRule permitAll() {
-            return new AccessRule(AccessRuleType.PERMIT_ALL, new String[0]);
-        }
-
-        static AccessRule rolesAllowed(String[] roles) {
-            return new AccessRule(AccessRuleType.ROLES_ALLOWED, roles.clone());
-        }
-    }
 }

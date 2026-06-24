@@ -31,8 +31,8 @@ import java.util.Set;
 import javax.security.auth.Subject;
 import javax.security.auth.callback.CallbackHandler;
 
-import org.glassfish.soteria.Utils;
 import org.glassfish.soteria.mechanisms.jaspic.Jaspic;
+import org.glassfish.soteria.utils.Utils;
 
 import jakarta.security.auth.message.MessageInfo;
 import jakarta.security.enterprise.AuthenticationStatus;
