@@ -23,10 +23,10 @@ import static java.util.Objects.requireNonNull;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-import org.glassfish.soteria.Utils;
 import org.glassfish.soteria.mechanisms.openid.domain.OpenIdConfiguration;
 import org.glassfish.soteria.mechanisms.openid.domain.OpenIdNonce;
 import org.glassfish.soteria.servlet.HttpStorageController;
+import org.glassfish.soteria.utils.Utils;
 
 import com.nimbusds.jose.util.Base64URL;
 

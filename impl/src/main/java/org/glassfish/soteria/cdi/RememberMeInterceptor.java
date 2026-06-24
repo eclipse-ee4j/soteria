@@ -19,15 +19,15 @@ package org.glassfish.soteria.cdi;
 
 import static jakarta.interceptor.Interceptor.Priority.PLATFORM_BEFORE;
 import static jakarta.security.enterprise.identitystore.CredentialValidationResult.Status.VALID;
-import static org.glassfish.soteria.Utils.cleanSubjectMethod;
-import static org.glassfish.soteria.Utils.getParam;
-import static org.glassfish.soteria.Utils.isImplementationOf;
-import static org.glassfish.soteria.Utils.toCallerPrincipal;
-import static org.glassfish.soteria.Utils.validateRequestMethod;
 import static org.glassfish.soteria.cdi.CdiUtils.getAnnotation;
 import static org.glassfish.soteria.servlet.CookieHandler.getCookie;
 import static org.glassfish.soteria.servlet.CookieHandler.removeCookie;
 import static org.glassfish.soteria.servlet.CookieHandler.saveCookie;
+import static org.glassfish.soteria.utils.Utils.cleanSubjectMethod;
+import static org.glassfish.soteria.utils.Utils.getParam;
+import static org.glassfish.soteria.utils.Utils.isImplementationOf;
+import static org.glassfish.soteria.utils.Utils.toCallerPrincipal;
+import static org.glassfish.soteria.utils.Utils.validateRequestMethod;
 
 import jakarta.annotation.Priority;
 import jakarta.el.ELProcessor;

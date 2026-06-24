@@ -20,7 +20,7 @@ import static java.lang.Integer.parseInt;
 import static java.util.Collections.enumeration;
 import static java.util.Locale.US;
 import static java.util.TimeZone.getTimeZone;
-import static org.glassfish.soteria.Utils.isEmpty;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 
 import java.text.DateFormat;
 import java.text.ParseException;

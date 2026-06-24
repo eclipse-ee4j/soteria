@@ -17,8 +17,8 @@
 package org.glassfish.soteria.cdi;
 
 import static java.util.Arrays.stream;
-import static org.glassfish.soteria.Utils.isEmpty;
 import static org.glassfish.soteria.cdi.CdiUtils.getELProcessor;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 
 import java.lang.reflect.Array;
 

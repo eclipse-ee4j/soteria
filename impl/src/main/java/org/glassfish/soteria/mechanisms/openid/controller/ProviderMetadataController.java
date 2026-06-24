@@ -19,7 +19,7 @@ package org.glassfish.soteria.mechanisms.openid.controller;
 
 import static jakarta.ws.rs.core.MediaType.APPLICATION_JSON;
 import static java.util.Objects.isNull;
-import static org.glassfish.soteria.Utils.isEmpty;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 
 import java.io.StringReader;
 import java.util.HashMap;

@@ -13,7 +13,7 @@
  *
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
-package org.glassfish.soteria.rest;
+package org.glassfish.soteria.rest.introspection;
 
 import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletContext;
@@ -25,7 +25,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import static org.glassfish.soteria.rest.ResourceInfoUrlPatternHelper.isSupportedServletMapping;
+import static org.glassfish.soteria.utils.Utils.isBlank;
 
 public final class RestServletMappingResolver {
 
@@ -34,14 +34,26 @@ public final class RestServletMappingResolver {
     private RestServletMappingResolver() {
     }
 
-    public static List<String> resolveServletMappings(
-            Application application,
-            ServletConfig servletConfig,
-            ServletContext servletContext) {
-
+    /**
+     * Discover which mappings (if any) have been defined for the REST Servlet (if any).
+     *
+     * <p>
+     * Due to Jakarta REST's long history, we have various options here that were used throughout the
+     * years and are still valid.
+     *
+     * <p>
+     * Additionally note that the specification does not strictly require Jakarta REST to be implemented via
+     * a servlet at all.
+     *
+     * @param application
+     * @param servletConfig
+     * @param servletContext
+     * @return
+     */
+    public static List<String> resolveServletMappingsForREST(Application application, ServletConfig servletConfig, ServletContext servletContext) {
         Set<String> mappings = new LinkedHashSet<>();
 
-        // Best source: the actual servlet currently hosting this JAX-RS runtime.
+        // Best source: the actual servlet currently hosting this Jakarta REST runtime.
         addMappingsFromServletConfig(mappings, servletConfig);
 
         if (!mappings.isEmpty()) {
@@ -54,39 +66,28 @@ public final class RestServletMappingResolver {
         return List.copyOf(mappings);
     }
 
-    private static void addMappingsFromServletConfig(
-            Set<String> mappings,
-            ServletConfig servletConfig) {
-
+    private static void addMappingsFromServletConfig(Set<String> mappings, ServletConfig servletConfig) {
         if (servletConfig == null) {
             return;
         }
 
         ServletContext servletContext = servletConfig.getServletContext();
-
         if (servletContext == null) {
             return;
         }
 
         String servletName = servletConfig.getServletName();
-
-        if (servletName == null || servletName.isBlank()) {
+        if (isBlank(servletName)) {
             return;
         }
 
-        ServletRegistration registration =
-            servletContext.getServletRegistration(servletName);
-
+        ServletRegistration registration = servletContext.getServletRegistration(servletName);
         if (registration != null) {
             addSupportedMappings(mappings, registration.getMappings());
         }
     }
 
-    private static void addMappingsByApplication(
-            Application application,
-            ServletContext servletContext,
-            Set<String> mappings) {
-
+    private static void addMappingsByApplication(Application application, ServletContext servletContext, Set<String> mappings) {
         if (servletContext == null) {
             return;
         }
@@ -104,14 +105,12 @@ public final class RestServletMappingResolver {
         }
 
         // Case 2: servlet init-param jakarta.ws.rs.Application names Application subclass.
-        for (ServletRegistration registration :
-                servletContext.getServletRegistrations().values()) {
+        for (ServletRegistration registration : servletContext.getServletRegistrations().values()) {
 
             String configuredApplicationClassName =
                 registration.getInitParameter(JAKARTA_REST_APPLICATION_PARAM);
 
-            if (configuredApplicationClassName != null
-                    && applicationClassNames.contains(configuredApplicationClassName)) {
+            if (configuredApplicationClassName != null && applicationClassNames.contains(configuredApplicationClassName)) {
                 addSupportedMappings(mappings, registration.getMappings());
             }
         }
@@ -147,25 +146,35 @@ public final class RestServletMappingResolver {
         return candidates;
     }
 
-    private static void addSupportedMappings(
-            Set<String> target,
-            Collection<String> mappings) {
-
+    private static void addSupportedMappings(Set<String> target, Collection<String> mappings) {
         if (mappings == null) {
             return;
         }
 
         for (String mapping : mappings) {
-            if (mapping == null || mapping.isBlank()) {
+            if (isBlank(mapping)) {
                 continue;
             }
 
             if (!isSupportedServletMapping(mapping)) {
                 throw new IllegalArgumentException(
-                    "Unsupported REST servlet mapping for JACC staging: " + mapping);
+                    "Unsupported REST servlet mapping for Jakarta Authorization staging: " + mapping);
             }
 
             target.add(mapping.trim());
         }
+    }
+
+    private static boolean isSupportedServletMapping(String mapping) {
+        if (mapping == null) {
+            return false;
+        }
+
+        String trimmed = mapping.trim();
+
+        return
+            trimmed.equals("/") ||
+            trimmed.equals("/*")||
+            (trimmed.endsWith("/*") && trimmed.length() > 2);
     }
 }

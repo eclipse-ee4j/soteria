@@ -20,7 +20,7 @@ package org.glassfish.soteria.cdi;
 import static java.util.Arrays.asList;
 import static java.util.Collections.emptySet;
 import static java.util.Optional.empty;
-import static org.glassfish.soteria.Utils.isEmpty;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 
 import java.lang.annotation.Annotation;
 import java.lang.reflect.Array;
@@ -44,7 +44,7 @@ import jakarta.enterprise.inject.spi.el.ELAwareBeanManager;
 import javax.naming.InitialContext;
 import javax.naming.NamingException;
 
-import org.glassfish.soteria.Utils;
+import org.glassfish.soteria.utils.Utils;
 
 public class CdiUtils {
 

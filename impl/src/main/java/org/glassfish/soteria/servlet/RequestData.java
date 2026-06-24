@@ -21,7 +21,7 @@ import static java.util.Arrays.copyOf;
 import static java.util.Collections.emptyMap;
 import static java.util.Collections.list;
 import static java.util.stream.Collectors.toList;
-import static org.glassfish.soteria.Utils.isEmpty;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 
 import java.io.Serializable;
 import java.io.StringReader;

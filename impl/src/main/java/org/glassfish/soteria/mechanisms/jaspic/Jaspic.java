@@ -18,7 +18,7 @@
 package org.glassfish.soteria.mechanisms.jaspic;
 
 import static java.lang.Boolean.TRUE;
-import static org.glassfish.soteria.Utils.isEmpty;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 
 import java.io.IOException;
 import java.security.Principal;

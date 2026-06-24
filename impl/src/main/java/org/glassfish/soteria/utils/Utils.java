@@ -15,7 +15,7 @@
  * SPDX-License-Identifier: EPL-2.0 OR GPL-2.0 WITH Classpath-exception-2.0
  */
 
-package org.glassfish.soteria;
+package org.glassfish.soteria.utils;
 
 import jakarta.el.ELProcessor;
 import jakarta.interceptor.InvocationContext;
@@ -60,6 +60,8 @@ import java.util.zip.Deflater;
 import java.util.zip.DeflaterOutputStream;
 import java.util.zip.InflaterInputStream;
 
+import org.glassfish.soteria.WrappingCallerPrincipal;
+
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static java.util.regex.Pattern.quote;
 
@@ -70,6 +72,8 @@ import static java.util.regex.Pattern.quote;
  *
  */
 public final class Utils {
+
+    public static final String EMPTY_STRING = "";
 
     public final static Method validateRequestMethod = getMethod(
         HttpAuthenticationMechanism.class,
@@ -94,6 +98,16 @@ public final class Utils {
 
 		return true;
 	}
+
+	/**
+	    * Returns true if the given string is null or is blank.
+	    *
+	    * @param string The string to be checked on blankness.
+	    * @return True if the given string is null or is blank.
+	    */
+	   public static boolean isBlank(String string) {
+	       return string == null || string.isBlank();
+	   }
 
 	/**
 	 * Returns true if the given string is null or is empty.
@@ -157,6 +171,16 @@ public final class Utils {
 
 		return false;
 	}
+
+	public static boolean isAnyNull(Object... values) {
+        for (Object value : values) {
+            if (value == null) {
+                return true;
+            }
+        }
+
+        return false;
+    }
 
 	@SuppressWarnings("unchecked")
     public static <T> T getParam(InvocationContext invocationContext, int param) {

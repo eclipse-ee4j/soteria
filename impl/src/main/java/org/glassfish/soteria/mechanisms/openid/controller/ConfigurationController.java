@@ -19,8 +19,8 @@ package org.glassfish.soteria.mechanisms.openid.controller;
 
 
 import static java.util.stream.Collectors.joining;
-import static org.glassfish.soteria.Utils.isEmpty;
 import static org.glassfish.soteria.cdi.AnnotationELPProcessor.evalImmediate;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 
 import java.io.Serializable;
 import java.net.MalformedURLException;

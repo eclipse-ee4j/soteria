@@ -16,11 +16,11 @@
 
 package org.glassfish.soteria.authorization;
 
-import static org.glassfish.soteria.Utils.getELProcessor;
-
 import jakarta.ejb.EJBContext;
 import javax.naming.InitialContext;
-import javax.naming.NamingException; 
+import javax.naming.NamingException;
+
+import static org.glassfish.soteria.utils.Utils.getELProcessor; 
 
 public final class EJB {
     

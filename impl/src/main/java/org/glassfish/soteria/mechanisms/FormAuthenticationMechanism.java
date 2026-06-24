@@ -16,8 +16,6 @@
 
 package org.glassfish.soteria.mechanisms;
 
-import static org.glassfish.soteria.Utils.notNull;
-
 import jakarta.enterprise.inject.Typed;
 import jakarta.security.enterprise.AuthenticationException;
 import jakarta.security.enterprise.AuthenticationStatus;
@@ -32,6 +30,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.glassfish.soteria.cdi.CdiUtils;
+
+import static org.glassfish.soteria.utils.Utils.notNull;
 
 /**
  * Authentication mechanism that authenticates according to the Servlet spec defined FORM

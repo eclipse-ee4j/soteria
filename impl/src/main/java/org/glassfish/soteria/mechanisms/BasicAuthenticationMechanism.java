@@ -17,9 +17,9 @@
 package org.glassfish.soteria.mechanisms;
 
 import static java.lang.String.format;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 import static jakarta.security.enterprise.identitystore.CredentialValidationResult.Status.VALID;
 import static jakarta.xml.bind.DatatypeConverter.parseBase64Binary;
-import static org.glassfish.soteria.Utils.isEmpty;
 
 import jakarta.security.enterprise.AuthenticationException;
 import jakarta.security.enterprise.AuthenticationStatus;
