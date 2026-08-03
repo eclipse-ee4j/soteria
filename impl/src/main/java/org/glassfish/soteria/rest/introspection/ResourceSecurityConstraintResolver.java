@@ -18,7 +18,6 @@ package org.glassfish.soteria.rest.introspection;
 import jakarta.annotation.security.DenyAll;
 import jakarta.annotation.security.PermitAll;
 import jakarta.annotation.security.RolesAllowed;
-import jakarta.ws.rs.container.ResourceInfo;
 
 import java.lang.reflect.Method;
 
@@ -30,16 +29,14 @@ import static org.glassfish.soteria.rest.introspection.ResourceSecurityConstrain
 import static org.glassfish.soteria.rest.introspection.ResourceSecurityConstraintResolver.SecurityConstraint.SecurityConstraintType.DENY_ALL;
 import static org.glassfish.soteria.rest.introspection.ResourceSecurityConstraintResolver.SecurityConstraint.SecurityConstraintType.PERMIT_ALL;
 import static org.glassfish.soteria.rest.introspection.ResourceSecurityConstraintResolver.SecurityConstraint.SecurityConstraintType.ROLES_ALLOWED;
+import static org.glassfish.soteria.utils.Utils.isEmpty;
 
 public class ResourceSecurityConstraintResolver {
 
-    public static SecurityConstraint resolveSecurityConstraintForResource(ResourceInfo info) {
-        Method method = info.getResourceMethod();
+    public static SecurityConstraint resolveSecurityConstraintForResource(Class<?> resourceClass, Method method) {
         if (method == null) {
             return null;
         }
-
-        Class<?> resourceClass = info.getResourceClass();
 
         // ### Check Method-level first
 
@@ -97,6 +94,10 @@ public class ResourceSecurityConstraintResolver {
         }
 
         static SecurityConstraint rolesAllowed(String[] roles) {
+            if (isEmpty(roles)) {
+                return denyAll();
+            }
+
             return new SecurityConstraint(ROLES_ALLOWED, roles.clone());
         }
     }
