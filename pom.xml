@@ -142,7 +142,7 @@
         <dependency>
             <groupId>jakarta.cdi</groupId>
             <artifactId>jakarta.cdi-api</artifactId>
-            <version>5.0.0.Beta1</version>
+            <version>5.0.0.CR1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

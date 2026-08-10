@@ -153,13 +153,13 @@
         <dependency>
             <groupId>jakarta.cdi</groupId>
             <artifactId>jakarta.cdi-el-api</artifactId>
-            <version>5.0.0.Beta1</version>
+            <version>5.0.0.CR1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>jakarta.cdi</groupId>
             <artifactId>jakarta.cdi-api</artifactId>
-            <version>5.0.0.Beta1</version>
+            <version>5.0.0.CR1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -273,7 +273,7 @@
             <plugin>
                 <groupId>org.apache.felix</groupId>
                 <artifactId>maven-bundle-plugin</artifactId>
-                <version>6.0.2</version>
+                <version>6.1.0</version>
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
@@ -392,7 +392,7 @@ Use is subject to <a href="http://www.eclipse.org/legal/epl-2.0" target="_top">l
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>flatten-maven-plugin</artifactId>
-                <version>1.7.3</version>
+                <version>1.8.0</version>
                 <configuration>
                     <flattenMode>ossrh</flattenMode>
                 </configuration>
