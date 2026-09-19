@@ -2,7 +2,7 @@
 
 Jakarta Security Compatible Implementation (CI)
 
-[Website](https://eclipse-ee4j.github.io/soteria)
+[Website](https://projects.eclipse.org/projects/ee4j.soteria)
 
 Building
 --------
